@@ -54,8 +54,8 @@
 					<view class="tag-pool-header">
 						<text class="tag-pool-title">🏷️ 随便逛逛</text>
 						<view class="refresh-btn" @click="handleRefresh">
-							<view :class="{ 'spinning': isRefreshing }" class="spin-icon">🔄</view>
-							<text>换一批</text>
+							<view class="icon-wrapper" :style="{ transform: 'rotate(' + spinDeg + 'deg)' }">🔄</view>
+							<text>换一换</text>
 						</view>
 					</view>
 
@@ -104,8 +104,9 @@
 
 <script>
 export default {
-	data() {
+		data() {
 		return {
+			spinDeg: 0,
 			refreshId: 0,
 			isRefreshing: false,
 			activeTags: [],
@@ -188,14 +189,15 @@ export default {
 		handleRefresh() {
 			if (this.isRefreshing) return
 			this.isRefreshing = true
+			this.spinDeg += 360
 			this.animReset = true
 			this.shuffleTags()
 			this.refreshId++
 			this.$nextTick(() => {
 				this.animReset = false
-				this.$nextTick(() => {
+				setTimeout(() => {
 					this.isRefreshing = false
-				})
+				}, 500)
 			})
 		},
 
@@ -362,8 +364,11 @@ export default {
 	gap: 6rpx; font-size: 28rpx; color: #6A7282;
 	box-shadow: 0 1rpx 2rpx -1rpx rgba(0,0,0,0.1);
 }
-.spin-icon { display: inline-flex; animation: spin 1s linear infinite; animation-play-state: paused; }
-.spinning { animation-play-state: running; }
+.icon-wrapper {
+	display: inline-flex;
+	transform-origin: center center;
+	transition: transform 0.5s cubic-bezier(0.34, 1.25, 0.64, 1);
+}
 
 .tag-grid {
 	display: flex; flex-wrap: wrap; gap: 20rpx;
@@ -417,9 +422,5 @@ export default {
 @keyframes dropElastic {
 	0% { opacity: 0; transform: translateY(-80rpx); }
 	100% { opacity: 1; transform: translateY(0); }
-}
-@keyframes spin {
-	0% { transform: rotate(0deg); }
-	100% { transform: rotate(360deg); }
 }
 </style>

@@ -80,7 +80,7 @@
 							<view class="tag-pool-header">
 								<text class="tag-pool-subtitle">{{ cat.subtitle }}</text>
 								<view class="refresh-btn" hover-class="press-95" :hover-start-time="0" :hover-stay-time="150" @click="refreshCategory(ci)">
-									<view :class="{ 'spinning': cat.refreshing }" class="spin-icon">🔄</view>
+									<view class="icon-wrapper" :style="{ transform: 'rotate(' + cat.spinDeg + 'deg)' }">🔄</view>
 									<text> 换一换</text>
 								</view>
 							</view>
@@ -204,6 +204,7 @@ export default {
 						showGrid: true,
 						refreshId: 0,
 						refreshing: false,
+						spinDeg: 0,
 						_allTags: allTags,
 						tags: arr.slice(0, 16).map((t, i) => ({
 							...t,
@@ -256,6 +257,7 @@ export default {
 			const cat = this.categories[idx]
 			if (cat.refreshing) return
 			cat.refreshing = true
+			cat.spinDeg += 360
 			this.animReset = true
 			cat.refreshId++
 			// 从全部标签中 Fisher-Yates 洗牌取 16 个
@@ -391,8 +393,11 @@ view { box-sizing: border-box; }
 .tag-pool-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14rpx; }
 .tag-pool-subtitle { font-size: 24rpx; color: #99A1AF; font-weight: 500; }
 .refresh-btn { font-size: 22rpx; color: #6A7282; background: white; border-radius: 40rpx; padding: 6rpx 16rpx; box-shadow: 0 1rpx 2rpx -1rpx rgba(0,0,0,0.1); }
-.spin-icon { display: inline-block; animation: spin 1s linear infinite; animation-play-state: paused; }
-.spinning { animation-play-state: running; }
+.icon-wrapper {
+	display: inline-flex;
+	transform-origin: center center;
+	transition: transform 0.5s cubic-bezier(0.34, 1.25, 0.64, 1);
+}
 
 .tag-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 20rpx; align-items: center; }
 
@@ -424,8 +429,5 @@ view { box-sizing: border-box; }
 	0% { opacity: 0; transform: translateY(-80rpx); }
 	100% { opacity: 1; transform: translateY(0); }
 }
-@keyframes spin {
-	0% { transform: rotate(0deg); }
-	100% { transform: rotate(360deg); }
-}
+
 </style>
