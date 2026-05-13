@@ -67,7 +67,7 @@
 							:hover-start-time="0" :hover-stay-time="150"
 							@click="goQuiz(tag.name)"
 						>
-							<view :class="'tag-inner ' + tag.classStr" :style="tag.animStyle">
+							<view :class="['tag-inner', tag.classStr, animFlip ? 'anim-a' : 'anim-b']" :style="tag.animStyle">
 								<text>{{ tag.name }}</text>
 							</view>
 						</view>
@@ -109,12 +109,12 @@ export default {
 			spinDeg: 0,
 			refreshId: 0,
 			isRefreshing: false,
+			animFlip: false,
 			activeTags: [],
 			allTags: [],
 			recommendList: [],
 			favorites: {},
 			_favListener: null,
-			animReset: false,
 		}
 	},
 
@@ -128,9 +128,7 @@ export default {
 					...tag,
 					key: tag.name + idx + this.refreshId,
 					classStr: cls,
-					animStyle: this.animReset
-						? 'animation: none !important'
-						: `animation-delay: ${delay}s`
+					animStyle: `animation-delay: ${delay}s`
 				}
 			})
 		}
@@ -190,11 +188,10 @@ export default {
 			if (this.isRefreshing) return
 			this.isRefreshing = true
 			this.spinDeg += 360
-			this.animReset = true
+			this.animFlip = !this.animFlip
 			this.shuffleTags()
 			this.refreshId++
 			this.$nextTick(() => {
-				this.animReset = false
 				setTimeout(() => {
 					this.isRefreshing = false
 				}, 500)
@@ -382,10 +379,12 @@ export default {
 .tag-inner {
 	border-radius: 40rpx;
 	box-shadow: 0 1rpx 2rpx -1rpx rgba(0,0,0,0.1);
-	animation-name: dropElastic; animation-duration: 0.6s;
+	animation-duration: 0.6s;
 	animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1); animation-fill-mode: both;
 	max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
+.tag-inner.anim-a { animation-name: dropElasticA; }
+.tag-inner.anim-b { animation-name: dropElasticB; }
 
 .tag-common { padding: 10rpx 18rpx; font-size: 22rpx; font-weight: 400; background: #F7F8FA; color: #101828; border: 1rpx solid #D1D5DC; box-shadow: none; }
 .tag-rare { padding: 14rpx 24rpx; font-size: 26rpx; font-weight: 500; background: white; color: #4FC3F7; border: 1rpx solid #4FC3F7; }
@@ -419,7 +418,11 @@ export default {
 .bottom-spacer { height: 60rpx; width: 100%; }
 
 /* ====== 动画 ====== */
-@keyframes dropElastic {
+@keyframes dropElasticA {
+	0% { opacity: 0; transform: translateY(-80rpx); }
+	100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes dropElasticB {
 	0% { opacity: 0; transform: translateY(-80rpx); }
 	100% { opacity: 1; transform: translateY(0); }
 }

@@ -75,7 +75,7 @@
 							<text class="accordion-arrow" :class="{ open: cat.expanded }">▾</text>
 						</view>
 					</view>
-					<view class="accordion-body" :class="{ 'body-open': cat.expanded }">
+					<view class="accordion-body">
 						<view v-if="cat.expanded" class="body-inner">
 							<view class="tag-pool-header">
 								<text class="tag-pool-subtitle">{{ cat.subtitle }}</text>
@@ -84,18 +84,17 @@
 									<text> 换一换</text>
 								</view>
 							</view>
-							<!-- 用 v-if 控制标签网格重建（小程序不支持 :key 表达式） -->
-							<view :key="'grid-' + cat.refreshId" class="tag-grid">
+							<view class="tag-grid">
 								<view
 									v-for="(t, ti) in cat.tags"
-									:key="ti"
+									:key="cat.refreshId + '-' + ti"
 									class="tag-wrapper"
 									hover-class="press-9"
 									:hover-start-time="0"
 									:hover-stay-time="150"
 									@click="goQuiz(t.name)"
 								>
-									<view :class="'tag-inner ' + t.cls" :style="t.animStyle">
+									<view :class="['tag-inner', t.cls, cat.animFlip ? 'anim-a' : 'anim-b']" :style="t.animStyle">
 										<text>{{ t.name }}</text>
 									</view>
 								</view>
@@ -122,7 +121,6 @@ export default {
 				categories: [],
 				_categoryMap: {},
 				favorites: {},
-				animReset: false,
 				// 导航定位
 				statusBarHeight: 44,
 				capsuleH: 32,
@@ -201,9 +199,9 @@ export default {
 						subtitle: c.subtitle,
 						emoji: c.emoji,
 						expanded: false,
-						showGrid: true,
 						refreshId: 0,
 						refreshing: false,
+						animFlip: false,
 						spinDeg: 0,
 						_allTags: allTags,
 						tags: arr.slice(0, 16).map((t, i) => ({
@@ -258,9 +256,8 @@ export default {
 			if (cat.refreshing) return
 			cat.refreshing = true
 			cat.spinDeg += 360
-			this.animReset = true
+			cat.animFlip = !cat.animFlip
 			cat.refreshId++
-			// 从全部标签中 Fisher-Yates 洗牌取 16 个
 			const arr = [...cat._allTags]
 			for (let i = arr.length - 1; i > 0; i--) {
 				const j = Math.floor(Math.random() * (i + 1));
@@ -270,19 +267,15 @@ export default {
 				...t,
 				animStyle: this.buildAnimStyle(i, cat.refreshId)
 			}))
-			this.$nextTick(() => {
-				this.animReset = false
-				this.$nextTick(() => {
-					cat.refreshing = false
-				})
-			})
+			setTimeout(() => { cat.refreshing = false }, 500)
 		},
 
-		buildAnimStyle(idx, refreshId) {
-			const delay = (0.1 + Math.abs(Math.sin(idx + refreshId * 10)) * 0.4).toFixed(2)
-			return this.animReset
-				? 'animation: none !important'
-				: `animation-delay: ${delay}s`
+		buildAnimStyle(i, refreshId) {
+			const row = Math.floor(i / 4)
+			const col = i % 4
+			const seed = Math.sin(i * 7.13 + refreshId * 3.7) * 0.5 + 0.5
+			const delay = (row + col) * 0.04 + seed * 0.08
+			return `animation-delay: ${delay.toFixed(3)}s`
 		},
 
 		goQuiz(tag) {
@@ -386,9 +379,12 @@ view { box-sizing: border-box; }
 .accordion-arrow.open { transform: rotate(180deg); }
 
 /* ====== 手风琴主体 ====== */
-.accordion-body { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-in-out, opacity 0.2s; opacity: 0; }
-.accordion-body.body-open { max-height: 10000rpx; opacity: 1; }
-.accordion-body .body-inner { background: #F7F8FA; padding: 16rpx 20rpx 24rpx; border-top: 1rpx solid rgba(243,244,246,0.5); }
+.accordion-body { overflow: hidden; }
+.accordion-body .body-inner {
+	background: #F7F8FA; padding: 16rpx 20rpx 24rpx;
+	border-top: 1rpx solid rgba(243,244,246,0.5);
+	animation: bodySlideIn 0.25s ease-out both;
+}
 
 .tag-pool-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14rpx; }
 .tag-pool-subtitle { font-size: 24rpx; color: #99A1AF; font-weight: 500; }
@@ -408,10 +404,13 @@ view { box-sizing: border-box; }
 .tag-inner {
 	border-radius: 40rpx;
 	box-shadow: 0 1rpx 2rpx -1rpx rgba(0,0,0,0.1);
-	animation-name: dropElastic; animation-duration: 0.6s;
-	animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1); animation-fill-mode: both;
+	animation-duration: 0.5s;
+	animation-timing-function: cubic-bezier(0.34, 1.25, 0.64, 1);
+	animation-fill-mode: both;
 	max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
+.tag-inner.anim-a { animation-name: dropElasticA; }
+.tag-inner.anim-b { animation-name: dropElasticB; }
 .tag-common { padding: 10rpx 18rpx; font-size: 22rpx; font-weight: 400; background: #F7F8FA; color: #101828; border: 1rpx solid #D1D5DC; box-shadow: none; }
 .tag-rare { padding: 14rpx 24rpx; font-size: 26rpx; font-weight: 500; background: white; color: #4FC3F7; border: 1rpx solid #4FC3F7; }
 .tag-epic { padding: 22rpx 38rpx; font-size: 36rpx; font-weight: 600; background: white; color: #A855F7; border: 1rpx solid #A855F7; }
@@ -425,8 +424,17 @@ view { box-sizing: border-box; }
 .bottom-spacer { height: 60rpx; width: 100%; }
 
 /* ====== 动画 ====== */
-@keyframes dropElastic {
+@keyframes dropElasticA {
 	0% { opacity: 0; transform: translateY(-80rpx); }
+	100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes dropElasticB {
+	0% { opacity: 0; transform: translateY(-80rpx); }
+	100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes bodySlideIn {
+	0% { opacity: 0; transform: translateY(-12rpx); }
 	100% { opacity: 1; transform: translateY(0); }
 }
 
