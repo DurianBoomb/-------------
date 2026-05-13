@@ -1,0 +1,32 @@
+{
+	"bsonType": "object",
+	"required": ["userId", "tagName"],
+	"permission": {
+		"read": "auth.uid == doc.userId",
+		"create": "auth.uid != null",
+		"update": false,
+		"delete": "auth.uid == doc.userId"
+	},
+	"properties": {
+		"_id": {
+			"description": "收藏ID"
+		},
+		"userId": {
+			"bsonType": "string",
+			"description": "用户ID"
+		},
+		"tagName": {
+			"bsonType": "string",
+			"description": "收藏的标签名",
+			"trim": "both",
+			"maxLength": 50
+		},
+		"createdAt": {
+			"bsonType": "timestamp",
+			"description": "收藏时间",
+			"defaultValue": {
+				"$env": "now"
+			}
+		}
+	}
+}

@@ -1,0 +1,19 @@
+{
+    "id": "cc-keyWordAndArcbar",
+    "name": "基于秋云 ucharts echarts词云图 多重圆弧进度条 弧形进度条",
+    "displayName": "基于秋云 ucharts echarts词云图 多重圆弧进度条 弧形进度条",
+    "version": "1.0",
+    "description": "秋云 ucharts echarts词云图 多重圆弧进度条 弧形进度条",
+    "keywords": [
+        "进度条",
+        "弧形进度条",
+        "圆形进度条",
+        "词云图"
+    ],
+    "dcloudext": {
+        "category": [
+            "前端组件",
+            "通用组件"
+        ]
+    }
+}

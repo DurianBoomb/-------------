@@ -1,0 +1,117 @@
+{
+	"bsonType": "object",
+	"required": ["surveyId", "userId", "answers"],
+	"permission": {
+		"read": "auth.uid == doc.userId",
+		"create": "auth.uid != null",
+		"update": "auth.uid == doc.userId",
+		"delete": false
+	},
+	"properties": {
+		"_id": {
+			"description": "答题记录ID，系统自动生成"
+		},
+		"surveyId": {
+			"bsonType": "string",
+			"description": "关联的问卷ID",
+			"trim": "both"
+		},
+		"userId": {
+			"bsonType": "string",
+			"description": "作答者用户ID"
+		},
+		"answers": {
+			"bsonType": "array",
+			"description": "答案数组",
+			"items": {
+				"bsonType": "object",
+				"required": ["questionIndex", "optionIndex"],
+				"properties": {
+					"questionIndex": {
+						"bsonType": "int",
+						"description": "题目序号"
+					},
+					"optionIndex": {
+						"bsonType": "int",
+						"description": "所选选项序号"
+					}
+				}
+			}
+		},
+		"dimensionScores": {
+			"bsonType": "object",
+			"description": "各维度得分，key为维度index，value为分数"
+		},
+		"matchedType": {
+			"bsonType": "object",
+			"description": "匹配到的结果类型",
+			"properties": {
+				"name": {
+					"bsonType": "string",
+					"description": "结果类型名称"
+				},
+				"desc": {
+					"bsonType": "string",
+					"description": "结果类型描述"
+				},
+				"imageUrl": {
+					"bsonType": "string",
+					"description": "结果配图URL"
+				},
+				"typeIndex": {
+					"bsonType": "int",
+					"description": "结果类型序号"
+				}
+			}
+		},
+		"duration": {
+			"bsonType": "int",
+			"description": "作答时长（秒）",
+			"minimum": 0
+		},
+		"createdAt": {
+			"bsonType": "timestamp",
+			"description": "创建时间",
+			"defaultValue": {
+				"$env": "now"
+			}
+		},
+		"location": {
+			"bsonType": "string",
+			"description": "答题者所在城市（通过IP解析，如"广东省深圳市"）",
+			"trim": "both"
+		},
+		"surveySnapshot": {
+			"bsonType": "object",
+			"description": "答题时的问卷结构快照（锁定版本，防止原问卷被修改后数据漂移）"
+		}
+	},
+	"indexes": [
+		{
+			"name": "surveyId_createdAt",
+			"fields": [
+				{
+					"name": "surveyId",
+					"direction": "asc"
+				},
+				{
+					"name": "createdAt",
+					"direction": "desc"
+				}
+			]
+		},
+		{
+			"name": "userId_createdAt",
+			"fields": [
+				{
+					"name": "userId",
+					"direction": "asc"
+				},
+				{
+					"name": "createdAt",
+					"direction": "desc"
+				}
+			]
+		}
+	]
+}

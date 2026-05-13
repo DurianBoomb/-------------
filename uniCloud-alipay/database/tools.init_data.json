@@ -1,0 +1,13 @@
+[
+	{
+		"toolId": "survey",
+		"name": "问卷编辑器",
+		"icon": "/static/tools/survey.png",
+		"description": "在线创建和编辑问卷",
+		"category": "productivity",
+		"pagePath": "/pages-tools/tool-survey/tool-survey",
+		"status": 1,
+		"sort": 1,
+		"needLogin": false
+	}
+]

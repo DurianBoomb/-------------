@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>标签稀有度样式展示</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    background: #0f0f1a;
+    font-family: -apple-system, 'PingFang SC', 'Noto Sans SC', sans-serif;
+    display: flex;
+    justify-content: center;
+    padding: 48px 24px;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 720px;
+    width: 100%;
+  }
+
+  .title {
+    color: #e0e0e0;
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    color: #888;
+    font-size: 14px;
+    margin-bottom: 40px;
+  }
+
+  /* 图例 */
+  .legend {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #aaa;
+    font-size: 13px;
+  }
+
+  .legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid;
+  }
+
+  .legend-dot.common { border-color: #666; background: transparent; }
+  .legend-dot.rare   { border-color: #4FC3F7; background: rgba(79, 195, 247, 0.2); }
+  .legend-dot.epic   { border-color: #A855F7; background: rgba(168, 85, 247, 0.2); }
+  .legend-dot.legendary { border-color: #C9A84C; background: rgba(201, 168, 76, 0.2); }
+
+  /* 标签池 */
+  .tag-pool {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 24px;
+    background: #16162a;
+    border-radius: 16px;
+    border: 1px solid #2a2a40;
+    margin-bottom: 48px;
+  }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: 1.5px solid;
+    background: transparent;
+    transition: all 0.2s;
+    cursor: default;
+    user-select: none;
+    line-height: 1.4;
+  }
+
+  /* ———— 普通 ———— */
+  .tag.common {
+    font-size: 14px;
+    font-weight: 400;
+    color: #e0e0e0;
+    border-color: #555;
+  }
+
+  /* ———— 稀有 ———— */
+  .tag.rare {
+    font-size: 16px;
+    font-weight: 400;
+    color: #4FC3F7;
+    border-color: #4FC3F7;
+    text-shadow: 0 0 4px rgba(79, 195, 247, 0.3);
+  }
+
+  /* ———— 史诗 ———— */
+  .tag.epic {
+    font-size: 20px;
+    font-weight: 700;
+    padding: 7px 20px;
+    color: #A855F7;
+    border-color: #A855F7;
+    text-shadow: 0 0 6px rgba(168, 85, 247, 0.3);
+  }
+
+  /* ———— 暗金 ———— */
+  .tag.legendary {
+    font-size: 26px;
+    font-weight: 700;
+    padding: 9px 24px;
+    border-radius: 24px;
+    color: #C9A84C;
+    border-color: #C9A84C;
+    text-shadow: 0 0 8px rgba(201, 168, 76, 0.4), 0 0 16px rgba(201, 168, 76, 0.2);
+    animation: glow-breath 3s ease-in-out infinite;
+  }
+
+  @keyframes glow-breath {
+    0%, 100% {
+      box-shadow: 0 0 6px rgba(201, 168, 76, 0.3), 0 0 12px rgba(201, 168, 76, 0.1);
+      border-color: #C9A84C;
+    }
+    50% {
+      box-shadow: 0 0 14px rgba(201, 168, 76, 0.6), 0 0 28px rgba(201, 168, 76, 0.25);
+      border-color: #e6c85c;
+    }
+  }
+
+  /* ———— 标签分组标题 ———— */
+  .section-title {
+    color: #999;
+    font-size: 13px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+    margin-top: 24px;
+  }
+  .section-title:first-child { margin-top: 0; }
+
+  /* ———— 单标签横排对比 ———— */
+  .comparison-row {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 16px 20px;
+    background: #16162a;
+    border-radius: 12px;
+    border: 1px solid #2a2a40;
+    margin-bottom: 12px;
+  }
+
+  .comparison-label {
+    width: 56px;
+    color: #666;
+    font-size: 12px;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+
+  .demo-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: 1.5px solid;
+    background: transparent;
+    line-height: 1.4;
+  }
+
+  .demo-tag.common { font-size: 14px; font-weight: 400; color: #e0e0e0; border-color: #555; }
+  .demo-tag.rare   { font-size: 16px; font-weight: 400; color: #4FC3F7; border-color: #4FC3F7; text-shadow: 0 0 4px rgba(79,195,247,0.3); }
+  .demo-tag.epic   { font-size: 20px; font-weight: 700; padding: 7px 20px; color: #A855F7; border-color: #A855F7; text-shadow: 0 0 6px rgba(168,85,247,0.3); }
+  .demo-tag.legendary {
+    font-size: 26px; font-weight: 700; padding: 9px 24px; border-radius: 24px; color: #C9A84C; border-color: #C9A84C;
+    text-shadow: 0 0 8px rgba(201,168,76,0.4);
+    animation: glow-breath 3s ease-in-out infinite;
+  }
+
+  .specs {
+    color: #666;
+    font-size: 12px;
+    margin-left: auto;
+    white-space: nowrap;
+  }
+
+  /* 暗金专用 - 闪光尾巴装饰 */
+  .tag.legendary::after,
+  .demo-tag.legendary::after {
+    content: '✨';
+    font-size: 10px;
+    margin-left: 6px;
+    opacity: 0.7;
+    animation: sparkle 2s ease-in-out infinite;
+  }
+
+  @keyframes sparkle {
+    0%, 100% { opacity: 0.4; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1.1); }
+  }
+
+  /* 暗金角标（备选方案） */
+  .tag.legendary .badge,
+  .demo-tag.legendary .badge {
+    display: none;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="title">✦ 标签稀有度样式展示</div>
+  <div class="subtitle">深色底 + 边框字体同色发光体系 · 模拟标签池效果</div>
+
+  <!-- 图例 -->
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-dot common"></div>
+      <span>普通 <span style="color:#555;">(白)</span></span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot rare"></div>
+      <span>稀有 <span style="color:#555;">(蓝)</span></span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot epic"></div>
+      <span>史诗 <span style="color:#555;">(紫)</span></span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot legendary"></div>
+      <span>暗金 <span style="color:#555;">(#C9A84C)</span></span>
+    </div>
+  </div>
+
+  <!-- 模拟标签池 -->
+  <h2 style="color:#ccc;font-size:16px;font-weight:500;margin-bottom:16px;">📦 标签池效果</h2>
+  <div class="tag-pool">
+    <span class="tag common">确诊为烤肠</span>
+    <span class="tag rare">大脑是什么浏览器</span>
+    <span class="tag epic">精神急救等级</span>
+    <span class="tag common">你的性格是什么猫</span>
+    <span class="tag legendary">下辈子当什么交通工具</span>
+    <span class="tag common">测测你的拖延程度</span>
+    <span class="tag rare">手机电量人格学</span>
+    <span class="tag epic">职场存活率诊断</span>
+    <span class="tag common">你的熬夜指数</span>
+    <span class="tag common">检测你的社交面具</span>
+    <span class="tag rare">你的灵魂是什么季节</span>
+    <span class="tag epic">情感消化能力评级</span>
+    <span class="tag common">你的幸运值有多高</span>
+    <span class="tag rare">你的内耗程度</span>
+    <span class="tag common">你的穿搭风格</span>
+  </div>
+
+  <!-- 同一标签横排对比 -->
+  <h2 style="color:#ccc;font-size:16px;font-weight:500;margin:40px 0 16px;">📐 同标签 · 四档对比</h2>
+
+  <div class="comparison-row">
+    <span class="comparison-label">普通</span>
+    <span class="demo-tag common">确诊为过期罐头</span>
+    <span class="specs">14px · 正常 · #e0e0e0</span>
+  </div>
+
+  <div class="comparison-row">
+    <span class="comparison-label">稀有</span>
+    <span class="demo-tag rare">确诊为过期罐头</span>
+    <span class="specs">16px · 正常 · #4FC3F7</span>
+  </div>
+
+  <div class="comparison-row">
+    <span class="comparison-label">史诗</span>
+    <span class="demo-tag epic">确诊为过期罐头</span>
+    <span class="specs">20px · 粗体 · #A855F7</span>
+  </div>
+
+  <div class="comparison-row">
+    <span class="comparison-label">暗金</span>
+    <span class="demo-tag legendary">确诊为过期罐头</span>
+    <span class="specs">26px · 粗体 · #C9A84C · 呼吸光效</span>
+  </div>
+
+</div>
+</body>
+</html>

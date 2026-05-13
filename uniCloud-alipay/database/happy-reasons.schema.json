@@ -1,0 +1,32 @@
+{
+	"bsonType": "object",
+	"required": ["reason"],
+	"permission": {
+		"read": true,
+		"create": "auth._id != null",
+		"update": "auth._id != null",
+		"delete": "auth._id != null"
+	},
+	"properties": {
+		"_id": {
+			"description": "ID，系统自动生成"
+		},
+		"reason": {
+			"bsonType": "string",
+			"description": "快乐的理由",
+			"title": "快乐的理由",
+			"trim": "both"
+		},
+		"happiness_level": {
+			"bsonType": "double",
+			"description": "快乐的程度，可以是整数也可以是小数",
+			"title": "快乐的程度"
+		},
+		"confirm_text": {
+			"bsonType": "string",
+			"description": "确认快乐的文字",
+			"title": "确认快乐",
+			"trim": "both"
+		}
+	}
+}

@@ -1,0 +1,44 @@
+[
+  {
+    "_id": "cat-diagnosis",
+    "name": "确诊文学",
+    "emoji": "🤡",
+    "subtitle": "你也确诊了？那些让你疯狂点头的离谱诊断",
+    "sort": 1
+  },
+  {
+    "_id": "cat-life",
+    "name": "生活百态",
+    "emoji": "🌏",
+    "subtitle": "日常生活的各种奇妙状态，总有一款属于你",
+    "sort": 2
+  },
+  {
+    "_id": "cat-mind",
+    "name": "精神状态",
+    "emoji": "🧠",
+    "subtitle": "精神状态美丽（或不太美丽）的时候点进来",
+    "sort": 3
+  },
+  {
+    "_id": "cat-work",
+    "name": "职场生态",
+    "emoji": "💼",
+    "subtitle": "打工人の自我诊断，摸鱼也是一种态度",
+    "sort": 4
+  },
+  {
+    "_id": "cat-campus",
+    "name": "校园日常",
+    "emoji": "📚",
+    "subtitle": "学生时代的各种身份鉴定",
+    "sort": 5
+  },
+  {
+    "_id": "cat-habits",
+    "name": "行为癖好",
+    "emoji": "🔄",
+    "subtitle": "你的奇怪行为大赏，承认吧你就是这样的人",
+    "sort": 6
+  }
+]

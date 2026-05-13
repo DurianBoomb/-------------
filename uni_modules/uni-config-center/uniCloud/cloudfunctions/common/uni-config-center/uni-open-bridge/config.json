@@ -1,0 +1,12 @@
+{
+  "schedule": {
+    "__UNI__1B5F317": {
+      "enable": true,
+      "h5-weixin": {
+        "enable": false,
+        "tasks": ["ticket"]
+      }
+    }
+  },
+  "ipWhitelist": ["0.0.0.0"]
+}

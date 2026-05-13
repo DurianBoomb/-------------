@@ -1,0 +1,236 @@
+{
+	"bsonType": "object",
+	"required": ["user_id", "title", "content", "price"],
+	"permission": {
+		"read": true,
+		"create": "auth.uid != null",
+		"update": "doc.user_id == auth.uid",
+		"delete": "doc.user_id == auth.uid"
+	},
+	"properties": {
+		"_id": {
+			"description": "存储文档 ID，系统自动生成"
+		},
+		"user_id": {
+			"bsonType": "string",
+			"description": "发布者ID，参考`uni-id-users` 表",
+			"foreignKey": "uni-id-users._id",
+			"defaultValue": {
+				"$env": "uid"
+			}
+		},
+		"category_id": {
+			"bsonType": "string",
+			"title": "分类",
+			"description": "分类 id，参考`uni-news-categories`表",
+			"foreignKey": "opendb-news-categories._id",
+			"enum": {
+				"collection": "opendb-news-categories",
+				"field": "name as text, _id as value"
+			}
+		},
+		"title": {
+			"bsonType": "string",
+			"title": "商品名称",
+			"description": "商品名称",
+			"label": "商品名称",
+			"trim": "both"
+		},
+		"content": {
+			"bsonType": "string",
+			"title": "商品详情",
+			"description": "商品详情（富文本）",
+			"label": "商品详情",
+			"trim": "right"
+		},
+		"excerpt": {
+			"bsonType": "string",
+			"title": "商品简介",
+			"description": "商品简短描述",
+			"label": "商品简介",
+			"trim": "both"
+		},
+		"price": {
+			"bsonType": "double",
+			"title": "售价",
+			"description": "商品销售价格",
+			"label": "售价"
+		},
+		"original_price": {
+			"bsonType": "double",
+			"title": "原价",
+			"description": "商品原价/划线价",
+			"label": "原价"
+		},
+		"images": {
+			"bsonType": "array",
+			"title": "商品轮播图",
+			"description": "商品图片列表，用于轮播展示",
+			"label": "商品轮播图",
+			"items": {
+				"bsonType": "string",
+				"description": "图片URL"
+			}
+		},
+		"avatar": {
+			"bsonType": "string",
+			"title": "商品主图",
+			"description": "商品主图/封面图",
+			"label": "商品主图",
+			"trim": "both"
+		},
+		"sales_count": {
+			"bsonType": "int",
+			"title": "销量",
+			"description": "商品销量",
+			"defaultValue": 0,
+			"permission": {
+				"write": false
+			}
+		},
+		"stock": {
+			"bsonType": "int",
+			"title": "库存",
+			"description": "商品库存数量",
+			"defaultValue": 0
+		},
+		"specs": {
+			"bsonType": "array",
+			"title": "商品规格",
+			"description": "商品规格列表",
+			"label": "商品规格",
+			"items": {
+				"bsonType": "object",
+				"properties": {
+					"name": {
+						"bsonType": "string",
+						"description": "规格名称，如：颜色、尺寸"
+					},
+					"values": {
+						"bsonType": "array",
+						"description": "规格可选值",
+						"items": {
+							"bsonType": "string"
+						}
+					}
+				}
+			}
+		},
+		"freight": {
+			"bsonType": "double",
+			"title": "运费",
+			"description": "运费，0表示包邮",
+			"defaultValue": 0,
+			"label": "运费"
+		},
+		"article_status": {
+			"bsonType": "int",
+			"title": "商品状态",
+			"description": "商品状态：0 下架 1 上架",
+			"defaultValue": 0,
+			"enum": [{
+				"value": 0,
+				"text": "下架"
+			}, {
+				"value": 1,
+				"text": "上架"
+			}]
+		},
+		"view_count": {
+			"bsonType": "int",
+			"title": "浏览量",
+			"description": "浏览数量",
+			"defaultValue": 0,
+			"permission": {
+				"write": false
+			}
+		},
+		"like_count": {
+			"bsonType": "int",
+			"description": "收藏数",
+			"defaultValue": 0,
+			"permission": {
+				"write": false
+			}
+		},
+		"is_sticky": {
+			"bsonType": "bool",
+			"title": "是否置顶",
+			"description": "是否置顶",
+			"defaultValue": false,
+			"permission": {
+				"write": false
+			}
+		},
+		"is_essence": {
+			"bsonType": "bool",
+			"title": "是否推荐",
+			"description": "是否推荐/精选",
+			"defaultValue": false,
+			"permission": {
+				"write": false
+			}
+		},
+		"comment_status": {
+			"bsonType": "int",
+			"title": "开放评论",
+			"description": "评论状态：0 关闭  1 开放",
+			"defaultValue": 1,
+			"enum": [{
+				"value": 0,
+				"text": "关闭"
+			}, {
+				"value": 1,
+				"text": "开放"
+			}]
+		},
+		"comment_count": {
+			"bsonType": "int",
+			"description": "评论数量",
+			"defaultValue": 0,
+			"permission": {
+				"write": false
+			}
+		},
+		"last_comment_user_id": {
+			"bsonType": "string",
+			"description": "最后回复用户 id，参考`uni-id-users` 表",
+			"foreignKey": "uni-id-users._id"
+		},
+		"publish_date": {
+			"bsonType": "timestamp",
+			"title": "上架时间",
+			"description": "上架时间",
+			"defaultValue": {
+				"$env": "now"
+			}
+		},
+		"publish_ip": {
+			"bsonType": "string",
+			"description": "发布时 IP 地址",
+			"forceDefaultValue": {
+				"$env": "clientIP"
+			}
+		},
+		"last_modify_date": {
+			"bsonType": "timestamp",
+			"title": "最后修改时间",
+			"description": "最后修改时间",
+			"defaultValue": {
+				"$env": "now"
+			}
+		},
+		"last_modify_ip": {
+			"bsonType": "string",
+			"description": "最后修改时 IP 地址",
+			"forceDefaultValue": {
+				"$env": "clientIP"
+			}
+		},
+		"mode": {
+			"bsonType": "number",
+			"title": "排版显示模式",
+			"description": "排版显示模式,如左图右文、上图下文等"
+		}
+	}
+}

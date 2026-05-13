@@ -1,0 +1,31 @@
+# Coze 环境变量配置
+
+> **注意**：以下为敏感凭证，已 `.gitignore` 的非公开配置。切勿提交到版本控制。
+
+---
+
+## 环境变量一览
+
+在 uniCloud 云函数环境变量面板中配置以下三项：
+
+| 变量名 | 值 | 说明 |
+|--------|-----|------|
+| `COZE_API_TOKEN` | `pat_yNKg166Yr6SfsdIYdkcQ7L3sNyIL3K7APivPW6bBdrxfZ736afCsK1Ti8LlP2v7u` | Coze 个人访问令牌（PAT），2026-06-03 过期 |
+| `COZE_WF_SETTING` | `7635957914628390939` | 问卷设定润色流 workflow_id |
+| `COZE_WF_QUESTION` | `7636032935841366025` | 题目处理流 workflow_id |
+
+---
+
+## 两个工作流的 API（OAuth JWT，有效期超长）
+
+> 云函数用 PAT 就够了，以下 JWT 备用，如果 PAT 到期了可以暂时应急。
+
+**问卷设定润色流 OAuth Token：**
+```
+eyJhbGciOiJSUzI1NiIsImtpZCI6ImU4YjNkNjVhLTAxNmYtNDQ0Mi1iN2VmLWRlYTZjYTQzMDE0ZCJ9.eyJpc3MiOiJodHRwczovL2FwaS5jb3plLmNuIiwiYXVkIjpbImJZTnlFaXFLSUhyQUIzNlI2TWdYdExrTHNtSmk0YlQ3Il0sImV4cCI6ODIxMDI2Njg3Njc5OSwiaWF0IjoxNzc3OTAxODE1LCJzdWIiOiJzcGlmZmU6Ly9hcGkuY296ZS5jbi93b3JrbG9hZF9pZGVudGl0eS9pZDo3NjM1OTY2NDIyNTA5NjgyNjk4Iiwic3JjIjoiaW5ib3VuZF9hdXRoX2FjY2Vzc190b2tlbl9pZDo3NjM2MDMwMTU0Nzg3MzIzOTMwIn0.WHtaISDwkUW_YkUiGolnZKhuBJen1LrEwkfqLTbLsAZ3QtA5SW2hmvSmqShtseFNbXdhESu9evGygspP3Ral0vaz7WZWGInfUthALx5QTmQ_EweSCf3sMBpjZokhEGczuj9Y5AsCvt2LsD5xQMD1bX2Ls2eUQki695KRZyvPZkbenpIzJb0z8jOPZxKoTJGXWix2qUxHRG-Q5S5ycLsL1ek8ZiKJZMyGDAbHbYdCegqYKEkzgC3lGXnPNp6Lhf1aA-vkm3ZY5pHOasfHkDwMX2TTvJa8YrMX8HUktQDj8iRK3vIYhFD65qv9S4eUwbFRHwV7qJ4JJt5YEigz2SMhrw
+```
+
+**题目处理流 OAuth Token：**
+```
+eyJhbGciOiJSUzI1NiIsImtpZCI6ImU4YjNkNjVhLTAxNmYtNDQ0Mi1iN2VmLWRlYTZjYTQzMDE0ZCJ9.eyJpc3MiOiJodHRwczovL2FwaS5jb3plLmNuIiwiYXVkIjpbInNpejhld3JUMDBDY2dGbXphcnJCdFFLM1d6TGpPb0h0Il0sImV4cCI6ODIxMDI2Njg3Njc5OSwiaWF0IjoxNzc3OTA4MTIxLCJzdWIiOiJzcGlmZmU6Ly9hcGkuY296ZS5jbi93b3JrbG9hZF9pZGVudGl0eS9pZDo3NjM2MDQzMjMzODY4MzgyMjE4Iiwic3JjIjoiaW5ib3VuZF9hdXRoX2FjY2Vzc190b2tlbl9pZDo3NjM2MDU3MjM2NDY0MjA1ODcwIn0.qcNvlVvdgD1cDirWb5lPKXLZFBXCDpYzvaL3TRBlbTRwxqKV9rbKOJZSK3sWqrMQJ9zs-fkeF0jRDDcOs55Y2csJCug9j8Gcbv7oYq3rBqrt_Lpu5wJyb7FlAN6fHOeHXvoyc7cPVwVsIIJrYF-Al2s2fmT__mTzyadFYCAccBalW8zWFS2h5jfS7qi1CeNBo491qXPAGC0LqXAXTZr7tx36jvVo8SUW6E2w-9aY2jYG6kTUInuxNOOCpjscQXErdlqe3IZT-7PI3aEGcxrePdFw5aZlHSyaCqlNpnih5NiA4wT6B_95-sslV8yt5hTn7PNTixJMp-gHYOLRcrpFGw
+```

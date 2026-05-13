@@ -1,0 +1,45 @@
+{
+	"bsonType": "object",
+	"required": ["name", "sort"],
+	"permission": {
+		"read": true,
+		"create": "auth.uid != null",
+		"update": "auth.uid != null",
+		"delete": "auth.uid != null"
+	},
+	"properties": {
+		"_id": {
+			"description": "分类ID，系统自动生成"
+		},
+		"name": {
+			"bsonType": "string",
+			"description": "分类名称，如\"性格搞怪\"、\"趣味整活\"",
+			"trim": "both",
+			"maxLength": 50
+		},
+		"emoji": {
+			"bsonType": "string",
+			"description": "分类对应的 emoji，如\"🤡\"",
+			"trim": "both",
+			"maxLength": 10
+		},
+		"subtitle": {
+			"bsonType": "string",
+			"description": "分类简短描述，搜索页显示，如\"性格搞怪的专属签\"",
+			"trim": "both",
+			"maxLength": 200
+		},
+		"sort": {
+			"bsonType": "int",
+			"description": "排序权重，数值越小越靠前",
+			"defaultValue": 0
+		},
+		"create_date": {
+			"bsonType": "timestamp",
+			"description": "创建时间",
+			"defaultValue": {
+				"$env": "now"
+			}
+		}
+	}
+}

@@ -1,0 +1,3215 @@
+[
+  {
+    "name": "领带薪拉屎冠军",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "厕所隔间是工位的延伸，带薪摸鱼的最高境界。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "废话大师鉴定",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "能把“今天天气不错”说成一篇论文，你说的话，信息密度比空气还低。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "前世是什么外卖",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "上辈子是黄焖鸡还是麻辣烫，决定了你这辈子的性格底色。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "用睡觉姿势推测历史地位",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "蜷缩如虾米——隐士。四仰八叉——君王。趴着睡——可能是个探子。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你是哪种充电宝",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "虚电王、慢充佛、还是自带三头线的社交悍匪。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "恋爱中的离谱角色",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "是“自我攻略型选手”还是“等对方先死的守株待兔型”？",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "QQ号转世成什么",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "九位数是古董，十一位数是路人，带太阳的能投个好胎。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你是哪种Wi-Fi信号",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "满格社牛、时断时续社恐、还是根本搜不到的隐身人。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "证明今天的班白上了",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "打开文档，写写删删，最后保存的还是昨天的版本。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "废话文学十级学者",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "听君一席话，如听一席话，但就是忍不住想听。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的互联网人格",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "朋友圈岁月静好，微博疯狂骂街，豆瓣在标记“已死”。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "摸鱼时长的历史地位",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "从厕所战神到带薪冥想大师，你的摸鱼史可歌可泣。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "职场濒危动物图鉴",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "准点下班的独角兽，敢于反驳的喷火龙，还是濒临灭绝的老实人。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的暗恋像什么过期食品",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "是罐头，封存得很好但不敢打开；是酸奶，过了保质期还在幻想发酵。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "用泡面方式鉴定位面之子",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "开水一冲就熟是天选，煮完还夹生是逆天改命失败。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你是哪种天气",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "晴一阵阴一阵，偶尔打雷不下雨，预报永远不准。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "废话接龙锦标赛冠军",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "能在任何话题上展开三分钟毫无意义的论述。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的职场功德还剩多少",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "骂完老板扣一点，帮同事背锅加一点，每天都在清零边缘。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "前世是什么街头小吃",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "是糖葫芦，看着红火内心酸；是烤冷面，外表强硬内心软。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "友情里的工具人型号",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "情绪垃圾桶型、搬家专用型、还是随叫随到陪聊型。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的大脑是什么存储设备",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "256G内存，90%是没用的梗图和吵架时没发挥好的话。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "办公室植物生存指南",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "你是仙人掌（耐旱耐骂），还是绿萝（给点水就能活，但活不好）。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的爱情像什么BUG",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "是偶现难以复现，是严重影响性能，还是根本找不到日志。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "下辈子当什么交通工具",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "是共享单车（谁都能骑），是地铁（永远拥挤但准时），还是直升机（看着厉害但烧钱）。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "互联网考古学家",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "擅长挖掘五年前的段子，并配上“谁懂”重新发布。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的情绪是什么奶茶温度",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "表面去冰，内心滚烫，偶尔全糖偶尔无糖。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "用追剧姿势看职场地位",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "躺着看是老板，坐直了看是中层，跪着看是新人。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你是哪种待办事项",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "高亮置顶紧急项、被无限推迟的长期项、还是已完成的但没人知道项。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "恋爱里的阅读理解得分",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "对方发“哦”，你能写出一篇八千字中心思想解析。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的存在感是什么网络信号",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "在家人群是2G，在好友群是5G，在公司群是“对方不在服务区”。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "职场戏精的自我修养",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "“我在忙”的演技，决定了你今天能摸多久的鱼。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "下辈子当什么云",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "是积雨云（爱哭），是卷云（飘忽不定），还是永远被挡住的底层云。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你是哪种会议室茶水",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "第一杯被喝光的咖啡，无人问津的凉白开，还是泡到发苦的茶渣。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "用手机电量类比社交能量",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "出门满电，见一个人掉20%，回家时必开省电模式。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的幽默感是什么格式",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "是GIF（动图才有效果），是JPG（冷梗图），还是损坏文件（只有自己懂）。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "确诊为WiFi信号",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "时强时弱，人多就卡，关键时候总掉线。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "友谊的小船是什么材质",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "是纸折的，是铁打的，还是泡沫一戳就破。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "职场人设崩塌现场",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "精心维持的靠谱形象，被一次手滑撤回彻底摧毁。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的专属BGM是什么",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "走哪儿跟哪儿的背景音乐，通常是二胡或者唢呐。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的爱情像什么APP",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "是闪退的bug，是加载中的转圈，还是永远匹配不到。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "摸鱼时在平行世界做什么",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "此刻的你，在另一个时空可能正在拯救世界。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的身体是什么版本",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "硬件老旧，软件冲突，还拒绝更新。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "社交能量条还剩多少",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "出门一趟耗电80%，回家充电两小时续航五分钟。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的离谱超能力",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "不是飞也不是隐身，是总能赶上电梯门关上的最后一秒。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "职场生存靠什么天赋",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "假装忙碌、选择性失明、以及精准的厕所timing。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的内心戏是什么类型片",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "悬疑、苦情、科幻大片，就是没有纪录片。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "聊天记录考古学家",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "能从三年前的群聊里，挖出今天的吵架素材。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的运气是什么天气",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "局部有阵雨，偶尔晴转多云，常年不宜出门。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "确诊为行走的弹幕",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "心里刷过的吐槽，比视频网站上的还密集。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的家庭地位是什么电器",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "是遥控器，是路由器，还是那个总被踢到的插排。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "职场隐形技能",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "如何在领导眼皮底下，完成一局手机游戏。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的爱情兵法",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "三十六计，走为上计；敌进我退，敌退我删。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "人生重启点在哪",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "是上次没保存的文档，还是那句没说出口的话。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的大脑是什么搜索引擎",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "正经事搜不到，犄角旮旯的八卦一秒弹出。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "确诊为会议室盆栽",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "人在，但灵魂在光合作用。负责点缀，不负责发言。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的社交面具有几层",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "对同事一层，对家人一层，对快递小哥又是另一层。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的手机相册是什么主题",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "截图博物馆、猫片合集、和一堆忘了为什么拍的东西。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "职场食物链你在哪一层",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "是顶端掠食者，是浮游生物，还是负责分解的。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的暗恋像什么地下工作",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "线索埋得深，行动全靠猜，结局通常是自我瓦解。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的财运是什么交通方式",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "是堵在路上，是错过班车，还是根本就没买票。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "确诊为过期罐头",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "外表完好，内在微妙，不知道还能不能打开。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "职场必杀技冷却时间",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "一次爆发性输出后，需要躺平三天回蓝。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的QQ宠物转世",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "那只饿死又复活的企鹅，这辈子投胎成了什么",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "跟历史人物的适配度",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "你的性格最适合给哪位皇帝当谏官（并大概率被砍头）",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "前世的未了微信好友申请",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "孟婆汤喝了，但那个红色未读提示跟过来了",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的职场寿命还剩几天",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "根据本月收到‘在吗’的次数和老板微笑频率计算",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "暧昧对象是哪种NPC",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "只会重复三句话的，还是给你发永远完不成的任务的",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "会议中的角色扮演",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "你是点头机器、灵魂出窍者，还是那个突然被Q到的倒霉蛋",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "确诊为手机电量",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "早上满格，下午预警，晚上靠充电宝续命",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的废话能量等级",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "能从‘吃了吗’聊到宇宙大爆炸，中间毫无逻辑",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "从走路姿势看朝代",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "风风火火像赶着上朝的，晃晃悠悠像退休的员外",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "未发送消息收藏家",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "对话框里打了又删的话，比发出去的真心一百倍。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "办公室神秘音源",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "永远不知道是谁的肚子在叫，键盘敲得最响，以及叹气声穿透力最强。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "深夜思想家",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "白天：嗯嗯好的。凌晨三点：宇宙的尽头是什么？",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "选择性耳聋",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "妈妈喊吃饭听不见，零食包装袋响了一下立刻闪现。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的大脑是什么垃圾处理器",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "正经事记不住，十年前的尴尬瞬间循环播放。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你是哪种民间传说生物",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "不是龙，是那种专偷袜子、让Wi-Fi变慢的灶台小精灵。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "本周功德收支表",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "扶了老奶奶+1，心里骂了老板-10086，目前功德严重赤字。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "带薪如厕时间管理大师",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "精确计算每天最划算的摸鱼时段，并形成肌肉记忆。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "内心戏独角戏演员",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "洗澡时是歌王，走路时是战神，实际见面时是哑巴。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "周一早八的怨气",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "不是不想上班，是不想周一上班",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "工位结界",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "戴上耳机，世界与我无关，除非领导喊我",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "摸鱼时间管理大师",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "精准计算领导路过工位的时间，并切换屏幕",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "下班前五分钟相对论",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "这五分钟，比白天八小时都漫长",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "咖啡续命鉴定",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "今天第几杯了？不喝这口，脑子就开不了机",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "周末充电宝",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "电量只够撑到周三，周末是唯一的充电口",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "加班功德",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "积攒的加班时长，下辈子能兑换成什么",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "周末人格分裂",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "白天发誓要改变世界，晚上瘫着刷手机到两点",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的职场保护色",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "是透明人，还是气氛组，还是背锅侠",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "PPT驯兽师",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "把一堆废话和图表，驯服成能看的形状",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "深夜改稿的怨灵",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "凌晨两点还在改第8版，灵魂已经出窍",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的周末重启方式",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "是彻底躺平，还是报复性玩耍，还是假装没周末",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "工位失踪物品图鉴",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "笔、零食、充电器…总在需要的时候神秘消失",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "下班后失联等级",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "消息秒回，还是已读不回，还是直接人间蒸发",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的KPI是啥",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "人生的KPI，可能是今天成功摸鱼不被发现",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的摸鱼搭子",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "那个一起上厕所、一起下楼拿快递的革命战友",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的工作待机模式",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "看起来在干活，其实大脑在待机，等下班指令",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "通勤路上的修行",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "挤地铁练就的缩骨功和面无表情神功",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的怨气收集器",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "工位上的某个小物件，专门吸收你的负能量",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "下班后回血速度",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "有人需要一整晚，有人出公司门就满血复活",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的摸鱼BGM",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "戴上耳机听什么，决定了你今天的摸鱼质量",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "职场小强命格",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "怎么骂都骂不走，怎么卷都卷不死，生命力顽强",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的请假理由库",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "从“肚子疼”到“家里有事”，你的储备有多丰富",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "深夜加班emo等级",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "从怀疑人生，到想立刻辞职，到麻木地继续敲键盘",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的职场替身",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "想象中那个在认真工作的你，和实际上的你",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "摸鱼时的大脑活动",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "表面在回邮件，内心在策划晚上吃火锅还是烧烤",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的下班仪式感",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "是关电脑的瞬间，是打卡的声音，还是走出大楼的那口气",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "前世是摸鱼达人吗",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "这辈子这么会摸，是不是上辈子练过",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "职场隐形人修炼手册",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "如何降低存在感，让领导忘记给你派活",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "周末时间膨胀现象",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "感觉刚放假，怎么就周一了？时间被谁偷走了",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的精神离职日期",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "身体还在上班，灵魂的离职申请已经交了一百遍",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "工位零食生态学",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "你的抽屉里，藏着怎样一个完整的零食生态系统",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "加班福报转化率",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "加的班，有多少能真正变成福报（比如调休）",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的周末重启键在哪",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "是睡到自然醒，是喝一杯奶茶，还是彻底打扫房间",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的精神宠物是什么",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "别人养猫养狗，你脑子里养着一只随时会炸毛的刺猬。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的暗恋属于什么流派",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "是“视奸对方所有社交平台但绝不说话”的忍者流，还是“疯狂暗示到对方报警”的直球流？",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "慢性待机确诊",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "人在这里，魂在别处。启动需要十分钟，运行五分钟就卡顿。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "开会时的真实精神状态",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "表面在记笔记，脑子里在放《甄嬛传》，并且已经演到滴血认亲了。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "把天聊死专业几级",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "一句话就能让热闹的群聊瞬间冷场，并收获一串省略号。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "深夜矫情浓度检测",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "凌晨两点，打开备忘录开始写诗，天亮一看尴尬到脚趾抠地。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "在同事眼里的人设",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "是“那个总在厕所摸鱼的人”，还是“消息秒回的AI同事”？",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的网络人格分裂指数",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "微博发疯，朋友圈装死，小红书岁月静好，豆瓣阴暗爬行。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "床头水杯数量",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "三个起步，五个正常。每个都喝了一口，但永远想不起哪个是昨晚的。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "灵气复苏你在哪一层",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "是刚能看见阿飘的入门级，还是已经能用意念关灯的宗师级？",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "摸鱼时的手部小动作",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "转笔、抠键盘、假装在打字其实在刷微博，一套动作行云流水。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "未发送的微信消息",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "对话框里打了又删、删了又打，最后只发出去一个“嗯”或者表情包。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "寿命计算（离谱版）",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "根据你熬夜的天数、奶茶的杯数和生气的频率，重新估算你的阳寿。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你是哪个小众领域专家",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "可能是“如何快速在超市找到打折商品”领域的民间诺贝尔奖得主。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你和最好朋友的相似度",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "不用说话就知道对方下一句要吐槽什么，连笑点都长在同一个地方。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "恋爱脑发作周期",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "每月总有那么几天，看谁都觉得“他是不是喜欢我”，连路过的狗都像在对你笑。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "备忘录里的奇怪清单",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "存着“想吃的店”、“骂人的话”、“半夜的灵感”，但永远想不起打开看。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "上辈子是什么职业（冷门版）",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "不是皇帝将军，是驿站喂马的、茶馆说书的、或者专门给城墙贴小广告的。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "通过歌单看人生阶段",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "从“伤心情歌”到“儿歌大全”，记录了你从为爱流泪到为娃崩溃的全过程。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的互联网嘴替是谁",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "是某个暴躁博主，还是某个阴阳怪气的bot？你不敢说的，ta都说了。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "对crush的搜索记录",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "从名字到星座，从学校到公司，甚至搜过他三年前点赞过的一条微博。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "今天的运势（自己说了算）",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "不准？那是你心不诚。准了？那是我算得灵。横竖都是你对。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "把天聊死流派",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "你是“嗯嗯哦哦”派，还是“突然开始讲道理”派？",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "深夜矫情等级",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "从“我很好”到翻三年前朋友圈并点赞，一共分几级？",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "跟历史人物的共同点",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "你和李白都爱喝酒，和杜甫一样穷，和苏轼一样被贬（流放）到工位。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "外卖记录反推人生",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "连续一周麻辣香锅，说明你正在渡劫。突然开始点沙拉，说明劫渡完了，或者放弃了。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "投胎成什么家用电器",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "是24小时待机的路由器，还是一个月用一次的空气炸锅？",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你眼中的自己 vs 别人眼中的你",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "你以为你是高冷猫系，其实在别人那是热情哈士奇。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "没人理解的生活习惯",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "比如吃薯条必须一根一根蘸番茄酱，比如睡前必须刷十分钟无聊短视频。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "社交强制关机时刻",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "当话题转到你不懂的领域，或者有人开始凡尔赛，你的系统就自动黑屏了。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "给日常物品分配MBTI",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "马桶是ISTJ（一丝不苟），WiFi是ENFP（热情但不稳定），你的枕头是INFP（吸收所有情绪）。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "跟表情包的灵魂契合度",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "那个“笑着流泪”的熊猫头，是不是你的人生写照？",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "证明你和朋友是同一个人",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "聊天记录里一半是“哈哈哈哈”，另一半是“你也是？？？”",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的翻聊天记录流派",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "从第一条翻到三天前，翻完又翻回来——你就是这样的人。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "备忘录里的未发送内容",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "写满了想说的话，最后都变成了“算了”。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的“算了”能量槽",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "从“我要据理力争”到“算了算了”，只需要对方一个迷惑操作。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "通过歌单诊断近期状态",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "全是伤感情歌——失恋了。全是电音——要加班了。儿歌循环——彻底疯了。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "上辈子是驿站喂马的",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "这辈子对“马上就好”“在路上了”这种话，有刻在DNA里的PTSD。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "朋友群的潜水并截图大师",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "不说话，但每一个梗图、每一段黑历史，你都默默保存了下来。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "单身饭桶鉴定",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "点外卖永远凑满减，吃不完的第二天热热接着吃，冰箱里永远有半盒剩菜",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "猫奴等级测试",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "发工资先给猫买罐罐，自己啃泡面，手机相册一万张猫片没一张自拍",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "狗语八级学者",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "路上看见狗就想汪汪两声打招呼，能精准分辨自家狗叫是要吃饭还是要出门",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "抽卡非酋认证",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "次次大保底，抽卡前洗手拜神没用，别人十连三黄你十连全R",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "追星站姐代餐",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "接机举着大炮比记者跑的快，修图比上班认真，爱豆发微博比自己中奖还激动",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "吃辣段位测评",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "吃火锅要特辣，吸着鼻涕擦着汗还说不辣，第二天屁股疼才后悔嘴硬",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "猫掉毛量计算",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "家里猫掉的毛攒起来能织三件毛衣，黑衣服永远沾着猫毛，出门拍半小时也拍不干净",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "游戏按键磨损度",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "键盘WASD键磨的发白，手柄摇杆掉皮，不用看也能精准按到技能键",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "爱豆同款相似度",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "能精准认出爱豆今天戴的帽子是三年前买的同款，路人扫一眼就能认出自家应援色",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "奶茶糖分计算师",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "喝一口就知道奶茶糖放多了还是少了，哪家珍珠煮的够糯哪家茶底涩门儿清",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "单身桃花转世",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "上辈子可能是个桃花树，这辈子全是烂桃花，正缘永远在别人的恋爱里",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "宠物前世身份",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "你家猫上辈子肯定是你祖宗，这辈子来讨债的，天天拆家你还得哄着",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "追星缘分指数",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "抢票永远陪跑，演唱会永远赶上你加班，同城活动你永远在外地出差",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "吃货财运关联",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "发工资当天必想吃顿好的，吃完就发现这个月又要吃土，钱全花在嘴上了",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "单身等死型恋爱",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "嘴上喊着要对象，有人撩你你就跑，朋友圈天天看别人谈恋爱，自己就是不行动",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "宠物争宠大师",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "看见对象撸别人家的猫就吃醋，自家猫跟对象亲你还得跟猫置气",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "游戏cp绝缘体",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "打游戏遇见的要么是小学生要么是已婚大叔，处cp永远处成兄弟",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "追星梦女等级",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "刷到爱豆物料能脑补出十万字同人文，连以后孩子叫什么都想好了",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "带薪撸鱼达人",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "上班没事就刷宠物视频，老板过来就切到报表，手机屏保是自家猫",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "上班摸鱼打游戏",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "电脑开着工作界面，手机在底下打排位，队友坑了不敢骂出声憋的脸通红",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "工位追星隐蔽者",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "工位上摆着爱豆小卡，电脑壁纸是爱豆，听见同事说爱豆坏话当场就能阴阳怪气",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "带薪蹲点抢外卖",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "十点半就开始刷外卖平台，凑满减凑半小时，下班前五分钟就盯着外卖员定位",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "单身冰箱收藏家",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "冰箱里永远有半瓶快乐水、半盒冰淇淋、三罐没开的啤酒，就是没有新鲜蔬菜",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "仓鼠囤粮爱好者",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "给宠物囤的粮能吃半年，自己的零食也塞满抽屉，就怕哪天突然断货",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "游戏嘴强王者",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "打输了全怪队友菜，自己死了就是网络卡，嘴上骚话比操作秀",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "追星物料考古家",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "能把爱豆十年前的微博翻出来，连他小学参加的唱歌比赛视频都能挖到",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "单身情侣观察员",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "在街上看见情侣吵架能停下来看十分钟，比看电视剧还入迷",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "宠物表情包大户",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "聊天表情包全是自家宠物的黑照，跟人吵架都发猫的表情包怼人",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "新游尝鲜韭菜",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "新游戏上线第一个下载，充完首充玩三天就卸载，手机里永远有三个没玩完的新游",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "应援词背诵大师",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "应援词比公司年会发言稿背的还熟，爱豆的歌歌词倒背如流，上班要背的东西记不住",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "隐藏菜单挖掘者",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "每家快餐店的隐藏菜单都知道，去奶茶店能点出店员都没听过的搭配",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "单身脱单flag寿命",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "每次说“今年一定要脱单”的flag，平均寿命不超过三天，转头就忘了",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "遛狗步数换算",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "每天遛狗的步数比你上班走的还多，一年下来能绕小区走五十圈",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "游戏喷人速度测试",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "打游戏喷人的打字速度比上班写方案快三倍，一分钟能打两百字不带重样的",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "爱豆生日记忆力",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "能准确记住爱豆的生日、出道日、甚至猫的生日，自己爸妈的生日得翻备忘录",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "火锅蘸料配方师",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "调的火锅蘸料全桌人都要抄配方，谁要是往你蘸料里放香菜能跟他急",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "相亲局话术大师",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "从星座聊到宠物，从工作聊到旅行，就是聊不到点上。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "前任考古学家",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "深夜翻遍所有社交平台，只为确认对方过得没自己好。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "恋爱脑间歇性发作",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "上一秒看偶像剧甜到打滚，下一秒觉得男人只会影响拔刀速度。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "脱单锦鲤绝缘体",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "朋友都脱单了，你连个暧昧对象都养不活。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "相亲对象分类学",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "通过三句话，就能把对方精准归类到‘奇葩’或‘还行’文件夹。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "朋友圈官宣拖延症",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "恋爱半年了，合照还在手机相册里吃灰。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "妈见打型单身贵族",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "在家呼吸都是错，因为‘别人家孩子’都二胎了。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "恋爱废物鉴定",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "擅长把天聊死，把暧昧对象处成兄弟。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "月老线打结专家",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "怀疑上辈子得罪了月老，这辈子红线全是死结。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "前任的现任观察员",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "不是放不下，就是想看看他找了个什么样的‘替代品’。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "相亲简历优化师",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "把‘爱打游戏’写成‘擅长策略规划’，把‘宅’写成‘享受居家生活’。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "催婚话术反侦察",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "熟练掌握‘工作忙’‘随缘’‘还没遇到合适的’等标准答案。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "分手后遗症门诊",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "症状包括但不限于：听歌对号入座、看啥都像他、深夜emo。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "孤寡青蛙转世",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "算命的说你命里缺桃花，你怀疑缺的是整个春天。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "恋爱演习指挥官",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "在脑子里已经和crush过完了一生，现实中没说过一句话。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "相亲KPI考核员",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "本月相亲次数达标，但‘成交率’为零，急需复盘。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "前任遗物清理师",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "清空购物车容易，清空回忆里的购物车链接很难。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "注孤生体质检测",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "喜欢的人不喜欢你，喜欢你的人你觉得不行。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "桃花运风水大师",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "尝试换头像、改签名、转发锦鲤，桃花依旧在别处盛开。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "嘴硬心软型选手",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "嘴上说着‘一个人挺好’，刷到情侣视频还是会停顿三秒。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "办公室恋情观察家",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "对同事的恋爱动态了如指掌，自己的感情线一片空白。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "暧昧期ICU重症",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "对方一句话能让你上天堂，下一句就能让你下地狱。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "恋爱剧本杀编剧",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "给每次心动都脑补了八十集连续剧，实际播出时长：三分钟。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "催婚抗压训练营",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "练就了左耳进右耳出，表面点头称是，内心毫无波澜的神功。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "分手大师速成班",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "通过分析朋友的分手案例，总结出‘如何体面离开’的一百种方法。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "正缘迷路中",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "塔罗牌说你正缘在路上，你怀疑他用的高德地图，而你用的是百度。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "恋爱内耗冠军",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "还没开始谈，就已经在脑子里分了一百次手。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "相亲尬聊记录员",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "回家后能一字不差地复述今晚的尴尬对话，供自己复盘嘲笑。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "自我攻略型选手",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "对方看了你一眼，你连孩子名字都想好了。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "恋爱防沉迷系统",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "设置心动上限，一旦超标自动启动‘人间清醒’模式。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "月老黑名单VIP",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "去庙里求姻缘，连签筒都跟你作对，全是下下签。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "职场寡王",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "公司里唯一一个不用在情人节和七夕请假的员工。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "催婚免疫球蛋白",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "对‘什么时候结婚’‘眼光不要太高’等病毒性话语产生抗体。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "失恋废墟重建师",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "一边捡拾破碎的自我，一边试图用新爱好把生活填满。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "相亲对象图鉴收集",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "见过的奇葩多了，能写一本《人类迷惑行为大赏·相亲篇》。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "桃花劫体质",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "来的都不是正缘，全是来教你认清人性的老师。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "单身保命指南作者",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "熟练掌握一个人吃火锅、看电影、去医院等生存技能。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "恋爱脑格式化失败",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "每次删完聊天记录和照片，过几天又偷偷从回收站恢复。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "确诊为蜗牛",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "能不出门就不出门，出门要背满家当，有人靠近就缩壳",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "聚会隐形人",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "聚餐挑角落坐，拍照往最后排躲，就怕有人突然cue自己",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "耳机焊在耳朵上",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "出门必戴耳机，没耳机连买个早餐都觉得浑身不自在",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "道歉型人格",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "别人碰了自己都要先说对不起，啥错都先往自己身上揽",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "线上疯批线下怂",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "网上打字比谁都快，现实里跟陌生人说话都磕巴",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "奶茶选糖纠结症",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "点奶茶选糖度能选三分钟，选完还会后悔是不是选甜了",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "表情包当饭吃",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "聊天先翻表情包库，没有合适的图都不知道怎么回消息",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "MBTI行走说明书",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "新认识人先问MBTI，比查星座还熟练，什么类型都能唠两句",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "取快递伪装大师",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "下楼取快递要戴帽子戴口罩，就怕碰到半熟的人要打招呼",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "沙发土豆转世",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "休息日能在沙发上躺一天，除了上厕所连屁股都不挪一下",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "废话文学大师",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "听君一席话如听一席话，张口就是没用的大实话",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "海底捞社恐选手",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "去海底捞不敢跟服务员对视，就怕他们过来递毛巾送小礼物",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "熬夜冠军守门员",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "每天都发誓要早睡，躺床上刷手机刷到两点还精神",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "外卖备注小作文",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "点外卖备注能写三行，多放辣少放葱不要餐具写得清清楚楚",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "相册全是截图",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "手机相册一万张图，九千张是聊天记录和表情包截图",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "历史人物同款懒",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "跟王阳明一样拖延，跟李白一样爱喝酒，普通人也有历史同款特质",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "睡觉姿势测命格",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "喜欢蜷缩睡是缺乏安全感，大字睡是天生乐天派，你的姿势对应啥命",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "收藏夹吃灰达人",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "看到干货就收藏，收藏了等于学会了，再也没打开过第二遍",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "洗发水用到底才换",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "日用品非要用到挤不出来才买新的，囤货等于永远用旧的",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "微信步数判行踪",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "看朋友微信步数就知道他今天上没上班，出没出门，比定位还准",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "听歌品味测年龄",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "歌单里占比最高的歌发行年份，基本就是你中学的年份",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "上辈子是守门石狮子",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "就喜欢在工位上坐着，不爱动也不爱说话，谁来都多看两眼",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "投胎当小区流浪猫",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "下辈子不用上班，每天晒晒太阳睡睡觉，还有好心人喂罐头",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "前世是驿站喂马的",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "这辈子就爱给同事取快递带外卖，跑腿的活干得比谁都熟",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "今日摸鱼运势",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "测测今天摸鱼会不会被老板抓，适合刷手机还是带薪拉屎",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "灵气值剩余检测",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "上班上久了灵气都没了，看看你还剩多少没被工作磨掉",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "月老红线缠脚了",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "桃花运迟迟不来，原来月老的红线全缠你脚腕上打了结",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "下辈子做冰箱",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "天天凉飕飕的，不用上班，里面还全是好吃的",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "暗恋等死型选手",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "喜欢一个人绝对不主动，就等着对方来跟自己表白，等黄了也不说",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "社交电池10%",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "出门社交两小时就得回家躺半天，电用完了谁叫都不出去",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "恋爱脑晚期患者",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "一谈恋爱就智商为零，对方说啥都信，撞了南墙都不回头",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "把天聊死小能手",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "别人抛过来的梗接不住，说两句话就冷场，自己还没察觉",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "朋友圈三天可见",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "发完朋友圈过半天就觉得尴尬，赶紧设成三天可见，删都懒得删",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "闺蜜恋爱军师",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "给朋友分析感情头头是道，轮到自己谈恋爱啥也不是",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "开会灵魂出窍",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "开会坐在第一排，眼神盯着老板，脑子已经在想晚上吃啥了",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "下班跑的比谁都快",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "下班铃一响第一个冲出去，电脑都来不及关，就怕老板临时加活",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "工位零食库管理员",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "工位抽屉里全是零食，自己没吃多少，全被同事分完了",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "改方案改到吐",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "甲方爸爸要改第八版方案，改到最后还是第一版最好",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "群聊潜水截图党",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "公司大群从来不说话，天天窥屏存同事发的表情包，转头就用",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "周一综合症重度",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "周日晚上就开始emo，周一早上坐在工位上魂还在家里",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "工资到账即清空",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "工资刚发下来，还完花呗信用卡房租，剩下的钱够吃泡面就不错",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "拖延二级残废",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "deadline前半小时才开始敲键盘，早一分钟都动不了手",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "外卖选择困难户",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "十一点开始刷外卖，刷到十二点半还没决定吃黄焖鸡还是麻辣烫",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "开会摸鱼段位鉴定",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "领导在上面讲规划，你在下面刷宠物视频憋笑憋到抖肩",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "emo文案收藏家",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "手机备忘录里存了三十条伤感文案，没一条好意思发朋友圈",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "下班倒计时选手",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "离下班还有十分钟就收拾好包，领导一喊加班脸直接垮下来",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "深夜网抑云常驻嘉宾",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "歌单里全是伤感情歌，循环到三点还在想他为什么不回消息",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "凑单小能手",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "为了满减凑了三个没用的东西，算下来比单买还贵五块",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "明日复明日信徒",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "今天的事永远推明天，明天推后天，到截止日才通宵赶工",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "工位隐形摸鱼人",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "电脑页面永远开着工作文档，其实最小化窗口是小说页面",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "无用商品收藏家",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "家里堆了二十个没用的手机壳、十根没拆的口红，看见好看的还是想买",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "外卖备注十级学者",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "知道写“多放辣老板我是你老乡”比“多放辣”得到的辣椒多三倍",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "拖延症阎王薄记载",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "阎王让你三更走，你拖到五更还在说“再等我刷完这条抖音”",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "工作群潜水冠军",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "领导发红包第一个抢，让汇报工作第一个装看不见",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "深夜食欲控制失败",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "十点说要减肥，十二点就点了烧烤加冰可乐，边吃边骂自己没出息",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "快递拆箱仪式爱好者",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "拆快递必须录开箱视频，哪怕买的是九块九包邮的袜子",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "万年踩点上班选手",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "闹钟定七个，最后一个响了才弹起来，踩着打卡铃最后一秒冲进公司",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "乾隆同款外卖品味",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "跟乾隆下江南就爱吃那几样菜一样，外卖翻来覆去只点吃过的三家",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "摸鱼功德积累器",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "上班摸鱼一分钟，来世多享一分钟福，越摸功德越厚",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "下班失联专业户",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "下班打卡第一件事关工作通知，领导发消息第二天早上才说“不好意思刚看见”",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "emo秒删选手",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "凌晨两点发了条伤感朋友圈，七点醒了光速删掉，生怕同事看见",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "deadline战神",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "平时摸鱼摸得欢，截止日前一天能爆发出平时三倍的工作效率",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "上辈子是囤货松鼠",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "家里纸巾囤了半年的量，洗衣液堆了三瓶，不囤东西就没安全感",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "开会走神选手",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "领导讲项目的时候你在想晚上吃什么，散会了连主题都记不住",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "深夜回忆杀患者",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "大半夜翻三年前的朋友圈、QQ空间，边看边尴尬到抠脚",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "退货小能手",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "十个快递能退八个，快递员都知道你家地址上门取件不用打电话",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "摸鱼转世锦鲤",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "每次摸鱼刷视频都刚好避开领导查岗，运气好到离谱",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "网购买同款狂魔",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "碰到好穿的袜子直接买五双同款，好用的笔一次性买十根",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "深夜哲学大师",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "一到晚上就思考人生意义、宇宙起源，天亮了照样爬起来上班",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "下辈子当收租婆",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "这辈子班都上够了，下辈子就想每天躺着收租，不用看领导脸色",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "外卖催单大师",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "外卖迟到五分钟就开始催单，骑手还有两百米就站在楼下等",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "下辈子是什么垃圾",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "可回收（还有用）、干垃圾（凑合过）、有害垃圾（快跑）",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "朋友群的聊天定位",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "话题发起者、捧场哈哈怪，还是那个永远已读不回的",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的大脑是什么浏览器",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "IE（反应慢）、Chrome（标签页开太多）、Safari（看起来高级）",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "用点菜方式看统治风格",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "‘随便’是昏君，‘都来一份’是暴君，‘听你的’是傀儡皇帝",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的阳寿被什么扣完了",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "熬夜、生气，还是刷到弱智视频时的那句‘我服了’",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "恋爱像在玩什么游戏",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "恋爱养成（慢）、恐怖游戏（惊）、扫雷（一踩就炸）",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "办公室食物链位置",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "顶层掠食者、中层打工人，还是底层负责背锅的浮游生物",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的笑声像什么乐器",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "杠铃般的铜管乐，还是鹅叫般的破音木笛",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "上辈子存的功德余额",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "查看你这辈子的好运是阔绰还是欠费状态",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的工位风水怎么样",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "对着厕所（煞气重）、对着老板（压力大）、对着空调（冷热交替）",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "确诊为二手市场",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "什么功能都有点，但都不太好使，还总被砍价",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的大脑后台程序",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "80%在播放昨晚的尴尬回忆，20%在思考中午吃什么",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "用赖床理由推测历史事件",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "‘再睡五分钟’导致早朝迟到，间接引发王朝覆灭",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "下辈子的出生点",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "罗马、新手村，还是直接掉进粪坑里",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "暗恋像在玩什么",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "单机游戏（自己演）、钓鱼（愿者上钩）、扫雷（不敢动）",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "职场隐身术修炼等级",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "完美融入背景板，还是‘虽然看不见但活都是你干的’",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "工位上的神秘失踪事件",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "笔、零食、充电器，总在你最需要的时候人间蒸发。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "下辈子投胎成什么岗位",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "不是CEO，是公司饮水机，负责听八卦和被人摸鱼时盯着看。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "社交电池容量",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "出门一趟掉电80%，回家充电需要独处48小时。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "给Wi-Fi分配MBTI",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "你家网络是ENTP（爱辩论，时连时断）还是ISFJ（稳定但慢，默默奉献）？",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你是哪个朝代的民间专家",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "精通宋代外卖配送体系，或者明代八卦周刊排版。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "灵气复苏后你的本体",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "不是神兽，是写字楼里一株靠着咖啡因续命的绿萝。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "塑料友情鉴定",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "点赞之交是薄塑料袋，能借钱的是加厚款，但都怕火。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "开会时的真实脑内活动",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "表面在记笔记，心里在给每个发言的人配BGM。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "通过奶茶订单反推人生",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "全糖是年少轻狂，三分糖是向生活妥协，去冰是最后的倔强。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "暗恋表达流派",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "主动出击型、等天降型、在对方朋友圈考古型、以及自我感动到死型。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "下班前最后五分钟",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "时间在这里发生相对论效应，一秒被拉得像一个世纪那么长。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "确诊为路由器",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "看起来很重要，其实谁都想踢你一脚，而且总在深夜被抱怨信号不好。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的表情包灵魂伴侣",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "那个你用得最顺手、最能代表你内心阴暗面的表情，找到了吗？",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "今日运势（准不准你说了算）",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "宜：躺在床上；忌：起床。准了请打钱，不准是你心不诚。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "朋友群里的备注名",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "在对方手机里，你可能不叫本名，叫“周五火锅搭子”或“借钱拉黑那位”。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "摸鱼时创造的副业",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "用公司电脑写的网络小说，画的摸鱼小漫画，或者研究的彩票号码规律。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "把天聊死锦标赛冠军",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "一句话就能让热闹的群聊瞬间安静，这是一种天赋。",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "如果家具会说话",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "你的沙发会对你的躺平姿势做出什么锐评？",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "下辈子投胎去哪",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "下辈子你想做什么？测测你的投胎方向",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "拖延症晚期",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "你的拖延症已经到了什么程度",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你是哪种小猫",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "测测你的精神体是哪种小猫咪",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "谁在暗恋你",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "测测谁在偷偷喜欢你",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "社死瞬间",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "你的社死经历有多离谱",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "抽象大师",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "鉴定你是不是抽象派大师",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "测测寿命",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "看看你能活多少岁",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "板砖武器",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "找出属于你的专属物理防身武器",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的超能力",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "测测你隐藏的超能力是什么",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "前世是什么",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "测测你的前世是什么身份",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "讨好型人格",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "你是讨好型人格吗？有多严重",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "精神状态良好",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "你的精神状态体检报告",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "MBTI隐秘人格",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "测测你的MBTI隐藏面",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "摸鱼天花板",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "你的摸鱼功力到了什么级别",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "渣男鉴别器",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "测测你识别渣男的能力",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "社恐评级",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "你的社交恐惧到了什么等级",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "发疯指数测试",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "测测你的精神状态有多不稳定",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "摆烂大师",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "你的摆烂功力有多深厚",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "戏精体质",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "你体内住了多少个戏精",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "当代年轻人",
+    "category": "cat_qinggan",
+    "emoji": "🔥",
+    "description": "你是哪一款当代年轻人",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "你的精神图腾",
+    "category": "cat_xuanxue",
+    "emoji": "🌟",
+    "description": "你的精神状态对应的动物是什么",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "小丑竟是我",
+    "category": "cat_nitian",
+    "emoji": "🎪",
+    "description": "测测你的人生小丑指数",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "测试你的怨气值",
+    "category": "cat_xinggegaoguai",
+    "emoji": "🎯",
+    "description": "你的怨气值有多高，快来测测",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "今天吃什么",
+    "category": "cat_zhichang",
+    "emoji": "🤪",
+    "description": "帮你终结每天的灵魂拷问",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  },
+  {
+    "name": "测试寿命",
+    "category": "cat_quwei",
+    "emoji": "💪",
+    "description": "科学（不严谨）测试你的剩余寿命",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 1
+  }
+]

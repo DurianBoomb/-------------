@@ -1,0 +1,146 @@
+{
+	"bsonType": "object",
+	"required": ["tagName", "dims", "qs", "resultTypes"],
+	"permission": {
+		"read": true,
+		"create": true,
+		"update": "auth.uid != null",
+		"delete": "auth.uid != null"
+	},
+	"properties": {
+		"_id": {
+			"description": "问卷ID，系统自动生成"
+		},
+		"tagName": {
+			"bsonType": "string",
+			"description": "关联的标签名，如\"确诊为烤肠\"。答题页头部直接使用此字段展示。",
+			"trim": "both",
+			"maxLength": 50
+		},
+		"dims": {
+			"bsonType": "array",
+			"description": "维度列表，3-7 个字符串",
+			"minItems": 3,
+			"maxItems": 7,
+			"items": {
+				"bsonType": "string",
+				"maxLength": 50,
+				"trim": "both"
+			}
+		},
+		"qs": {
+			"bsonType": "array",
+			"description": "题目数组（Coze 友好版，无索引无分数）",
+			"items": {
+				"bsonType": "object",
+				"required": ["title", "dim"],
+				"properties": {
+					"title": {
+						"bsonType": "string",
+						"description": "题目文本",
+						"trim": "both",
+						"maxLength": 500
+					},
+					"dim": {
+						"bsonType": "string",
+						"description": "关联的维度名，必须在 dims 数组中",
+						"trim": "both",
+						"maxLength": 50
+					}
+				}
+			}
+		},
+		"resultTypes": {
+			"bsonType": "array",
+			"description": "结果类型数组",
+			"minItems": 1,
+			"maxItems": 10,
+			"items": {
+				"bsonType": "object",
+				"required": ["name", "emoji", "desc", "match"],
+				"properties": {
+					"name": {
+						"bsonType": "string",
+						"description": "结果类型名称",
+						"trim": "both",
+						"maxLength": 100
+					},
+					"emoji": {
+						"bsonType": "string",
+						"description": "结果类型 emoji，如\"🌭\"，前端放大展示",
+						"trim": "both",
+						"maxLength": 10
+					},
+					"emojiBg": {
+						"bsonType": "string",
+						"description": "结果卡片背景色，Coze 给出的颜色值如\"#FFE4B5\"，前端渲染为渐变或纯色背景",
+						"trim": "both",
+						"maxLength": 50
+					},
+					"desc": {
+						"bsonType": "string",
+						"description": "结果类型描述",
+						"trim": "both",
+						"maxLength": 5000
+					},
+					"image": {
+						"bsonType": "string",
+						"description": "结果配图 URL（预留字段，当前暂不使用，默认空字符串）",
+						"trim": "both",
+						"maxLength": 500
+					},
+					"match": {
+						"bsonType": "string",
+						"description": "关联的维度名，得分最高的维度匹配此结果类型",
+						"trim": "both",
+						"maxLength": 50
+					}
+				}
+			}
+		},
+		"status": {
+			"bsonType": "string",
+			"description": "状态：active / disabled",
+			"defaultValue": "active",
+			"enum": [
+				{ "value": "active", "text": "启用" },
+				{ "value": "disabled", "text": "禁用" }
+			]
+		},
+		"create_date": {
+			"bsonType": "timestamp",
+			"description": "创建时间",
+			"defaultValue": {
+				"$env": "now"
+			}
+		}
+	},
+	"indexes": [
+		{
+			"name": "tagName_status",
+			"fields": [
+				{
+					"name": "tagName",
+					"direction": "asc"
+				},
+				{
+					"name": "status",
+					"direction": "asc"
+				}
+			]
+		},
+		{
+			"name": "status_create_date",
+			"fields": [
+				{
+					"name": "status",
+					"direction": "asc"
+				},
+				{
+					"name": "create_date",
+					"direction": "desc"
+				}
+			]
+		}
+	]
+}

@@ -1,0 +1,90 @@
+{
+	"bsonType": "object",
+	"required": ["toolId", "name", "pagePath", "status"],
+	"permission": {
+		"read": true,
+		"create": "auth.uid != null",
+		"update": "auth.uid != null",
+		"delete": "auth.uid != null"
+	},
+	"properties": {
+		"_id": {
+			"description": "存储文档 ID，系统自动生成"
+		},
+		"toolId": {
+			"bsonType": "string",
+			"description": "工具唯一标识，如 survey、qr、calc",
+			"trim": "both"
+		},
+		"name": {
+			"bsonType": "string",
+			"description": "工具名称",
+			"trim": "both"
+		},
+		"icon": {
+			"bsonType": "string",
+			"description": "工具图标URL（云存储地址或网络地址）",
+			"trim": "both"
+		},
+		"description": {
+			"bsonType": "string",
+			"description": "工具简介",
+			"trim": "both"
+		},
+		"category": {
+			"bsonType": "string",
+			"description": "工具分类，如 productivity、image、life",
+			"trim": "both"
+		},
+		"pagePath": {
+			"bsonType": "string",
+			"description": "工具页面路径，如 /pages-tools/tool-survey/survey",
+			"trim": "both"
+		},
+		"status": {
+			"bsonType": "int",
+			"description": "工具状态：0 下架 1 上架",
+			"defaultValue": 0,
+			"enum": [
+				{ "value": 0, "text": "下架" },
+				{ "value": 1, "text": "上架" }
+			]
+		},
+		"sort": {
+			"bsonType": "int",
+			"description": "排序权重，数值越小越靠前",
+			"defaultValue": 0
+		},
+		"needLogin": {
+			"bsonType": "bool",
+			"description": "是否需要登录才能使用",
+			"defaultValue": false
+		},
+		"create_date": {
+			"bsonType": "timestamp",
+			"description": "创建时间",
+			"defaultValue": {
+				"$env": "now"
+			}
+		},
+		"update_date": {
+			"bsonType": "timestamp",
+			"description": "最后更新时间",
+			"defaultValue": {
+				"$env": "now"
+			}
+		}
+	},
+	"indexes": [
+		{
+			"name": "toolId_unique",
+			"unique": true,
+			"fields": [
+				{
+					"name": "toolId",
+					"direction": "asc"
+				}
+			]
+		}
+	]
+}

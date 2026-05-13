@@ -1,0 +1,301 @@
+{
+  "title": "职场性格综合测试",
+  "aiDescription": "全面评估职场性格特质，包括沟通风格、决策方式、团队协作、抗压能力和创新意识，语言风格轻松有趣",
+  "dimensions": [
+    { "name": "沟通力" },
+    { "name": "决策力" },
+    { "name": "团队协作" },
+    { "name": "抗压能力" },
+    { "name": "创新意识" }
+  ],
+  "resultTypes": [
+    { "name": "沟通达人", "desc": "善于表达和倾听，是团队的信息枢纽", "prototypes": [{ "dIndex": 0, "value": 85 }, { "dIndex": 2, "value": 60 }, { "dIndex": 4, "value": 40 }] },
+    { "name": "决策先锋", "desc": "果断有主见，能在压力下快速做判断", "prototypes": [{ "dIndex": 1, "value": 90 }, { "dIndex": 3, "value": 75 }, { "dIndex": 4, "value": 50 }] },
+    { "name": "团队粘合剂", "desc": "擅长协调合作，让团队发挥最大效能", "prototypes": [{ "dIndex": 0, "value": 60 }, { "dIndex": 2, "value": 85 }, { "dIndex": 3, "value": 50 }] },
+    { "name": "创新先锋", "desc": "天马行空，总能提出让人眼前一亮的新想法", "prototypes": [{ "dIndex": 1, "value": 40 }, { "dIndex": 4, "value": 90 }, { "dIndex": 0, "value": 55 }] },
+    { "name": "稳定守护者", "desc": "沉稳可靠，压力和困难面前依然从容", "prototypes": [{ "dIndex": 3, "value": 90 }, { "dIndex": 1, "value": 60 }, { "dIndex": 2, "value": 55 }] }
+  ],
+  "targetType": "all_questions",
+  "allQuestions": [
+    { "title": "在团队项目中，你通常扮演什么角色？", "type": "single", "options": [
+      { "text": "主动分配任务，确保进度", "scores": [{ "dIndex": 0, "value": 20 }, { "dIndex": 1, "value": 25 }, { "dIndex": 2, "value": 15 }] },
+      { "text": "专注自己的任务，高效完成", "scores": [{ "dIndex": 0, "value": 10 }, { "dIndex": 1, "value": 20 }, { "dIndex": 2, "value": 25 }] },
+      { "text": "协调各方意见，促进合作", "scores": [{ "dIndex": 0, "value": 25 }, { "dIndex": 1, "value": 10 }, { "dIndex": 2, "value": 20 }] },
+      { "text": "默默观察，找漏洞补短板", "scores": [{ "dIndex": 0, "value": 15 }, { "dIndex": 1, "value": 15 }, { "dIndex": 2, "value": 15 }] }
+    ]},
+    { "title": "遇到棘手问题时，你的第一反应是什么？", "type": "single", "options": [
+      { "text": "立即查找资料，自己琢磨解决", "scores": [{ "dIndex": 0, "value": 10 }, { "dIndex": 1, "value": 25 }, { "dIndex": 3, "value": 20 }] },
+      { "text": "找有经验的人请教", "scores": [{ "dIndex": 0, "value": 25 }, { "dIndex": 1, "value": 10 }, { "dIndex": 2, "value": 20 }] },
+      { "text": "召集大家讨论方案", "scores": [{ "dIndex": 0, "value": 20 }, { "dIndex": 1, "value": 15 }, { "dIndex": 2, "value": 25 }] },
+      { "text": "先放一放，换个角度再想", "scores": [{ "dIndex": 1, "value": 10 }, { "dIndex": 3, "value": 15 }, { "dIndex": 4, "value": 25 }] }
+    ]},
+    { "title": "你在工作中最看重什么？", "type": "single", "options": [
+      { "text": "和谐的团队氛围", "scores": [{ "dIndex": 0, "value": 22 }, { "dIndex": 2, "value": 20 }, { "dIndex": 3, "value": 10 }] },
+      { "text": "快速做出正确决定", "scores": [{ "dIndex": 0, "value": 10 }, { "dIndex": 1, "value": 25 }, { "dIndex": 3, "value": 18 }] },
+      { "text": "和队友一起成长进步", "scores": [{ "dIndex": 0, "value": 18 }, { "dIndex": 2, "value": 22 }, { "dIndex": 4, "value": 15 }] }
+    ]},
+    { "title": "面对突如其来的压力，你通常怎么应对？", "type": "single", "options": [
+      { "text": "深呼吸，列出优先级一步步处理", "scores": [{ "dIndex": 1, "value": 20 }, { "dIndex": 3, "value": 25 }, { "dIndex": 2, "value": 15 }] },
+      { "text": "找朋友聊聊缓解压力", "scores": [{ "dIndex": 0, "value": 25 }, { "dIndex": 2, "value": 18 }, { "dIndex": 3, "value": 10 }] },
+      { "text": "迎难而上，用行动对抗焦虑", "scores": [{ "dIndex": 1, "value": 22 }, { "dIndex": 3, "value": 20 }, { "dIndex": 4, "value": 15 }] }
+    ]},
+    { "title": "你更喜欢什么样的工作方式？", "type": "single", "options": [
+      { "text": "按计划有条不紊地推进", "scores": [{ "dIndex": 1, "value": 22 }, { "dIndex": 3, "value": 20 }, { "dIndex": 2, "value": 15 }] },
+      { "text": "灵活调整，根据情况随机应变", "scores": [{ "dIndex": 0, "value": 18 }, { "dIndex": 4, "value": 22 }, { "dIndex": 3, "value": 15 }] },
+      { "text": "和团队一起头脑风暴后决定", "scores": [{ "dIndex": 0, "value": 20 }, { "dIndex": 2, "value": 22 }, { "dIndex": 4, "value": 18 }] }
+    ]},
+    { "title": "别人对你最多的评价是什么？", "type": "single", "options": [
+      { "text": "很会说话，让人舒服", "scores": [{ "dIndex": 0, "value": 25 }, { "dIndex": 2, "value": 18 }, { "dIndex": 1, "value": 10 }] },
+      { "text": "做事果断，不拖泥带水", "scores": [{ "dIndex": 1, "value": 25 }, { "dIndex": 3, "value": 20 }, { "dIndex": 4, "value": 10 }] },
+      { "text": "很靠谱，交给ta就放心了", "scores": [{ "dIndex": 2, "value": 22 }, { "dIndex": 3, "value": 20 }, { "dIndex": 1, "value": 18 }] },
+      { "text": "脑洞很大，总有新点子", "scores": [{ "dIndex": 4, "value": 25 }, { "dIndex": 0, "value": 15 }, { "dIndex": 1, "value": 12 }] }
+    ]},
+    { "title": "开会时你更倾向于哪种状态？", "type": "single", "options": [
+      { "text": "积极发言，带动讨论节奏", "scores": [{ "dIndex": 0, "value": 25 }, { "dIndex": 1, "value": 18 }, { "dIndex": 4, "value": 15 }] },
+      { "text": "先听大家说，最后总结发言", "scores": [{ "dIndex": 0, "value": 18 }, { "dIndex": 1, "value": 20 }, { "dIndex": 2, "value": 20 }] },
+      { "text": "边听边记，会后单独跟进", "scores": [{ "dIndex": 2, "value": 20 }, { "dIndex": 3, "value": 22 }, { "dIndex": 1, "value": 15 }] }
+    ]},
+    { "title": "你对新事物的态度是？", "type": "single", "options": [
+      { "text": "积极拥抱，第一时间尝试", "scores": [{ "dIndex": 4, "value": 25 }, { "dIndex": 0, "value": 18 }, { "dIndex": 3, "value": 12 }] },
+      { "text": "先观察别人用的情况再决定", "scores": [{ "dIndex": 1, "value": 20 }, { "dIndex": 3, "value": 20 }, { "dIndex": 4, "value": 10 }] },
+      { "text": "如果对工作有帮助就学", "scores": [{ "dIndex": 1, "value": 20 }, { "dIndex": 2, "value": 18 }, { "dIndex": 4, "value": 18 }] }
+    ]},
+    { "title": "团队里有成员意见不合时，你通常怎么做？", "type": "single", "options": [
+      { "text": "主动调解，帮双方找到共识", "scores": [{ "dIndex": 0, "value": 25 }, { "dIndex": 2, "value": 22 }, { "dIndex": 3, "value": 12 }] },
+      { "text": "让大家各自陈述理由再投票", "scores": [{ "dIndex": 1, "value": 22 }, { "dIndex": 2, "value": 20 }, { "dIndex": 0, "value": 15 }] },
+      { "text": "不掺和，做好自己的事", "scores": [{ "dIndex": 3, "value": 20 }, { "dIndex": 1, "value": 15 }, { "dIndex": 2, "value": 10 }] }
+    ]},
+    { "title": "完成一项重要任务后，你最喜欢怎么庆祝？", "type": "single", "options": [
+      { "text": "和团队一起聚餐庆祝", "scores": [{ "dIndex": 0, "value": 22 }, { "dIndex": 2, "value": 20 }, { "dIndex": 3, "value": 10 }] },
+      { "text": "给自己放个小假放松", "scores": [{ "dIndex": 3, "value": 22 }, { "dIndex": 1, "value": 15 }, { "dIndex": 4, "value": 12 }] },
+      { "text": "复盘一下，总结经验", "scores": [{ "dIndex": 1, "value": 22 }, { "dIndex": 3, "value": 18 }, { "dIndex": 4, "value": 15 }] }
+    ]},
+    { "title": "你如何看待工作中的竞争？", "type": "single", "options": [
+      { "text": "良性竞争能激发潜力，我喜欢", "scores": [{ "dIndex": 1, "value": 22 }, { "dIndex": 3, "value": 20 }, { "dIndex": 0, "value": 15 }] },
+      { "text": "更看重合作，竞争其次", "scores": [{ "dIndex": 2, "value": 25 }, { "dIndex": 0, "value": 20 }, { "dIndex": 4, "value": 10 }] },
+      { "text": "专注提升自己，不太在意别人", "scores": [{ "dIndex": 3, "value": 22 }, { "dIndex": 1, "value": 18 }, { "dIndex": 4, "value": 15 }] }
+    ]},
+    { "title": "接到一个模糊不清的任务时，你首先会？", "type": "single", "options": [
+      { "text": "主动沟通确认明确需求和目标", "scores": [{ "dIndex": 0, "value": 25 }, { "dIndex": 1, "value": 18 }, { "dIndex": 2, "value": 15 }] },
+      { "text": "根据自己的理解先干再说", "scores": [{ "dIndex": 1, "value": 22 }, { "dIndex": 3, "value": 18 }, { "dIndex": 4, "value": 15 }] },
+      { "text": "找有经验的同事问问怎么做", "scores": [{ "dIndex": 0, "value": 20 }, { "dIndex": 2, "value": 22 }, { "dIndex": 3, "value": 10 }] }
+    ]},
+    { "title": "你觉得自己的沟通风格偏向？", "type": "single", "options": [
+      { "text": "直来直去，有事说事", "scores": [{ "dIndex": 0, "value": 22 }, { "dIndex": 1, "value": 20 }, { "dIndex": 2, "value": 10 }] },
+      { "text": "委婉含蓄，照顾对方感受", "scores": [{ "dIndex": 0, "value": 20 }, { "dIndex": 2, "value": 22 }, { "dIndex": 3, "value": 15 }] },
+      { "text": "幽默风趣，活跃气氛", "scores": [{ "dIndex": 0, "value": 22 }, { "dIndex": 4, "value": 20 }, { "dIndex": 2, "value": 12 }] }
+    ]},
+    { "title": "做重要决策时，你更依赖什么？", "type": "single", "options": [
+      { "text": "数据和事实分析", "scores": [{ "dIndex": 1, "value": 25 }, { "dIndex": 3, "value": 20 }, { "dIndex": 2, "value": 12 }] },
+      { "text": "直觉和过往经验", "scores": [{ "dIndex": 1, "value": 20 }, { "dIndex": 4, "value": 20 }, { "dIndex": 3, "value": 18 }] },
+      { "text": "咨询身边可信赖的人", "scores": [{ "dIndex": 0, "value": 22 }, { "dIndex": 2, "value": 20 }, { "dIndex": 1, "value": 15 }] }
+    ]},
+    { "title": "你在团队中最擅长什么？", "type": "single", "options": [
+      { "text": "鼓舞士气，让大家团结一致", "scores": [{ "dIndex": 0, "value": 22 }, { "dIndex": 2, "value": 20 }, { "dIndex": 3, "value": 15 }] },
+      { "text": "制定计划，安排得井井有条", "scores": [{ "dIndex": 1, "value": 22 }, { "dIndex": 2, "value": 18 }, { "dIndex": 3, "value": 18 }] },
+      { "text": "提出新思路，打破思维定式", "scores": [{ "dIndex": 4, "value": 25 }, { "dIndex": 0, "value": 15 }, { "dIndex": 1, "value": 15 }] }
+    ]},
+    { "title": "工作中你最受不了什么？", "type": "single", "options": [
+      { "text": "重复低效的流程", "scores": [{ "dIndex": 4, "value": 22 }, { "dIndex": 1, "value": 18 }, { "dIndex": 3, "value": 15 }] },
+      { "text": "同事之间沟通不畅", "scores": [{ "dIndex": 0, "value": 25 }, { "dIndex": 2, "value": 20 }, { "dIndex": 3, "value": 10 }] },
+      { "text": "没有明确的目标方向", "scores": [{ "dIndex": 1, "value": 22 }, { "dIndex": 3, "value": 20 }, { "dIndex": 2, "value": 12 }] }
+    ]},
+    { "title": "业余时间你最喜欢做什么？", "type": "single", "options": [
+      { "text": "和朋友聚会聊天", "scores": [{ "dIndex": 0, "value": 22 }, { "dIndex": 2, "value": 18 }, { "dIndex": 4, "value": 10 }] },
+      { "text": "学习新技能或读书充电", "scores": [{ "dIndex": 1, "value": 18 }, { "dIndex": 4, "value": 22 }, { "dIndex": 3, "value": 15 }] },
+      { "text": "运动健身或户外活动", "scores": [{ "dIndex": 3, "value": 22 }, { "dIndex": 1, "value": 18 }, { "dIndex": 2, "value": 15 }] },
+      { "text": "追剧打游戏放松", "scores": [{ "dIndex": 3, "value": 18 }, { "dIndex": 4, "value": 15 }, { "dIndex": 2, "value": 10 }] }
+    ]},
+    { "title": "你如何评价自己的执行力？", "type": "single", "options": [
+      { "text": "想到就做，绝不拖延", "scores": [{ "dIndex": 1, "value": 22 }, { "dIndex": 3, "value": 20 }, { "dIndex": 2, "value": 12 }] },
+      { "text": "有计划有节奏地推进", "scores": [{ "dIndex": 1, "value": 20 }, { "dIndex": 3, "value": 22 }, { "dIndex": 2, "value": 15 }] },
+      { "text": "需要有人督促才能更快完成", "scores": [{ "dIndex": 2, "value": 20 }, { "dIndex": 0, "value": 18 }, { "dIndex": 3, "value": 10 }] }
+    ]},
+    { "title": "你对创新的理解是什么？", "type": "single", "options": [
+      { "text": "从无到有创造新东西", "scores": [{ "dIndex": 4, "value": 25 }, { "dIndex": 0, "value": 15 }, { "dIndex": 1, "value": 15 }] },
+      { "text": "在现有基础上优化改进", "scores": [{ "dIndex": 4, "value": 20 }, { "dIndex": 1, "value": 20 }, { "dIndex": 2, "value": 15 }] },
+      { "text": "跨领域借鉴新思路", "scores": [{ "dIndex": 4, "value": 22 }, { "dIndex": 0, "value": 18 }, { "dIndex": 2, "value": 15 }] }
+    ]},
+    { "title": "面对失败时，你通常会？", "type": "single", "options": [
+      { "text": "分析原因，避免再犯同样错误", "scores": [{ "dIndex": 1, "value": 22 }, { "dIndex": 3, "value": 22 }, { "dIndex": 2, "value": 12 }] },
+      { "text": "乐观面对，觉得是成长的机会", "scores": [{ "dIndex": 0, "value": 20 }, { "dIndex": 3, "value": 20 }, { "dIndex": 4, "value": 18 }] },
+      { "text": "心情低落但会努力振作", "scores": [{ "dIndex": 3, "value": 18 }, { "dIndex": 2, "value": 18 }, { "dIndex": 0, "value": 15 }] }
+    ]},
+    { "title": "你更喜欢哪种工作环境？", "type": "single", "options": [
+      { "text": "自由开放，鼓励表达想法", "scores": [{ "dIndex": 0, "value": 22 }, { "dIndex": 4, "value": 22 }, { "dIndex": 3, "value": 10 }] },
+      { "text": "秩序井然，按流程办事", "scores": [{ "dIndex": 1, "value": 22 }, { "dIndex": 3, "value": 20 }, { "dIndex": 2, "value": 15 }] },
+      { "text": "温馨团结，像家人一样", "scores": [{ "dIndex": 2, "value": 25 }, { "dIndex": 0, "value": 20 }, { "dIndex": 3, "value": 10 }] }
+    ]},
+    { "title": "你觉得自己的最大优势是什么？", "type": "single", "options": [
+      { "text": "善于沟通和表达", "scores": [{ "dIndex": 0, "value": 25 }, { "dIndex": 2, "value": 18 }, { "dIndex": 4, "value": 12 }] },
+      { "text": "逻辑清晰决策果断", "scores": [{ "dIndex": 1, "value": 25 }, { "dIndex": 3, "value": 18 }, { "dIndex": 0, "value": 10 }] },
+      { "text": "抗压能力强心态好", "scores": [{ "dIndex": 3, "value": 25 }, { "dIndex": 2, "value": 18 }, { "dIndex": 1, "value": 15 }] },
+      { "text": "思维活跃点子多", "scores": [{ "dIndex": 4, "value": 25 }, { "dIndex": 0, "value": 15 }, { "dIndex": 1, "value": 12 }] }
+    ]},
+    { "title": "同事找你求助时，你通常会？", "type": "single", "options": [
+      { "text": "放下手头工作先帮忙", "scores": [{ "dIndex": 2, "value": 25 }, { "dIndex": 0, "value": 20 }, { "dIndex": 3, "value": 10 }] },
+      { "text": "帮ta分析，引导ta自己解决", "scores": [{ "dIndex": 0, "value": 22 }, { "dIndex": 1, "value": 20 }, { "dIndex": 2, "value": 15 }] },
+      { "text": "建议ta找更专业的人", "scores": [{ "dIndex": 1, "value": 20 }, { "dIndex": 2, "value": 15 }, { "dIndex": 3, "value": 15 }] }
+    ]},
+    { "title": "进行头脑风暴时，你的表现是？", "type": "single", "options": [
+      { "text": "灵感不断，秒变点子王", "scores": [{ "dIndex": 4, "value": 25 }, { "dIndex": 0, "value": 20 }, { "dIndex": 2, "value": 12 }] },
+      { "text": "先听大家的再补充", "scores": [{ "dIndex": 0, "value": 20 }, { "dIndex": 2, "value": 20 }, { "dIndex": 4, "value": 15 }] },
+      { "text": "聚焦可行性，帮大家落地", "scores": [{ "dIndex": 1, "value": 22 }, { "dIndex": 2, "value": 18 }, { "dIndex": 4, "value": 15 }] }
+    ]},
+    { "title": "你在压力下的工作效率会？", "type": "single", "options": [
+      { "text": "越高越大越有干劲", "scores": [{ "dIndex": 3, "value": 22 }, { "dIndex": 1, "value": 20 }, { "dIndex": 2, "value": 12 }] },
+      { "text": "基本稳定，不受影响", "scores": [{ "dIndex": 3, "value": 20 }, { "dIndex": 1, "value": 18 }, { "dIndex": 0, "value": 15 }] },
+      { "text": "会有些下降需要调整", "scores": [{ "dIndex": 3, "value": 15 }, { "dIndex": 2, "value": 18 }, { "dIndex": 0, "value": 15 }] }
+    ]},
+    { "title": "你更喜欢哪种沟通方式？", "type": "single", "options": [
+      { "text": "面对面直接沟通", "scores": [{ "dIndex": 0, "value": 25 }, { "dIndex": 2, "value": 18 }, { "dIndex": 3, "value": 12 }] },
+      { "text": "文字信息清晰记录", "scores": [{ "dIndex": 1, "value": 20 }, { "dIndex": 3, "value": 18 }, { "dIndex": 0, "value": 15 }] },
+      { "text": "电话或语音快捷高效", "scores": [{ "dIndex": 0, "value": 20 }, { "dIndex": 1, "value": 20 }, { "dIndex": 3, "value": 15 }] }
+    ]},
+    { "title": "你觉得自己的时间管理能力如何？", "type": "single", "options": [
+      { "text": "很强，总能按时完成任务", "scores": [{ "dIndex": 1, "value": 22 }, { "dIndex": 3, "value": 20 }, { "dIndex": 2, "value": 12 }] },
+      { "text": "一般，偶尔会赶deadline", "scores": [{ "dIndex": 3, "value": 18 }, { "dIndex": 1, "value": 15 }, { "dIndex": 2, "value": 15 }] },
+      { "text": "还需要改进，经常拖延", "scores": [{ "dIndex": 3, "value": 10 }, { "dIndex": 4, "value": 18 }, { "dIndex": 2, "value": 15 }] }
+    ]},
+    { "title": "收到负面反馈时，你的第一反应是？", "type": "single", "options": [
+      { "text": "虚心接受，思考如何改进", "scores": [{ "dIndex": 0, "value": 20 }, { "dIndex": 3, "value": 22 }, { "dIndex": 2, "value": 15 }] },
+      { "text": "求证反馈是否客观合理", "scores": [{ "dIndex": 1, "value": 25 }, { "dIndex": 3, "value": 18 }, { "dIndex": 0, "value": 12 }] },
+      { "text": "会有点低落但努力调整", "scores": [{ "dIndex": 3, "value": 18 }, { "dIndex": 0, "value": 15 }, { "dIndex": 2, "value": 15 }] }
+    ]},
+    { "title": "团队聚餐时你通常坐在哪里？", "type": "single", "options": [
+      { "text": "C位活跃气氛", "scores": [{ "dIndex": 0, "value": 25 }, { "dIndex": 2, "value": 18 }, { "dIndex": 4, "value": 15 }] },
+      { "text": "中间方便照顾大家", "scores": [{ "dIndex": 2, "value": 22 }, { "dIndex": 0, "value": 20 }, { "dIndex": 1, "value": 10 }] },
+      { "text": "角落安静吃饭", "scores": [{ "dIndex": 3, "value": 18 }, { "dIndex": 1, "value": 15 }, { "dIndex": 2, "value": 12 }] }
+    ]},
+    { "title": "你更倾向于哪种学习方式？", "type": "single", "options": [
+      { "text": "实践中学，边做边总结", "scores": [{ "dIndex": 1, "value": 20 }, { "dIndex": 4, "value": 22 }, { "dIndex": 3, "value": 15 }] },
+      { "text": "和别人讨论交流中学习", "scores": [{ "dIndex": 0, "value": 22 }, { "dIndex": 2, "value": 20 }, { "dIndex": 4, "value": 12 }] },
+      { "text": "看书听课系统学习", "scores": [{ "dIndex": 1, "value": 22 }, { "dIndex": 3, "value": 20 }, { "dIndex": 4, "value": 15 }] }
+    ]},
+    { "title": "你如何看待规则和制度？", "type": "single", "options": [
+      { "text": "规则是底线必须遵守", "scores": [{ "dIndex": 1, "value": 22 }, { "dIndex": 2, "value": 20 }, { "dIndex": 3, "value": 18 }] },
+      { "text": "合理遵守，不合理可以突破", "scores": [{ "dIndex": 4, "value": 22 }, { "dIndex": 1, "value": 18 }, { "dIndex": 0, "value": 15 }] },
+      { "text": "灵活变通，结果最重要", "scores": [{ "dIndex": 4, "value": 20 }, { "dIndex": 1, "value": 18 }, { "dIndex": 3, "value": 15 }] }
+    ]},
+    { "title": "你觉得自己的情绪管理能力如何？", "type": "single", "options": [
+      { "text": "很好，基本不会情绪化", "scores": [{ "dIndex": 3, "value": 25 }, { "dIndex": 1, "value": 20 }, { "dIndex": 0, "value": 12 }] },
+      { "text": "一般，偶尔会有波动", "scores": [{ "dIndex": 3, "value": 18 }, { "dIndex": 0, "value": 18 }, { "dIndex": 2, "value": 15 }] },
+      { "text": "比较情绪化但能控制", "scores": [{ "dIndex": 3, "value": 15 }, { "dIndex": 0, "value": 20 }, { "dIndex": 4, "value": 12 }] }
+    ]},
+    { "title": "你更在意工作结果还是过程？", "type": "single", "options": [
+      { "text": "结果最重要，一切为导向", "scores": [{ "dIndex": 1, "value": 25 }, { "dIndex": 3, "value": 20 }, { "dIndex": 2, "value": 10 }] },
+      { "text": "过程扎实结果自然好", "scores": [{ "dIndex": 1, "value": 20 }, { "dIndex": 2, "value": 20 }, { "dIndex": 3, "value": 18 }] },
+      { "text": "两者都重要缺一不可", "scores": [{ "dIndex": 1, "value": 18 }, { "dIndex": 2, "value": 18 }, { "dIndex": 3, "value": 18 }] }
+    ]},
+    { "title": "初到新公司，你会怎么融入团队？", "type": "single", "options": [
+      { "text": "主动和每个同事打招呼聊天", "scores": [{ "dIndex": 0, "value": 25 }, { "dIndex": 2, "value": 18 }, { "dIndex": 3, "value": 10 }] },
+      { "text": "先做好自己的工作慢慢熟悉", "scores": [{ "dIndex": 1, "value": 20 }, { "dIndex": 3, "value": 20 }, { "dIndex": 2, "value": 15 }] },
+      { "text": "找和自己合拍的人深交", "scores": [{ "dIndex": 0, "value": 18 }, { "dIndex": 2, "value": 20 }, { "dIndex": 4, "value": 12 }] }
+    ]},
+    { "title": "工作中你最享受哪个时刻？", "type": "single", "options": [
+      { "text": "攻克难题后的成就感", "scores": [{ "dIndex": 1, "value": 22 }, { "dIndex": 3, "value": 20 }, { "dIndex": 4, "value": 15 }] },
+      { "text": "团队协作完成项目的满足感", "scores": [{ "dIndex": 2, "value": 25 }, { "dIndex": 0, "value": 18 }, { "dIndex": 3, "value": 12 }] },
+      { "text": "自己的想法被采纳的兴奋感", "scores": [{ "dIndex": 4, "value": 22 }, { "dIndex": 0, "value": 18 }, { "dIndex": 1, "value": 15 }] }
+    ]},
+    { "title": "你如何应对多任务并行的情况？", "type": "single", "options": [
+      { "text": "分清主次逐一突破", "scores": [{ "dIndex": 1, "value": 22 }, { "dIndex": 3, "value": 22 }, { "dIndex": 2, "value": 10 }] },
+      { "text": "找人分工合作一起解决", "scores": [{ "dIndex": 0, "value": 22 }, { "dIndex": 2, "value": 22 }, { "dIndex": 3, "value": 12 }] },
+      { "text": "能拖就拖先做最紧急的", "scores": [{ "dIndex": 1, "value": 18 }, { "dIndex": 3, "value": 15 }, { "dIndex": 4, "value": 15 }] }
+    ]},
+    { "title": "你对加班的看法是？", "type": "single", "options": [
+      { "text": "必要的时候可以接受", "scores": [{ "dIndex": 2, "value": 20 }, { "dIndex": 3, "value": 22 }, { "dIndex": 1, "value": 15 }] },
+      { "text": "尽量避免，效率优先", "scores": [{ "dIndex": 1, "value": 22 }, { "dIndex": 4, "value": 18 }, { "dIndex": 3, "value": 15 }] },
+      { "text": "随叫随到工作第一", "scores": [{ "dIndex": 2, "value": 22 }, { "dIndex": 3, "value": 20 }, { "dIndex": 1, "value": 12 }] }
+    ]},
+    { "title": "你的办公桌通常是？", "type": "single", "options": [
+      { "text": "整洁有序什么都井井有条", "scores": [{ "dIndex": 1, "value": 22 }, { "dIndex": 3, "value": 18 }, { "dIndex": 2, "value": 15 }] },
+      { "text": "乱中有序自己找得到东西", "scores": [{ "dIndex": 4, "value": 20 }, { "dIndex": 1, "value": 15 }, { "dIndex": 3, "value": 15 }] },
+      { "text": "充满个性装饰很有特色", "scores": [{ "dIndex": 0, "value": 20 }, { "dIndex": 4, "value": 22 }, { "dIndex": 2, "value": 12 }] }
+    ]},
+    { "title": "你更喜欢什么样的领导风格？", "type": "single", "options": [
+      { "text": "授权信任，给足发挥空间", "scores": [{ "dIndex": 4, "value": 22 }, { "dIndex": 1, "value": 20 }, { "dIndex": 3, "value": 15 }] },
+      { "text": "明确指示，方向清晰", "scores": [{ "dIndex": 1, "value": 22 }, { "dIndex": 2, "value": 18 }, { "dIndex": 3, "value": 18 }] },
+      { "text": "民主讨论，倾听大家意见", "scores": [{ "dIndex": 0, "value": 22 }, { "dIndex": 2, "value": 20 }, { "dIndex": 1, "value": 12 }] }
+    ]},
+    { "title": "遇到难以合作的同事，你会？", "type": "single", "options": [
+      { "text": "主动沟通了解矛盾根源", "scores": [{ "dIndex": 0, "value": 25 }, { "dIndex": 2, "value": 20 }, { "dIndex": 3, "value": 12 }] },
+      { "text": "调整自己的方式去适应", "scores": [{ "dIndex": 2, "value": 22 }, { "dIndex": 3, "value": 20 }, { "dIndex": 1, "value": 12 }] },
+      { "text": "减少接触做好自己分内事", "scores": [{ "dIndex": 1, "value": 20 }, { "dIndex": 3, "value": 18 }, { "dIndex": 2, "value": 12 }] }
+    ]},
+    { "title": "你觉得自己的适应能力如何？", "type": "single", "options": [
+      { "text": "很强，新环境能快速上手", "scores": [{ "dIndex": 3, "value": 22 }, { "dIndex": 4, "value": 20 }, { "dIndex": 1, "value": 15 }] },
+      { "text": "一般，需要一段时间适应", "scores": [{ "dIndex": 3, "value": 18 }, { "dIndex": 2, "value": 18 }, { "dIndex": 1, "value": 15 }] },
+      { "text": "比较慢，喜欢熟悉的环境", "scores": [{ "dIndex": 3, "value": 15 }, { "dIndex": 1, "value": 18 }, { "dIndex": 2, "value": 15 }] }
+    ]},
+    { "title": "你如何平衡工作和生活？", "type": "single", "options": [
+      { "text": "界限分明互不干扰", "scores": [{ "dIndex": 1, "value": 22 }, { "dIndex": 3, "value": 20 }, { "dIndex": 2, "value": 12 }] },
+      { "text": "灵活处理看情况调整", "scores": [{ "dIndex": 4, "value": 20 }, { "dIndex": 3, "value": 18 }, { "dIndex": 1, "value": 15 }] },
+      { "text": "工作比较忙生活常让步", "scores": [{ "dIndex": 2, "value": 20 }, { "dIndex": 3, "value": 15 }, { "dIndex": 1, "value": 15 }] }
+    ]},
+    { "title": "你的信息获取习惯是？", "type": "single", "options": [
+      { "text": "多方渠道交叉验证", "scores": [{ "dIndex": 1, "value": 22 }, { "dIndex": 4, "value": 18 }, { "dIndex": 2, "value": 15 }] },
+      { "text": "相信权威和一手信息", "scores": [{ "dIndex": 1, "value": 20 }, { "dIndex": 3, "value": 18 }, { "dIndex": 0, "value": 12 }] },
+      { "text": "从身边人那里了解", "scores": [{ "dIndex": 0, "value": 22 }, { "dIndex": 2, "value": 20 }, { "dIndex": 3, "value": 10 }] }
+    ]},
+    { "title": "你理想的工作状态是？", "type": "single", "options": [
+      { "text": "有挑战有成就不断进步", "scores": [{ "dIndex": 1, "value": 20 }, { "dIndex": 4, "value": 22 }, { "dIndex": 3, "value": 15 }] },
+      { "text": "稳定轻松有好的同事关系", "scores": [{ "dIndex": 2, "value": 22 }, { "dIndex": 0, "value": 20 }, { "dIndex": 3, "value": 15 }] },
+      { "text": "自由自主不受太多约束", "scores": [{ "dIndex": 4, "value": 22 }, { "dIndex": 1, "value": 18 }, { "dIndex": 3, "value": 12 }] }
+    ]},
+    { "title": "你如何看待团队中的不同意见？", "type": "single", "options": [
+      { "text": "欢迎不同声音，能完善方案", "scores": [{ "dIndex": 0, "value": 22 }, { "dIndex": 2, "value": 20 }, { "dIndex": 4, "value": 15 }] },
+      { "text": "可以讨论但最后要统一方向", "scores": [{ "dIndex": 1, "value": 22 }, { "dIndex": 2, "value": 20 }, { "dIndex": 0, "value": 15 }] },
+      { "text": "保留意见服从多数", "scores": [{ "dIndex": 2, "value": 20 }, { "dIndex": 3, "value": 18 }, { "dIndex": 1, "value": 15 }] }
+    ]},
+    { "title": "你的日常决策风格是？", "type": "single", "options": [
+      { "text": "快刀斩乱麻迅速决定", "scores": [{ "dIndex": 1, "value": 25 }, { "dIndex": 3, "value": 18 }, { "dIndex": 0, "value": 10 }] },
+      { "text": "权衡利弊再选择", "scores": [{ "dIndex": 1, "value": 22 }, { "dIndex": 2, "value": 18 }, { "dIndex": 3, "value": 18 }] },
+      { "text": "可能犹豫但最终会做决定", "scores": [{ "dIndex": 1, "value": 18 }, { "dIndex": 2, "value": 15 }, { "dIndex": 3, "value": 15 }] }
+    ]},
+    { "title": "你对新项目的第一反应是？", "type": "single", "options": [
+      { "text": "兴奋期待想大干一场", "scores": [{ "dIndex": 4, "value": 22 }, { "dIndex": 3, "value": 18 }, { "dIndex": 1, "value": 18 }] },
+      { "text": "评估难度和风险再决定", "scores": [{ "dIndex": 1, "value": 25 }, { "dIndex": 3, "value": 20 }, { "dIndex": 2, "value": 10 }] },
+      { "text": "问清楚自己的角色再做", "scores": [{ "dIndex": 0, "value": 20 }, { "dIndex": 2, "value": 18 }, { "dIndex": 1, "value": 18 }] }
+    ]},
+    { "title": "你更喜欢哪种团队角色？", "type": "single", "options": [
+      { "text": "领导带头冲锋的角色", "scores": [{ "dIndex": 0, "value": 22 }, { "dIndex": 1, "value": 22 }, { "dIndex": 3, "value": 15 }] },
+      { "text": "支撑后方的稳定角色", "scores": [{ "dIndex": 2, "value": 22 }, { "dIndex": 3, "value": 20 }, { "dIndex": 1, "value": 12 }] },
+      { "text": "出谋划策的智囊角色", "scores": [{ "dIndex": 4, "value": 25 }, { "dIndex": 0, "value": 18 }, { "dIndex": 1, "value": 12 }] }
+    ]},
+    { "title": "你如何面对工作中的不确定性？", "type": "single", "options": [
+      { "text": "主动收集信息降低不确定性", "scores": [{ "dIndex": 1, "value": 22 }, { "dIndex": 3, "value": 20 }, { "dIndex": 0, "value": 15 }] },
+      { "text": "随遇而安兵来将挡", "scores": [{ "dIndex": 3, "value": 22 }, { "dIndex": 4, "value": 18 }, { "dIndex": 2, "value": 15 }] },
+      { "text": "有些焦虑但能正常应对", "scores": [{ "dIndex": 3, "value": 18 }, { "dIndex": 2, "value": 15 }, { "dIndex": 1, "value": 15 }] }
+    ]},
+    { "title": "你觉得自己最有魅力的时候是？", "type": "single", "options": [
+      { "text": "自信表达观点的时候", "scores": [{ "dIndex": 0, "value": 25 }, { "dIndex": 1, "value": 20 }, { "dIndex": 2, "value": 10 }] },
+      { "text": "专注解决问题的时候", "scores": [{ "dIndex": 1, "value": 22 }, { "dIndex": 3, "value": 20 }, { "dIndex": 4, "value": 12 }] },
+      { "text": "和大家打成一片的时候", "scores": [{ "dIndex": 0, "value": 20 }, { "dIndex": 2, "value": 22 }, { "dIndex": 4, "value": 12 }] }
+    ]},
+    { "title": "你更看重工作的哪个方面？", "type": "single", "options": [
+      { "text": "薪资待遇和发展空间", "scores": [{ "dIndex": 1, "value": 22 }, { "dIndex": 3, "value": 20 }, { "dIndex": 4, "value": 12 }] },
+      { "text": "团队氛围和企业文化", "scores": [{ "dIndex": 0, "value": 22 }, { "dIndex": 2, "value": 22 }, { "dIndex": 3, "value": 10 }] },
+      { "text": "工作的意义和成就感", "scores": [{ "dIndex": 4, "value": 20 }, { "dIndex": 1, "value": 18 }, { "dIndex": 2, "value": 18 }] }
+    ]},
+    { "title": "你觉得什么样的同事最难相处？", "type": "single", "options": [
+      { "text": "不沟通不配合的类型", "scores": [{ "dIndex": 0, "value": 22 }, { "dIndex": 2, "value": 20 }, { "dIndex": 3, "value": 12 }] },
+      { "text": "固执己见不听建议的人", "scores": [{ "dIndex": 0, "value": 20 }, { "dIndex": 1, "value": 20 }, { "dIndex": 2, "value": 15 }] },
+      { "text": "推卸责任不靠谱的人", "scores": [{ "dIndex": 2, "value": 22 }, { "dIndex": 3, "value": 20 }, { "dIndex": 1, "value": 12 }] }
+    ]},
+    { "title": "你的创意灵感通常来自？", "type": "single", "options": [
+      { "text": "独处时放空自己", "scores": [{ "dIndex": 4, "value": 22 }, { "dIndex": 3, "value": 18 }, { "dIndex": 1, "value": 12 }] },
+      { "text": "和别人交流碰撞中", "scores": [{ "dIndex": 0, "value": 22 }, { "dIndex": 4, "value": 20 }, { "dIndex": 2, "value": 15 }] },
+      { "text": "阅读和学习的过程中", "scores": [{ "dIndex": 4, "value": 22 }, { "dIndex": 1, "value": 18 }, { "dIndex": 3, "value": 15 }] }
+    ]},
+    { "title": "你更愿意成为一个什么样的人？", "type": "single", "options": [
+      { "text": "被人信赖的可靠伙伴", "scores": [{ "dIndex": 2, "value": 22 }, { "dIndex": 3, "value": 20 }, { "dIndex": 1, "value": 15 }] },
+      { "text": "引领方向的领导者", "scores": [{ "dIndex": 0, "value": 22 }, { "dIndex": 1, "value": 22 }, { "dIndex": 3, "value": 12 }] },
+      { "text": "不断突破的创新者", "scores": [{ "dIndex": 4, "value": 25 }, { "dIndex": 1, "value": 15 }, { "dIndex": 3, "value": 15 }] }
+    ]},
+    { "title": "今天工作结束后你通常会？", "type": "single", "options": [
+      { "text": "复盘今天的得失", "scores": [{ "dIndex": 1, "value": 22 }, { "dIndex": 3, "value": 20 }, { "dIndex": 4, "value": 12 }] },
+      { "text": "约朋友吃个饭放松", "scores": [{ "dIndex": 0, "value": 22 }, { "dIndex": 2, "value": 18 }, { "dIndex": 3, "value": 12 }] },
+      { "text": "做自己喜欢的事充电", "scores": [{ "dIndex": 4, "value": 20 }, { "dIndex": 3, "value": 18 }, { "dIndex": 1, "value": 15 }] }
+    ]}
+  ]
+}

@@ -1,0 +1,47 @@
+{
+	"bsonType": "object",
+	"required": ["userId", "tagName", "type"],
+	"permission": {
+		"read": true,
+		"create": "auth.uid != null",
+		"update": "auth.uid == doc.userId",
+		"delete": "auth.uid == doc.userId"
+	},
+	"properties": {
+		"_id": {
+			"description": "评价ID"
+		},
+		"userId": {
+			"bsonType": "string",
+			"description": "用户ID"
+		},
+		"tagName": {
+			"bsonType": "string",
+			"description": "被评价的标签名",
+			"trim": "both",
+			"maxLength": 50
+		},
+		"type": {
+			"bsonType": "string",
+			"description": "评价类型：like 点赞 / dislike 点踩",
+			"enum": ["like", "dislike"]
+		},
+		"createdAt": {
+			"bsonType": "timestamp",
+			"description": "评价时间",
+			"defaultValue": {
+				"$env": "now"
+			}
+		}
+	},
+	"indexes": [
+		{
+			"name": "userId_tagName_unique",
+			"unique": true,
+			"fields": [
+				{ "name": "userId", "direction": "asc" },
+				{ "name": "tagName", "direction": "asc" }
+			]
+		}
+	]
+}

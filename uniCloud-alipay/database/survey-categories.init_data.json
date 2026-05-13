@@ -1,0 +1,44 @@
+[
+	{
+		"_id": "cat_xinggegaoguai",
+		"name": "性格搞怪",
+		"emoji": "🤡",
+		"subtitle": "性格搞怪的专属签",
+		"sort": 1
+	},
+	{
+		"_id": "cat_quwei",
+		"name": "趣味整活",
+		"emoji": "🤪",
+		"subtitle": "整活人的快乐源泉",
+		"sort": 2
+	},
+	{
+		"_id": "cat_nitian",
+		"name": "逆天知识",
+		"emoji": "👽",
+		"subtitle": "看完直呼好家伙",
+		"sort": 3
+	},
+	{
+		"_id": "cat_xuanxue",
+		"name": "玄学运势",
+		"emoji": "🔮",
+		"subtitle": "信则有不信则无",
+		"sort": 4
+	},
+	{
+		"_id": "cat_qinggan",
+		"name": "情感离谱",
+		"emoji": "💔",
+		"subtitle": "离谱他妈给离谱开门",
+		"sort": 5
+	},
+	{
+		"_id": "cat_zhichang",
+		"name": "职场发疯",
+		"emoji": "💣",
+		"subtitle": "工位就是疯人院",
+		"sort": 6
+	}
+]

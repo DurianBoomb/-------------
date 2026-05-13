@@ -1,0 +1,112 @@
+{
+	"bsonType": "object",
+	"required": ["name", "category"],
+	"permission": {
+		"read": true,
+		"create": "auth.uid != null",
+		"update": "auth.uid != null",
+		"delete": "auth.uid != null"
+	},
+	"properties": {
+		"_id": {
+			"description": "标签ID，系统自动生成"
+		},
+		"name": {
+			"bsonType": "string",
+			"description": "标签名，唯一，如\"确诊为烤肠\"",
+			"trim": "both",
+			"maxLength": 50
+		},
+		"category": {
+			"bsonType": "string",
+			"description": "所属分类 ID（关联 survey-categories._id）",
+			"trim": "both"
+		},
+		"emoji": {
+			"bsonType": "string",
+			"description": "标签 emoji，如 \"🌭\"",
+			"trim": "both",
+			"maxLength": 10
+		},
+		"description": {
+			"bsonType": "string",
+			"description": "标签简短描述",
+			"trim": "both",
+			"maxLength": 500
+		},
+		"popularity": {
+			"bsonType": "int",
+			"description": "热度值，初始 0，后续按答题次数递增",
+			"defaultValue": 0,
+			"minimum": 0
+		},
+		"rarity": {
+			"bsonType": "string",
+			"description": "稀有度：common / rare / epic / darkgold",
+			"defaultValue": "common",
+			"enum": [
+				{ "value": "common", "text": "普通" },
+				{ "value": "rare", "text": "稀有" },
+				{ "value": "epic", "text": "史诗" },
+				{ "value": "darkgold", "text": "暗金" }
+			]
+		},
+		"status": {
+			"bsonType": "string",
+			"description": "状态：draft / published / disabled",
+			"defaultValue": "published",
+			"enum": [
+				{ "value": "draft", "text": "草稿" },
+				{ "value": "published", "text": "已发布" },
+				{ "value": "disabled", "text": "已下架" }
+			]
+		},
+		"surveyCount": {
+			"bsonType": "int",
+			"description": "该标签下的问卷数量（冗余字段）",
+			"defaultValue": 0,
+			"minimum": 0
+		},
+		"create_date": {
+			"bsonType": "timestamp",
+			"description": "创建时间",
+			"defaultValue": {
+				"$env": "now"
+			}
+		}
+	},
+	"indexes": [
+		{
+			"name": "name_unique",
+			"unique": true,
+			"fields": [
+				{
+					"name": "name",
+					"direction": "asc"
+				}
+			]
+		},
+		{
+			"name": "category_status",
+			"fields": [
+				{
+					"name": "category",
+					"direction": "asc"
+				},
+				{
+					"name": "status",
+					"direction": "asc"
+				}
+			]
+		},
+		{
+			"name": "popularity",
+			"fields": [
+				{
+					"name": "popularity",
+					"direction": "desc"
+				}
+			]
+		}
+	]
+}

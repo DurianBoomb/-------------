@@ -1,0 +1,342 @@
+[
+  {
+    "name": "确诊为烤肠",
+    "category": "cat-diagnosis",
+    "emoji": "🌭",
+    "description": "测测你是一根什么肠——纯肉还是淀粉，烤爆了还是被遗忘了",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 0,
+    "rarity": "common"
+  },
+  {
+    "name": "确诊为仙人掌",
+    "category": "cat-diagnosis",
+    "emoji": "🌵",
+    "description": "外表带刺内心柔软？还是干脆就是一块不需要被照顾的绿色植物",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 0,
+    "rarity": "common"
+  },
+  {
+    "name": "确诊为奶茶",
+    "category": "cat-diagnosis",
+    "emoji": "🧋",
+    "description": "三分糖去冰加珍珠——你是一杯什么奶茶？",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 0,
+    "rarity": "common"
+  },
+  {
+    "name": "确诊为香蕉",
+    "category": "cat-diagnosis",
+    "emoji": "🍌",
+    "description": "从青涩到软烂，你是哪根香蕉？",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 0,
+    "rarity": "common"
+  },
+  {
+    "name": "确诊为地瓜",
+    "category": "cat-diagnosis",
+    "emoji": "🍠",
+    "description": "烤到流油还是蒸着吃？你是哪种地瓜体质",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 0,
+    "rarity": "common"
+  },
+  {
+    "name": "确诊为落叶",
+    "category": "cat-diagnosis",
+    "emoji": "🍂",
+    "description": "随风飘荡还是扎根泥土？你的精神状态像哪种落叶",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 0,
+    "rarity": "common"
+  },
+  {
+    "name": "确诊为充电宝",
+    "category": "cat-diagnosis",
+    "emoji": "🔋",
+    "description": "你是别人的能量补给站，还是自己也需要被充电？",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 0,
+    "rarity": "common"
+  },
+  {
+    "name": "确诊为空气炸锅",
+    "category": "cat-diagnosis",
+    "emoji": "🍳",
+    "description": "买之前觉得会天天用，买之后一个月开三次——人间真实",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 0,
+    "rarity": "common"
+  },
+  {
+    "name": "确诊为一次性筷子",
+    "category": "cat-diagnosis",
+    "emoji": "🥢",
+    "description": "用完即弃还是掰开就劈叉？你的人生像哪种一次性筷子",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 0,
+    "rarity": "common"
+  },
+  {
+    "name": "确诊为快递纸箱",
+    "category": "cat-diagnosis",
+    "emoji": "📦",
+    "description": "能装能扛但怕湿怕压——你是哪种快递纸箱人格",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 0,
+    "rarity": "common"
+  },
+  {
+    "name": "确诊为电路板",
+    "category": "cat-diagnosis",
+    "emoji": "🖥️",
+    "description": "精密复杂还是简单粗暴？一个元件坏了整块板都废了",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 0,
+    "rarity": "common"
+  },
+  {
+    "name": "确诊为手机电量",
+    "category": "cat-diagnosis",
+    "emoji": "📱",
+    "description": "有人永远满格有人永远告急——你是什么电量人格",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 0,
+    "rarity": "common"
+  },
+  {
+    "name": "你的周末烂掉指数",
+    "category": "cat-life",
+    "emoji": "🛋️",
+    "description": "周末是用来充电的，但你的周末可能充着充着就烂掉了",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 0,
+    "rarity": "common"
+  },
+  {
+    "name": "深夜emo等级测试",
+    "category": "cat-life",
+    "emoji": "🌙",
+    "description": "凌晨三点你在干嘛？是清醒地emo还是emo到清醒",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 0,
+    "rarity": "common"
+  },
+  {
+    "name": "恋爱脑晚期诊断",
+    "category": "cat-life",
+    "emoji": "💕",
+    "description": "你的恋爱脑还有救吗？",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 0,
+    "rarity": "common"
+  },
+  {
+    "name": "摆烂等级鉴定",
+    "category": "cat-life",
+    "emoji": "🫠",
+    "description": "你是优雅摆烂还是彻底烂掉？",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 0,
+    "rarity": "common"
+  },
+  {
+    "name": "反内卷体质测试",
+    "category": "cat-life",
+    "emoji": "🌊",
+    "description": "在卷与不卷之间反复横跳，你的反卷功力几成",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 0,
+    "rarity": "common"
+  },
+  {
+    "name": "当代鸽子精等级",
+    "category": "cat-life",
+    "emoji": "🕊️",
+    "description": "下次一定——但下次是哪次？",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 0,
+    "rarity": "common"
+  },
+  {
+    "name": "发疯指数测试",
+    "category": "cat-mind",
+    "emoji": "🤪",
+    "description": "精神状态美丽测试——你的发疯程度有多高",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 0,
+    "rarity": "common"
+  },
+  {
+    "name": "精神状态美丽检测",
+    "category": "cat-mind",
+    "emoji": "🌸",
+    "description": "检测你的精神状态到底有多美丽（还是多离谱）",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 0,
+    "rarity": "common"
+  },
+  {
+    "name": "内耗等级测试",
+    "category": "cat-mind",
+    "emoji": "😔",
+    "description": "睡前复盘今天说过的每一句话——你的内耗严重吗？",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 0,
+    "rarity": "common"
+  },
+  {
+    "name": "嘴硬程度测试",
+    "category": "cat-mind",
+    "emoji": "🦷",
+    "description": "嘴上说没事其实心里全是事——你的嘴硬指数",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 0,
+    "rarity": "common"
+  },
+  {
+    "name": "拖延症晚期诊断",
+    "category": "cat-mind",
+    "emoji": "⏰",
+    "description": "明天再做的明天是明天——你的拖延到哪一期了",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 0,
+    "rarity": "common"
+  },
+  {
+    "name": "搬屎大王等级测试",
+    "category": "cat-work",
+    "emoji": "💩",
+    "description": "做最多的活挨最狠的骂——你的搬屎指数有多高",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 0,
+    "rarity": "common"
+  },
+  {
+    "name": "会议摸鱼指数",
+    "category": "cat-work",
+    "emoji": "📋",
+    "description": "人在会议室心在外太空——你的摸鱼段位",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 0,
+    "rarity": "common"
+  },
+  {
+    "name": "职场人设鉴定",
+    "category": "cat-work",
+    "emoji": "🎭",
+    "description": "你在同事眼里是什么人设？老好人还是职场刺头",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 0,
+    "rarity": "common"
+  },
+  {
+    "name": "下班失联指数",
+    "category": "cat-work",
+    "emoji": "📵",
+    "description": "下班后你是什么状态？秒回消息还是人间蒸发",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 0,
+    "rarity": "common"
+  },
+  {
+    "name": "早八怨气测试",
+    "category": "cat-campus",
+    "emoji": "🌅",
+    "description": "早八的课不是课，是对人体极限的挑战",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 0,
+    "rarity": "common"
+  },
+  {
+    "name": "期末周精神状态",
+    "category": "cat-campus",
+    "emoji": "📝",
+    "description": "期末周的你：一天学完一学期的内容，精神濒临崩溃",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 0,
+    "rarity": "common"
+  },
+  {
+    "name": "你的宿舍地位鉴定",
+    "category": "cat-campus",
+    "emoji": "🛌",
+    "description": "是宿舍长还是摆烂王？你的宿舍生态位是什么",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 0,
+    "rarity": "common"
+  },
+  {
+    "name": "小组作业摆烂指数",
+    "category": "cat-campus",
+    "emoji": "👥",
+    "description": "小组作业就是有人在做有人在看有人不知道有作业",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 0,
+    "rarity": "common"
+  },
+  {
+    "name": "囤积症等级测试",
+    "category": "cat-habits",
+    "emoji": "📦",
+    "description": "快递纸箱舍不得扔、外卖袋子攒了一堆——是你吗？",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 0,
+    "rarity": "common"
+  },
+  {
+    "name": "深夜觅食等级",
+    "category": "cat-habits",
+    "emoji": "🌙",
+    "description": "深夜打开外卖app三次又关掉——你的觅食冲动指数",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 0,
+    "rarity": "common"
+  },
+  {
+    "name": "网购冲动指数",
+    "category": "cat-habits",
+    "emoji": "🛒",
+    "description": "加入购物车→犹豫→清空→重新加入——你的网购戏",
+    "popularity": 0,
+    "status": "published",
+    "surveyCount": 0,
+    "rarity": "common"
+  }
+]
