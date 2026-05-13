@@ -1,9 +1,12 @@
-<!-- ========== 答题页 ========== -->
+<!-- ========== 答题页 - 完整重写 ========== -->
 <template>
 	<view class="page">
+		<!-- 加载 / 重试层 -->
 		<view v-if="loading" class="retry-layer">
-			<text class="retry-icon">⏳</text>
-			<text class="retry-text">加载问卷中...</text>
+			<view class="skeleton-q"></view>
+			<view class="skeleton-opts">
+				<view class="skeleton-o" v-for="n in 3" :key="n"></view>
+			</view>
 		</view>
 		<view v-else-if="loadFailed" class="retry-layer">
 			<text class="retry-icon">😵</text>
@@ -13,35 +16,122 @@
 			</view>
 		</view>
 		<template v-else>
-			<view class="hd" :style="{ paddingTop: capsuleBottom + 'px' }">
-				<view class="hd-row1">
-					<view class="hd-back" @click="goBack"><text>←</text></view>
-					<text class="hd-tag">{{ title }}</text>
+			<view class="frame" :style="frameBgStyle">
+				<!-- 背景光斑（低端机关闭） -->
+				<view v-if="!lowPerf" class="ambient-layer">
+					<view class="orb orb-a"></view>
+					<view class="orb orb-b"></view>
+					<view class="orb orb-c"></view>
 				</view>
-				<view class="hd-row2">
-					<text class="hd-step">第 {{ idx + 1 }}/{{ qs.length }} 题</text>
-					<text class="hd-motto">{{ motto }}</text>
-				</view>
-				<view class="hd-bar"><view class="hd-fill" :style="{ width: pct + '%' }"></view></view>
-			</view>
-			<view class="qz">
-				<view :key="'q-' + idx" class="q-wrap" :class="{ 'q-out': out }">
-					<text class="q-txt">{{ curQ.title }}</text>
-				</view>
-			</view>
-			<view class="opts">
-				<view :key="'o-' + idx">
-					<view v-for="(o, i) in curQ.opts" :key="i"
-						class="o-wrap" hover-class="o-press"
-						:hover-start-time="0" :hover-stay-time="150"
-						@click="pick(i)"
-					>
-						<view class="o-inner" :class="{ 'o-on': sel === i, 'o-out': out }"
-							:style="{ animationDelay: [0.1, 0.15, 0.2][i] + 's' }"
-						>
-							<text class="o-txt">{{ o.text }}</text>
-						</view>
+
+				<!-- ====== 顶部栏 ====== -->
+				<view class="hd" :style="{ paddingTop: capsuleBottom + 'px' }">
+					<view class="hd-row1">
+						<view class="hd-back" hover-class="press-95" :hover-start-time="0" :hover-stay-time="150" @click="goBack"><text>←</text></view>
+						<text class="hd-tag">{{ title }}</text>
 					</view>
+					<view class="hd-row2">
+						<view class="hd-step">
+							<text>第 </text>
+							<text :class="['digit-roll', digitFlip ? 'a' : 'b']">{{ idx + 1 }}</text>
+							<text>/{{ qs.length }} 题</text>
+						</view>
+						<text class="hd-motto">{{ motto }}</text>
+					</view>
+					<view class="hd-dots">
+						<view v-for="(q, i) in qs" :key="i" class="step-dot"
+							:class="{ done: i < idx, current: i === idx }"
+							:style="{ background: i <= idx ? '#F97316' : '#E5E7EB' }"
+						></view>
+					</view>
+					<view class="hd-bar">
+						<view class="hd-fill" :style="{ width: pct + '%' }"></view>
+						<view class="hd-glow" :style="{ left: pct + '%' }"></view>
+					</view>
+				</view>
+
+				<!-- ====== 答题区（双槽位 A/B） ====== -->
+				<view class="stage">
+					<block v-for="slot in ['A', 'B']" :key="slot">
+						<view v-if="slots[slot].visible" class="card" :class="slots[slot].phase">
+							<!-- 题目区域 -->
+							<view class="q-wrap">
+								<view class="q-txt">
+									<view v-for="(ch, ci) in slots[slot].q.title" :key="ci"
+										class="char-drop"
+										:style="{ animationDelay: (180 + ci * 25) + 'ms' }"
+									>{{ ch }}</view>
+								</view>
+							</view>
+							<!-- 选项区域 -->
+							<view class="opts" :class="{ 'idle-breathe': idleActive }">
+								<view v-for="(o, i) in slots[slot].q.opts" :key="i"
+									class="o-wrap" hover-class="o-press"
+									:hover-start-time="0" :hover-stay-time="150"
+									@touchstart="onTouchStart(slot, i, $event)"
+									@touchend="onTouchEnd(slot, i)"
+									@touchcancel="onTouchEnd(slot, i)"
+									@click="pick(slot, i, $event)"
+								>
+									<view class="o-inner"
+										:class="{
+											'o-on': slots[slot].sel === i,
+											'o-confirm': slots[slot].confirm === i,
+											'o-dim': slots[slot].dim === i
+										}"
+										:style="{ '--idx': i }"
+										:id="'o-' + slot + '-' + i"
+									>
+										<!-- 字母标 -->
+										<view v-if="showLetters" class="o-letter">{{ ['A','B','C','D'][i] }}</view>
+										<!-- 选项文字 -->
+										<text class="o-txt">{{ o.text }}</text>
+										<!-- 水波纹（v-for渲染 ripples） -->
+										<view v-for="rp in ripples" :key="rp.id"
+											v-if="rp.slot === slot && rp.idx === i"
+											class="ripple-circle"
+											:style="{ left: rp.x + 'px', top: rp.y + 'px' }"
+										></view>
+									</view>
+									<!-- .o-fx 独立浮层（粒子 + 描边环） -->
+									<view class="o-fx">
+										<view v-for="rp in ripples" :key="'ring-' + rp.id"
+											v-if="rp.slot === slot && rp.idx === i"
+											class="ring-pulse"
+										></view>
+										<view v-for="n in 6" :key="'b-' + n"
+											class="burst-dot"
+											:style="{ '--angle': ((n - 2.5) * 28) + 'deg' }"
+											v-if="burstVisible[slot + '-' + i]"
+										></view>
+									</view>
+								</view>
+							</view>
+						</view>
+					</block>
+				</view>
+
+				<!-- ====== 浮层区 ====== -->
+				<!-- 全屏 flash -->
+				<view class="flash-overlay" v-if="flashVisible"></view>
+				<!-- 边缘光晕 -->
+				<view class="edge-glow" v-if="edgeGlowVisible"></view>
+				<!-- 连击徽章 -->
+				<view class="streak-badge" v-if="streakPopVisible">{{ streak }}连击🔥</view>
+				<!-- 长按彩蛋气泡 -->
+				<view class="tease-bubble" v-if="teaseVisible">别急，仔细想想🤔</view>
+				<!-- 纸屑层（仅最后一题） -->
+				<view class="confetti-layer" v-if="confettiVisible">
+					<view v-for="(p, pi) in confettiPieces" :key="pi"
+						class="confetti-piece"
+						:style="{
+							left: p.left + '%',
+							background: p.color,
+							animationDelay: p.delay + 's',
+							animationDuration: p.dur + 's',
+							transform: 'rotate(' + p.rot + 'deg)'
+						}"
+					></view>
 				</view>
 			</view>
 		</template>
@@ -49,6 +139,7 @@
 </template>
 
 <script>
+// ====== 常量 ======
 const OPTS_LV1 = [
 	'绝非如此 🤨', '根本不是 🚫', '太扯了 🙄', '绝对不是 🤨',
 	'你瞎了 🙅', '举报了 🚫', '我裂开 💀', '不是我 🙈',
@@ -67,59 +158,240 @@ const OPTS_LV3 = [
 	'救命太准了 😰', '你在偷看我 👀', '我承认 😮‍💨', '被你发现了 🫢',
 	'全中 🎯', '这是监控吧 📹', '有被冒犯到 😠', '我闭嘴 🤐'
 ]
-const MOTTOS = ['离确诊又近了一步 🤡','恭喜你，还在坚持 💪','不要细想，选就完了 🤷','本题没有正确答案 🙃','选错了也没人知道 🤫','你的选择毫无意义 💀']
+const MOTTOS = ['离确诊又近了一步 🤡','嗯…有点东西 👀','你逃不掉的 🙃','这题有点扎心 🫠','最后一击 💥','稳住别慌 🫡']
+const BG_COLORS = ['#F7F8FA','#FFF9F4','#F4F7FB','#F7FAF4','#FCF6F4','#F4F8F9']
+const CONFETTI_COLORS = ['#FB923C','#F97316','#FDBA74','#FCD34D','#34D399','#60A5FA']
 
 export default {
 	data() {
-		return { idx: 0, sel: -1, locked: false, out: false, tag: '', ans: [], curOpts: [], survey: null, loading: true, loadFailed: false, capsuleBottom: 92 }
+		return {
+			idx: 0,
+			locked: false,
+			activeSlot: 'A',
+			digitFlip: false,
+			showLetters: true,
+			lowPerf: false,
+			slots: {
+				A: { visible: true, phase: 'in', q: null, sel: -1, confirm: -1, dim: -1 },
+				B: { visible: false, phase: 'in', q: null, sel: -1, confirm: -1, dim: -1 }
+			},
+			tag: '',
+			ans: [],
+			survey: null,
+			loading: true,
+			loadFailed: false,
+			capsuleBottom: 92,
+			// 特效状态
+			ripples: [],
+			rippleId: 0,
+			flashVisible: false,
+			edgeGlowVisible: false,
+			streak: 0,
+			streakPopVisible: false,
+			teaseVisible: false,
+			pressFill: null,
+			confettiVisible: false,
+			confettiPieces: [],
+			burstVisible: {},
+			idleTimer: null,
+			pressTimer: null,
+			idleActive: false
+		}
 	},
 	computed: {
 		qs() { return (this.survey && this.survey.qs) || [] },
 		title() { return (this.survey && this.survey.title) || this.tag || '' },
-		curQ() {
-			const q = this.qs[this.idx] || { title: '' }
-			return { ...q, opts: this.curOpts }
-		},
 		pct() { return this.qs.length ? (this.idx / this.qs.length) * 100 : 0 },
-		motto() { return MOTTOS[(this.idx + 1) % MOTTOS.length] }
+		motto() { return MOTTOS[this.idx % MOTTOS.length] },
+		isLast() { return this.idx + 1 >= this.qs.length },
+		frameBgStyle() {
+			const bg = BG_COLORS[this.idx % BG_COLORS.length]
+			return { background: bg, transition: 'background-color 0.7s ease-out' }
+		}
 	},
 	onLoad(o) {
 		this.tag = decodeURIComponent(o.tag || '确诊为烤肠')
-		this.curOpts = this.pickOpts()
+		this.detectLowPerf()
 		this.loadSurvey()
 		try { const menu = uni.getMenuButtonBoundingClientRect(); this.capsuleBottom = menu.bottom } catch (e) {}
 	},
-
 	methods: {
-		async loadSurvey() {
-			this.loading = true
-			this.loadFailed = false
-			try {
-				const survey = uniCloud.importObject('survey')
-				const res = await survey.getSurveyByTag({ tagName: this.tag })
-				// 走到这里说明云对象返回了 errCode: 0
-				if (res && res.data) {
-					this.survey = res.data
-					this.loading = false
-				} else {
-					this.loading = false
-					this.loadFailed = true
+		// ====== 核心时序 pick() ======
+		pick(slot, i, e) {
+			if (this.locked || slot !== this.activeSlot) return
+			this.locked = true
+			const t0 = Date.now()
+			const at = (delay, fn) => setTimeout(fn, Math.max(0, delay - (Date.now() - t0)))
+			const cur = this.slots[slot]
+
+			// T+0ms: 选中态 + 弹跳
+			cur.sel = i
+			cur.confirm = i
+
+			// T+0ms: 震动反馈（最后一题三连震）
+			if (this.isLast) {
+				uni.vibrateShort({ type: 'heavy' })
+				at(260, () => uni.vibrateShort({ type: 'medium' }))
+				at(520, () => uni.vibrateShort({ type: 'light' }))
+			} else {
+				uni.vibrateShort({ type: 'light' })
+			}
+
+			// T+0ms: 记录答案
+			this.ans.push({
+				dim: cur.q.dim,
+				score: cur.q.opts[i].score,
+				questionIndex: this.idx,
+				optionIndex: i
+			})
+
+			// T+0ms: 特效触发（ripple/flash/edge/burst）
+			this.spawnRipple(slot, i, e)
+			this.flashVisible = true
+			this.edgeGlowVisible = true
+			this.triggerBurst(slot, i)
+			this.checkStreak()
+
+			// T+0ms: 最后一题纸屑
+			if (this.isLast) this.toggleConfetti(true)
+
+			// T+220ms: flash 结束
+			at(220, () => { this.flashVisible = false })
+
+			// T+420ms: 移除弹跳、edge-glow
+			at(420, () => {
+				cur.confirm = -1
+				this.edgeGlowVisible = false
+			})
+
+			// T+420ms: 最后一题 -> 跳转结果
+			if (this.isLast) {
+				at(1100, () => this.goResult())
+				return
+			}
+
+			// T+420ms: 普通题 -> 离场
+			at(420, () => {
+				this.idx++
+				this.digitFlip = !this.digitFlip
+				cur.phase = 'out'
+			})
+
+			// T+520ms: 新卡入场（100ms 叠加窗口）
+			at(520, () => {
+				const next = slot === 'A' ? 'B' : 'A'
+				const ns = this.slots[next]
+				ns.q = { ...this.qs[this.idx], opts: this.pickOpts() }
+				ns.sel = -1
+				ns.confirm = -1
+				ns.dim = -1
+				ns.phase = 'in'
+				ns.visible = true
+				this.activeSlot = next
+				// 重置闲置呼吸
+				this.resetIdleTimer()
+			})
+
+			// T+720ms: 旧卡销毁
+			at(720, () => {
+				cur.visible = false
+			})
+
+			// T+1170ms: 解锁
+			at(1170, () => {
+				this.locked = false
+			})
+		},
+
+		// ====== 特效方法 ======
+		spawnRipple(slot, i, e) {
+			const id = ++this.rippleId
+			// 事件坐标（基于 .o-inner 自身坐标）
+			const touch = e && e.touches && e.touches[0]
+			const x = touch ? touch.x : 50
+			const y = touch ? touch.y : 50
+			this.ripples.push({ id, slot, idx: i, x, y })
+			// 700ms 后移除
+			setTimeout(() => {
+				this.ripples = this.ripples.filter(r => r.id !== id)
+			}, 700)
+		},
+
+		triggerBurst(slot, i) {
+			const key = slot + '-' + i
+			this.$set(this.burstVisible, key, true)
+			setTimeout(() => {
+				this.$set(this.burstVisible, key, false)
+			}, 600)
+		},
+
+		checkStreak() {
+			this.streak++
+			this.streakPopVisible = true
+			clearTimeout(this._streakTimer)
+			this._streakTimer = setTimeout(() => {
+				this.streakPopVisible = false
+			}, 1400)
+		},
+
+		// ====== 闲置呼吸 ======
+		resetIdleTimer() {
+			clearTimeout(this.idleTimer)
+			this.idleActive = false
+			this.idleTimer = setTimeout(() => {
+				this.idleActive = true
+			}, 4000)
+		},
+
+		// ====== 长按彩蛋 ======
+		onTouchStart(slot, i, e) {
+			this.pressFill = i
+			clearTimeout(this.pressTimer)
+			this.pressTimer = setTimeout(() => {
+				this.teaseVisible = true
+				setTimeout(() => { this.teaseVisible = false }, 2200)
+			}, 600)
+		},
+		onTouchEnd(slot, i) {
+			this.pressFill = null
+			clearTimeout(this.pressTimer)
+		},
+
+		// ====== 纸屑 ======
+		toggleConfetti(show) {
+			if (show) {
+				const count = this.lowPerf ? 20 : 40
+				const pieces = []
+				for (let pi = 0; pi < count; pi++) {
+					pieces.push({
+						left: Math.random() * 100,
+						color: CONFETTI_COLORS[pi % CONFETTI_COLORS.length],
+						delay: Math.random() * 0.4,
+						dur: 1.4 + Math.random() * 1.2,
+						rot: Math.random() * 720 - 360
+					})
 				}
-			} catch (e) {
-				console.error('[answer-quiz] load error:', e.message)
-				this.loading = false
-				// 云对象 errCode !== 0 时会 throw Error
-				if (e.message && e.message.indexOf('未找到') !== -1) {
-					uni.showToast({ title: '该标签暂无问卷数据', icon: 'none' })
-					setTimeout(() => uni.navigateBack(), 1000)
-				} else {
-					this.loadFailed = true
-				}
+				this.confettiPieces = pieces
+				this.confettiVisible = true
+			} else {
+				this.confettiVisible = false
+				this.confettiPieces = []
 			}
 		},
-		manualRetry() {
-			this.loadSurvey()
+
+		// ====== 低端机检测 ======
+		detectLowPerf() {
+			try {
+				const sys = uni.getSystemInfoSync()
+				if (sys.benchmarkLevel !== undefined && sys.benchmarkLevel < 10) {
+					this.lowPerf = true
+				}
+			} catch (e) {
+				// 降级处理
+			}
 		},
+
+		// ====== 选项文本生成 ======
 		pickOpts() {
 			const lv1 = OPTS_LV1[Math.floor(Math.random() * OPTS_LV1.length)]
 			const lv2 = OPTS_LV2[Math.floor(Math.random() * OPTS_LV2.length)]
@@ -130,21 +402,39 @@ export default {
 				{ text: lv3, score: 3 }
 			]
 		},
-		pick(i) {
-			if (this.locked) return
-			this.locked = true
-			this.sel = i
-			this.ans.push({ dim: this.curQ.dim, score: this.curOpts[i].score, questionIndex: this.idx, optionIndex: i })
-			setTimeout(() => {
-				if (this.idx + 1 >= this.qs.length) { this.goResult(); return }
-				this.out = true
-				setTimeout(() => {
-					this.idx++; this.sel = -1; this.out = false; this.locked = false
-					this.curOpts = this.pickOpts()
-				}, 200)
-			}, 400)
+
+		// ====== 加载问卷 ======
+		async loadSurvey() {
+			this.loading = true
+			this.loadFailed = false
+			try {
+				const survey = uniCloud.importObject('survey')
+				const res = await survey.getSurveyByTag({ tagName: this.tag })
+				if (res && res.data) {
+					this.survey = res.data
+					this.slots.A.q = { ...this.qs[0], opts: this.pickOpts() }
+					this.loading = false
+				} else {
+					this.loading = false
+					this.loadFailed = true
+				}
+			} catch (e) {
+				console.error('[answer-quiz] load error:', e.message)
+				this.loading = false
+				if (e.message && e.message.indexOf('未找到') !== -1) {
+					uni.showToast({ title: '该标签暂无问卷数据', icon: 'none' })
+					setTimeout(() => uni.navigateBack(), 1000)
+				} else {
+					this.loadFailed = true
+				}
+			}
 		},
+		manualRetry() { this.loadSurvey() },
+
+		// ====== 返回 ======
 		goBack() { uni.navigateBack() },
+
+		// ====== 跳转结果 ======
 		async goResult() {
 			if (!this.survey) return
 			const dims = this.survey.dims
@@ -164,7 +454,6 @@ export default {
 			const dimensionScores = {}
 			dims.forEach((d, i) => { dimensionScores[d] = scores[i] })
 
-			// 异步保存答题记录，不阻塞跳转
 			try {
 				const survey = uniCloud.importObject('survey')
 				const ansData = this.ans.map(a => ({ questionIndex: a.questionIndex, optionIndex: a.optionIndex }))
@@ -196,45 +485,524 @@ export default {
 </script>
 
 <style scoped>
-.page { width: 100%; min-height: 100vh; background: #F7F8FA; display: flex; flex-direction: column; }
-.hd { padding: 0 48rpx 0; }
-.hd-row1 { display: flex; align-items: center; gap: 12rpx; margin-bottom: 44rpx; }
-.hd-back { width: 64rpx; height: 64rpx; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28rpx; color: #364153; box-shadow: 0 1rpx 2rpx -1rpx rgba(0,0,0,.1), 0 1rpx 3rpx rgba(0,0,0,.1); }
-.hd-tag { font-size: 28rpx; color: #FF8904; font-weight: 600; }
-.hd-row2 { display: flex; justify-content: space-between; margin-bottom: 16rpx; }
-.hd-step, .hd-motto { font-size: 24rpx; color: #99A1AF; font-weight: 700; }
-.hd-bar { height: 12rpx; background: #E5E7EB; border-radius: 60rpx; overflow: hidden; }
-.hd-fill { height: 100%; background: #FF8904; border-radius: 60rpx; transition: width .4s ease-out; }
-.qz { flex: 1; display: flex; align-items: center; justify-content: center; padding: 0 64rpx; }
-.q-wrap { width: 100%; }
-.q-txt { font-size: 52rpx; font-weight: 900; color: #1E2939; text-align: center; line-height: 1.5; letter-spacing: 1.3rpx; animation: in .45s cubic-bezier(.34, 1.25, .64, 1) both; }
-.opts { padding: 0 48rpx 80rpx; }
-.o-wrap { transition: transform .2s cubic-bezier(.34, 1.56, .64, 1); }
-.o-press { transform: scale(.96); transition: transform .05s ease-in; }
-.o-inner { width: 100%; height: 130rpx; border-radius: 48rpx; display: flex; align-items: center; justify-content: center; background: #fff; border: 4rpx solid #F3F4F6; transition: all .2s ease; margin-bottom: 30rpx; animation: in .45s cubic-bezier(.34, 1.25, .64, 1) both; }
-.o-txt { color: #1F2937; font-size: 34rpx; font-weight: 400; }
-.o-on { background: #FFF7ED !important; border-color: #F97316 !important; }
-.o-on .o-txt { color: #111827 !important; font-weight: 600 !important; }
-.q-out { animation: out .2s ease-in both !important; }
-.o-out { animation: out .2s ease-in both !important; }
-@keyframes in { 0% { opacity: 0; transform: translateY(50rpx); } 100% { opacity: 1; transform: translateY(0); } }
-@keyframes out { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-40rpx); } }
+/* ============================
+   Step 8: 页面 / Frame / 顶部区
+   ============================ */
+.page {
+	width: 100%; min-height: 100vh;
+	background: #F3F4F6;
+	display: flex; flex-direction: column;
+}
+.frame {
+	width: 100%; min-height: 100vh;
+	display: flex; flex-direction: column;
+	overflow: hidden;
+	position: relative;
+}
 
-/* ====== 加载/重试层 ====== */
+/* ===== 背景光斑 ===== */
+.ambient-layer {
+	position: absolute;
+	top: 0; right: 0; bottom: 0; left: 0;
+	pointer-events: none; z-index: 0;
+	overflow: hidden;
+}
+.orb {
+	position: absolute; border-radius: 50%;
+	filter: blur(56rpx); opacity: 0.45;
+}
+.orb-a {
+	width: 440rpx; height: 440rpx;
+	top: 15%; left: -10%;
+	background: radial-gradient(circle, #FED7AA, transparent 70%);
+	animation: orbDriftA 12s ease-in-out infinite;
+}
+.orb-b {
+	width: 520rpx; height: 520rpx;
+	top: 55%; right: -15%;
+	background: radial-gradient(circle, #FBCFE8, transparent 70%);
+	animation: orbDriftB 15s ease-in-out -3s infinite;
+}
+.orb-c {
+	width: 360rpx; height: 360rpx;
+	bottom: 10%; left: 20%;
+	background: radial-gradient(circle, #BFDBFE, transparent 70%);
+	animation: orbDriftC 14s ease-in-out -6s infinite;
+}
+
+/* ===== 顶部栏 ===== */
+.hd {
+	padding: 0 48rpx 16rpx;
+	position: relative; z-index: 10;
+	flex-shrink: 0;
+}
+.hd-row1 {
+	display: flex; align-items: center; gap: 24rpx;
+	margin-bottom: 48rpx;
+}
+.hd-back {
+	width: 64rpx; height: 64rpx;
+	background: #fff; border-radius: 999rpx;
+	display: flex; align-items: center; justify-content: center;
+	font-size: 28rpx; color: #4B5563;
+	box-shadow: 0 2rpx 8rpx -2rpx rgba(0,0,0,0.08);
+	transition: transform 0.15s;
+}
+.hd-back:active { transform: scale(0.95); }
+.hd-tag {
+	font-size: 28rpx; font-weight: 500;
+	color: #9CA3AF; line-height: 1;
+	overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+}
+.hd-row2 {
+	display: flex; justify-content: space-between;
+	align-items: flex-end;
+	padding: 0 8rpx; margin-bottom: 16rpx;
+}
+.hd-step { font-size: 24rpx; color: #9CA3AF; font-weight: 700; }
+.hd-step .digit-roll {
+	display: inline-block;
+	color: #F97316;
+	transform-origin: center bottom;
+}
+.digit-roll.a { animation: digitRollInA 0.45s cubic-bezier(0.34,1.45,0.64,1) both; }
+.digit-roll.b { animation: digitRollInB 0.45s cubic-bezier(0.34,1.45,0.64,1) both; }
+.hd-motto { font-size: 24rpx; color: #9CA3AF; font-weight: 700; }
+
+/* ===== 步点 ===== */
+.hd-dots {
+	display: flex; gap: 16rpx;
+	padding: 0 8rpx; margin-bottom: 16rpx;
+}
+.step-dot {
+	width: 12rpx; height: 12rpx;
+	border-radius: 50%;
+	transition: background 0.3s, transform 0.3s, box-shadow 0.3s;
+}
+.step-dot.done { transform: scale(1.2); }
+.step-dot.current {
+	transform: scale(1.35);
+	box-shadow: 0 0 20rpx rgba(251,146,60,0.7);
+}
+
+/* ===== 进度条 ===== */
+.hd-bar {
+	height: 12rpx; width: 100%;
+	background: #E5E7EB; border-radius: 999rpx;
+	overflow: hidden; position: relative;
+}
+.hd-fill {
+	height: 100%; border-radius: 999rpx;
+	background: linear-gradient(90deg, #FB923C, #F97316);
+	transition: width 0.6s cubic-bezier(0.34, 1.45, 0.64, 1);
+}
+.hd-glow {
+	position: absolute; top: -6rpx;
+	width: 28rpx; height: 24rpx;
+	transform: translateX(-50%);
+	border-radius: 50%;
+	background: radial-gradient(circle, rgba(249,115,22,0.7), transparent 70%);
+	transition: left 0.6s cubic-bezier(0.34, 1.45, 0.64, 1);
+	pointer-events: none;
+}
+/* 过半脉冲 */
+.bar-halfway { animation: barPulse 1.4s ease-in-out 2; }
+
+/* ============================
+   Step 9: 答题区
+   ============================ */
+.stage {
+	flex: 1; position: relative;
+	min-height: 900rpx; z-index: 0;
+}
+/* 双槽位卡片 */
+.card {
+	position: absolute;
+	top: 0; right: 0; bottom: 0; left: 0;
+	will-change: transform, opacity;
+	display: flex; flex-direction: column;
+}
+.card.out { pointer-events: none; }
+
+/* ===== 题目 ===== */
+.q-wrap {
+	width: 100%; flex: 1;
+	display: flex; align-items: center; justify-content: center;
+	padding: 0 64rpx;
+}
+.q-txt {
+	font-size: 52rpx; font-weight: 900; color: #1F2937;
+	text-align: center; line-height: 1.375;
+	letter-spacing: 0.05em;
+	width: 100%;
+	word-break: break-all;
+}
+.char-drop { display: inline; }
+
+/* ===== 选项 ===== */
+.opts {
+	padding: 0 48rpx 96rpx;
+	position: relative; z-index: 10;
+}
+.opts > .o-wrap + .o-wrap { margin-top: 28rpx; }
+
+.o-wrap {
+	position: relative;
+	overflow: visible;
+	transition: transform 0.18s cubic-bezier(0.34, 1.25, 0.64, 1);
+}
+.o-press {
+	transform: scale(0.95);
+	transition: transform 0.05s ease-in;
+}
+
+.o-inner {
+	position: relative; overflow: hidden;
+	width: 100%; padding: 40rpx;
+	border-radius: 48rpx;
+	background: #fff;
+	border: 2rpx solid transparent;
+	box-shadow: 0 2rpx 8rpx -2rpx rgba(0,0,0,0.06);
+	display: flex; align-items: center; justify-content: center;
+	transition:
+		background-color 0.3s ease-out,
+		border-color 0.3s ease-out,
+		color 0.3s ease-out,
+		box-shadow 0.3s ease-out,
+		transform 0.3s ease-out;
+	cursor: pointer;
+}
+
+/* 字母标 */
+.o-letter {
+	position: absolute; left: 40rpx; top: 50%;
+	transform: translateY(-50%);
+	width: 56rpx; height: 56rpx;
+	border-radius: 50%;
+	background: #FFF7ED; color: #F97316;
+	font-size: 24rpx; font-weight: 700;
+	display: flex; align-items: center; justify-content: center;
+	transition: background 0.3s ease-out, color 0.3s ease-out;
+	pointer-events: none;
+}
+
+/* 选项文字 */
+.o-txt {
+	font-size: 34rpx; font-weight: 700; color: #374151;
+	transition: color 0.3s ease-out;
+	line-height: 1.2;
+}
+
+/* 选中态 */
+.o-on {
+	background: #F97316;
+	border-color: #F97316;
+	transform: translateY(-8rpx);
+	box-shadow:
+		0 20rpx 56rpx -12rpx rgba(249,115,22,0.55),
+		0 0 0 8rpx rgba(249,115,22,0.2);
+}
+.o-on .o-txt { color: #111827; font-weight: 900; }
+.o-on .o-letter {
+	background: rgba(255,255,255,0.25);
+	color: #FFFFFF;
+}
+/* 灰态 */
+.o-dim {
+	background: rgba(255,255,255,0.6);
+	opacity: 0.45;
+}
+.o-dim .o-txt { color: #9CA3AF; }
+
+/* 确认弹跳 */
+.o-confirm { animation: confirmPop 0.32s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+/* ===== 进场动画 ===== */
+.card.in .q-txt {
+	animation: qIn 0.3s ease-out 0s both;
+}
+/* char-drop 通过内联 style 设置 animationDelay */
+.card.in .char-drop {
+	animation: charDrop 0.5s cubic-bezier(0.34, 1.4, 0.64, 1) both;
+}
+.card.in .o-inner {
+	animation: oIn 0.3s ease-out calc(var(--idx) * 0.06s) both;
+}
+
+/* ===== 离场动画 ===== */
+.card.out .q-txt {
+	animation: qOut 0.3s ease-out 0s both;
+}
+.card.out .o-inner {
+	animation: oOut 0.3s ease-out calc(var(--idx) * 0.04s) both;
+}
+
+/* ===== .o-fx 独立浮层 ===== */
+.o-fx {
+	position: absolute;
+	top: 0; right: 0; bottom: 0; left: 0;
+	overflow: visible;
+	pointer-events: none;
+}
+
+/* ===== 水波纹 ===== */
+.ripple-circle {
+	position: absolute;
+	width: 160rpx; height: 160rpx;
+	margin-left: -80rpx; margin-top: -80rpx;
+	border-radius: 50%;
+	background: rgba(249,115,22,0.35);
+	animation: ripple 0.65s cubic-bezier(0.2,0.7,0.4,1) both;
+	pointer-events: none;
+}
+
+/* ===== 描边环 ===== */
+.ring-pulse {
+	position: absolute;
+	top: 50%; left: 50%;
+	width: 120rpx; height: 120rpx;
+	margin-left: -60rpx; margin-top: -60rpx;
+	border-radius: 50%;
+	border: 4rpx solid rgba(249,115,22,0.55);
+	animation: ringPulse 0.7s cubic-bezier(0.2,0.7,0.4,1) both;
+	pointer-events: none;
+}
+
+/* ===== 粒子迸溅 ===== */
+.burst-dot {
+	position: absolute;
+	top: 50%; left: 50%;
+	width: 16rpx; height: 16rpx;
+	margin-left: -8rpx; margin-top: -8rpx;
+	border-radius: 50%;
+	background: #FB923C;
+	animation: burstDot 0.55s cubic-bezier(0.22,1,0.36,1) both;
+	transform: rotate(var(--angle)) translateY(0) scale(1);
+	pointer-events: none;
+}
+
+/* ===== 闲置呼吸 ===== */
+.idle-breathe .o-inner {
+	animation: idleBreathe 1.8s ease-in-out infinite;
+	animation-delay: calc(var(--idx) * 0.18s);
+}
+
+/* ============================
+   Step 10: 浮层 / 动画
+   ============================ */
+/* 全屏 flash */
+.flash-overlay {
+	position: absolute;
+	top: 0; right: 0; bottom: 0; left: 0;
+	z-index: 60; pointer-events: none;
+	background: radial-gradient(circle at 50% 60%, #FB923C, transparent 60%);
+	opacity: 0.35;
+	animation: flashOverlay 0.22s ease-out both;
+}
+
+/* 边缘光晕 */
+.edge-glow {
+	position: absolute;
+	top: 0; right: 0; bottom: 0; left: 0;
+	pointer-events: none; z-index: 55;
+	animation: edgeGlow 0.6s ease-out forwards;
+}
+
+/* 连击徽章 */
+.streak-badge {
+	position: fixed; top: 256rpx; left: 50%;
+	transform: translateX(-50%);
+	padding: 16rpx 32rpx; border-radius: 999rpx;
+	background: linear-gradient(135deg, #F97316, #EA580C);
+	color: #fff; font-size: 28rpx; font-weight: 700;
+	box-shadow: 0 20rpx 60rpx -12rpx rgba(249,115,22,0.55);
+	z-index: 50;
+	animation: streakPop 1.2s cubic-bezier(0.34,1.45,0.64,1) both;
+}
+
+/* 长按彩蛋气泡 */
+.tease-bubble {
+	position: fixed; bottom: 256rpx; left: 50%;
+	transform: translateX(-50%);
+	padding: 24rpx 40rpx; border-radius: 999rpx;
+	background: rgba(17,24,39,0.92);
+	color: #fff; font-size: 28rpx; font-weight: 500;
+	box-shadow: 0 20rpx 60rpx -16rpx rgba(0,0,0,0.35);
+	z-index: 50;
+	animation: teaseBubble 1.8s cubic-bezier(0.34,1.4,0.64,1) both;
+}
+
+/* 纸屑层 */
+.confetti-layer {
+	position: absolute;
+	top: 0; right: 0; bottom: 0; left: 0;
+	overflow: hidden; z-index: 40;
+	pointer-events: none;
+}
+.confetti-piece {
+	position: absolute; top: -20rpx;
+	width: 20rpx; height: 28rpx;
+	border-radius: 4rpx;
+	animation: confettiDrop 1.4s cubic-bezier(0.2,0.6,0.4,1) both;
+}
+
+/* 骨架屏 / 重试层 */
 .retry-layer {
-	position: fixed; inset: 0;
+	position: fixed; z-index: 100;
+	top: 0; right: 0; bottom: 0; left: 0;
 	display: flex; flex-direction: column;
 	align-items: center; justify-content: center;
-	background: #F7F8FA; z-index: 100;
+	background: #F3F4F6;
+}
+.skeleton-q {
+	width: 640rpx; height: 480rpx;
+	background: #E5E7EB; border-radius: 24rpx;
+	margin-bottom: 48rpx;
+}
+.skeleton-opts { display: flex; flex-direction: column; gap: 28rpx; width: 80%; }
+.skeleton-o {
+	height: 100rpx; background: #E5E7EB;
+	border-radius: 48rpx;
+	animation: shimmer 1.5s linear infinite;
 }
 .retry-icon { font-size: 80rpx; margin-bottom: 20rpx; }
-.retry-text { font-size: 28rpx; color: #99A1AF; margin-bottom: 40rpx; }
+.retry-text { font-size: 28rpx; color: #9CA3AF; margin-bottom: 40rpx; }
 .retry-btn {
-	background: white; border-radius: 48rpx;
-	padding: 20rpx 60rpx;
-	box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.1);
+	padding: 24rpx 48rpx; border-radius: 999rpx;
+	background: #F97316; color: #fff; font-size: 32rpx; font-weight: 700;
+	box-shadow: 0 8rpx 24rpx -8rpx rgba(249,115,22,0.5);
 	transition: transform 0.15s;
 }
 .press-95 { transform: scale(0.95); }
-.retry-btn-text { font-size: 32rpx; font-weight: 600; color: #F97316; }
+.retry-btn-text { color: #fff; }
+
+/* ============================
+   完整 @keyframes
+   ============================ */
+
+/* 光斑漂浮三份硬编码 */
+@keyframes orbDriftA {
+	0%, 100% { transform: translate(0,0) scale(1); }
+	50% { transform: translate(80rpx,60rpx) scale(1.15); }
+}
+@keyframes orbDriftB {
+	0%, 100% { transform: translate(0,0) scale(1); }
+	50% { transform: translate(-100rpx,80rpx) scale(1.15); }
+}
+@keyframes orbDriftC {
+	0%, 100% { transform: translate(0,0) scale(1); }
+	50% { transform: translate(60rpx,-80rpx) scale(1.15); }
+}
+
+/* 数字翻滚双 animation-name */
+@keyframes digitRollInA {
+	0%   { opacity: 0; transform: translateY(28rpx) rotateX(-60deg); }
+	100% { opacity: 1; transform: translateY(0) rotateX(0); }
+}
+@keyframes digitRollInB {
+	0%   { opacity: 0; transform: translateY(28rpx) rotateX(-60deg); }
+	100% { opacity: 1; transform: translateY(0) rotateX(0); }
+}
+
+/* 题目入场 */
+@keyframes qIn {
+	0%   { opacity: 0; transform: translateY(64rpx); }
+	100% { opacity: 1; transform: translateY(0); }
+}
+/* 逐字浮现 */
+@keyframes charDrop {
+	0%   { opacity: 0; transform: translateY(40rpx) scale(0.85); filter: blur(8rpx); }
+	100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+/* 选项入场 */
+@keyframes oIn {
+	0%   { opacity: 0; transform: translateY(64rpx); }
+	100% { opacity: 1; transform: translateY(0); }
+}
+/* 题目离场 */
+@keyframes qOut {
+	0%   { opacity: 1; transform: translateY(0); }
+	100% { opacity: 0; transform: translateY(-64rpx); }
+}
+/* 选项离场 */
+@keyframes oOut {
+	0%   { opacity: 1; transform: translateY(0); }
+	100% { opacity: 0; transform: translateY(-32rpx); }
+}
+
+/* 确认弹跳 */
+@keyframes confirmPop {
+	0%   { transform: scale(0.95); }
+	55%  { transform: scale(1.04); }
+	100% { transform: scale(1); }
+}
+
+/* 水波纹 */
+@keyframes ripple {
+	0%   { opacity: 0.45; transform: translate(-50%,-50%) scale(0); }
+	100% { opacity: 0; transform: translate(-50%,-50%) scale(6); }
+}
+/* 描边环 */
+@keyframes ringPulse {
+	0%   { opacity: 0.6; transform: scale(0); }
+	100% { opacity: 0; transform: scale(4); }
+}
+/* 粒子迸溅 */
+@keyframes burstDot {
+	0%   { opacity: 1; transform: rotate(var(--angle)) translateY(0) scale(1); }
+	100% { opacity: 0; transform: rotate(var(--angle)) translateY(-80rpx) scale(0.3); }
+}
+
+/* 进度条过半脉冲 */
+@keyframes barPulse {
+	0%, 100% { box-shadow: 0 0 0 0 rgba(249,115,22,0); }
+	50% { box-shadow: 0 0 0 12rpx rgba(249,115,22,0.18); }
+}
+
+/* 闲置呼吸 */
+@keyframes idleBreathe {
+	0%, 100% { transform: translateY(0); }
+	50% { transform: translateY(-6rpx); }
+}
+
+/* 全屏 flash */
+@keyframes flashOverlay {
+	0%   { opacity: 0.35; }
+	100% { opacity: 0; }
+}
+
+/* 边缘光晕 */
+@keyframes edgeGlow {
+	0%   { opacity: 0; box-shadow: inset 0 0 0 0 rgba(249,115,22,0); }
+	30%  { opacity: 1; box-shadow: inset 0 0 120rpx 8rpx rgba(249,115,22,0.55); }
+	100% { opacity: 0; box-shadow: inset 0 0 0 0 rgba(249,115,22,0); }
+}
+
+/* 连击徽章 */
+@keyframes streakPop {
+	0%   { opacity: 0; transform: translateX(-50%) scale(0.85) rotate(-8deg); }
+	50%  { opacity: 1; transform: translateX(-50%) scale(1.1) rotate(3deg); }
+	100% { opacity: 1; transform: translateX(-50%) scale(1) rotate(0deg); }
+}
+
+/* 长按彩蛋 */
+@keyframes teaseBubble {
+	0%   { opacity: 0; transform: translateX(-50%) translateY(20rpx) scale(0.85); }
+	30%  { opacity: 1; transform: translateX(-50%) translateY(0) scale(1.04); }
+	50%  { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+	100% { opacity: 0; transform: translateX(-50%) translateY(-8rpx) scale(1); }
+}
+
+/* 纸屑下落（每片通过内联 style 设置 rot 硬编码值） */
+@keyframes confettiDrop {
+	0%   { opacity: 1; transform: translateY(0) rotate(0deg); }
+	100% { opacity: 0; transform: translateY(110vh) rotate(720deg); }
+}
+
+/* 骨架屏 shimmer */
+@keyframes shimmer {
+	0%   { opacity: 0.5; }
+	50%  { opacity: 1; }
+	100% { opacity: 0.5; }
+}
 </style>
