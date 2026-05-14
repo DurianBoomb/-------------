@@ -244,6 +244,7 @@ export default {
 			edgeGlowVisible: false,
 			streak: 0,
 			streakPopVisible: false,
+			lastPickTime: 0,
 			teaseVisible: false,
 			pressFill: null,
 			confettiVisible: false,
@@ -408,12 +409,22 @@ export default {
 		},
 
 		checkStreak() {
-			this.streak++
-			this.streakPopVisible = true
-			clearTimeout(this._streakTimer)
-			this._streakTimer = setTimeout(() => {
-				this.streakPopVisible = false
-			}, 1400)
+			const now = Date.now()
+			const threshold = 3000 // 3秒内连续答题才算连击
+			if (this.lastPickTime && now - this.lastPickTime > threshold) {
+				this.streak = 1 // 超时，重置从1开始
+			} else {
+				this.streak++
+			}
+			this.lastPickTime = now
+			if (this.streak >= 2) {
+				this.streakPopVisible = true
+				uni.vibrateShort({ type: 'medium' })
+				clearTimeout(this._streakTimer)
+				this._streakTimer = setTimeout(() => {
+					this.streakPopVisible = false
+				}, 1200)
+			}
 		},
 
 		// ====== 闲置呼吸 ======
@@ -1166,11 +1177,12 @@ export default {
 	100% { opacity: 0; box-shadow: inset 0 0 0 0 rgba(249,115,22,0); }
 }
 
-/* 连击徽章 */
+/* 连击徽章 — 0→1.1→1→0 + rotate(-8°→3°→0°)，1.2s 自动消失 */
 @keyframes streakPop {
-	0%   { opacity: 0; transform: translateX(-50%) scale(0.85) rotate(-8deg); }
-	50%  { opacity: 1; transform: translateX(-50%) scale(1.1) rotate(3deg); }
-	100% { opacity: 1; transform: translateX(-50%) scale(1) rotate(0deg); }
+	0%   { opacity: 0; transform: translateX(-50%) scale(0) rotate(-8deg); }
+	40%  { opacity: 1; transform: translateX(-50%) scale(1.1) rotate(3deg); }
+	65%  { opacity: 1; transform: translateX(-50%) scale(1) rotate(0deg); }
+	100% { opacity: 0; transform: translateX(-50%) scale(0) rotate(0deg); }
 }
 
 /* 长按彩蛋 */
