@@ -4,7 +4,7 @@
 		<view class="hd">
 			<view class="hd-row">
 				<view class="hd-back" hover-class="press-9" :hover-start-time="0" :hover-stay-time="150" @click="goBack">
-					<text>←</text>
+					<image class="back-arrow" src="/static/left.svg" mode="aspectFit"></image>
 				</view>
 				<text class="hd-title">答题历史</text>
 			</view>
@@ -87,7 +87,8 @@ export default {
 .page { width: 100%; min-height: 100vh; background: #F7F8FA; display: flex; flex-direction: column; }
 .hd { background: white; padding: 96rpx 40rpx 24rpx; box-shadow: 0 1rpx 2rpx -1rpx rgba(0,0,0,.1); border-radius: 0 0 48rpx 48rpx; }
 .hd-row { display: flex; align-items: center; gap: 16rpx; }
-.hd-back { width: 64rpx; height: 64rpx; background: #F3F4F6; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28rpx; color: #364153; }
+.hd-back { width: 64rpx; height: 64rpx; background: #F3F4F6; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.back-arrow { width: 28rpx; height: 28rpx; }
 .hd-title { font-size: 40rpx; font-weight: 700; color: #101828; }
 .body { flex: 1; }
 .body-inner { padding: 32rpx 40rpx 0; }

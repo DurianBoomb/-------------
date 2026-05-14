@@ -1,7 +1,7 @@
 <template>
 	<view class="center">
 		<view class="back-btn" @click="goBack">
-			<text>🦊</text>
+			<image class="back-fox" src="/static/给狐狸.png" mode="aspectFit"></image>
 		</view>
 		<uni-sign-in ref="signIn"></uni-sign-in>
 		<view class="userInfo" @click.capture="toUserInfo">
@@ -369,8 +369,8 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		font-size: 36rpx;
 	}
+	.back-fox { width: 36rpx; height: 36rpx; }
 	/* #ifndef APP-NVUE */
 	view {
 		display: flex;

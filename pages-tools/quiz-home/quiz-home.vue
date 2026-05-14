@@ -6,7 +6,7 @@
 			<view class="header-top">
 				<view class="header-left" @click="goBack">
 					<view class="brand">
-						<text class="brand-emoji">🦊</text>
+						<image class="brand-emoji" src="/static/给狐狸.png" mode="aspectFit"></image>
 						<text class="brand-title">快乐大狐狸</text>
 					</view>
 				</view>
@@ -44,9 +44,9 @@
 						</view>
 						<text class="random-desc">瞎选一个，反正测出来也不准</text>
 					</view>
-					<view class="random-arrow">
-						<text>▶</text>
-					</view>
+				<view class="random-arrow">
+					<image class="random-arrow-img" src="/static/right.svg" mode="aspectFit"></image>
+				</view>
 				</view>
 
 				<!-- 标签池 -->
@@ -97,6 +97,8 @@
 				</view>
 
 				<view class="bottom-spacer"></view>
+
+				<view class="bottom-spacer"></view>
 			</view>
 		</scroll-view>
 	</view>
@@ -142,6 +144,14 @@ export default {
 		if (this._favListener) {
 			uni.$off('uni-id-pages-login-success', this._favListener)
 			this._favListener = null
+		}
+	},
+
+	onShareAppMessage() {
+		return {
+			title: '快乐大狐狸 - 正经人谁做测试啊...',
+			path: '/pages-tools/quiz-home/quiz-home',
+			imageUrl: '/static/share-banner.png'
 		}
 	},
 
@@ -291,7 +301,7 @@ export default {
 }
 .header-left { display: flex; align-items: center; gap: 10rpx; }
 .brand { display: flex; align-items: center; gap: 10rpx; }
-.brand-emoji { font-size: 60rpx; }
+.brand-emoji { width: 60rpx; height: 60rpx; }
 .brand-title { font-size: 40rpx; font-weight: 700; color: #101828; }
 .header-right { display: flex; align-items: center; gap: 8rpx; }
 .profile-btn {
@@ -345,8 +355,9 @@ export default {
 .random-arrow {
 	width: 80rpx; height: 80rpx; background: rgba(255,255,255,0.3);
 	border-radius: 50%; display: flex; align-items: center; justify-content: center;
-	font-size: 24rpx; color: #441306; flex-shrink: 0;
+	flex-shrink: 0;
 }
+.random-arrow-img { width: 32rpx; height: 32rpx; }
 
 /* ====== 标签池 ====== */
 .tag-pool { margin-bottom: 28rpx; }
@@ -417,6 +428,8 @@ export default {
 /* ====== 底部 spacer ====== */
 .bottom-spacer { height: 60rpx; width: 100%; }
 
+
+
 /* ====== 动画 ====== */
 @keyframes dropElasticA {
 	0% { opacity: 0; transform: translateY(-80rpx); }
@@ -426,4 +439,5 @@ export default {
 	0% { opacity: 0; transform: translateY(-80rpx); }
 	100% { opacity: 1; transform: translateY(0); }
 }
+
 </style>

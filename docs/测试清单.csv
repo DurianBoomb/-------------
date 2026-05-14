@@ -1,0 +1,96 @@
+优先级,模块,测试项,前置条件,测试步骤,预期结果,潜在问题/风险点
+P0,全链路-首页加载,首页加载显示正常,启动微信小程序,1.打开app 2.查看品牌区和工具卡片,首页显示"快乐大狐狸"品牌、狐狸动画、至少一张工具卡片,"【风险】HBuilderX缓存导致修改不生效，需删unpackage后重新运行"
+P0,全链路-首页加载,工具卡片点击跳转,首页正常显示,1.点击"趣味测试"卡片,跳转到 quiz-home 页,路由参数传递正确
+P0,全链路-静默登录,微信小程序静默登录,首次启动/本地token过期,1.首次打开app 2.查看控制台日志,token存在且未过期时静默跳过；否则自动执行uni.login，控制台显示静默注册结果,【风险】静默登录异常时不影响页面展示，但后续收藏/点赞等功能会因未登录而无法使用
+P0,全链路-加载性能,首页秒开体验,首次/冷启动,1.首页加载时间 2.查看请求瀑布,首页快速显示骨架或内容，不白屏,云函数冷启动可能导致首次请求延迟
+P0,主页-quiz-home,标签池加载,已登录且有网络,1.进入quiz-home页 2.观察"随便逛逛"标签池显示,显示多个标签，标签按稀有度有不同样式（common/rare/epic/darkgold），"【风险】getTagList()返回空（数据库无数据/云函数404）
+P0,主页-quiz-home,"随便测测"功能,标签池有数据,1.点击"随便测测"卡片,随机跳转到一个标签的答题页,【风险】allTags为空时函数直接return，无任何提示
+P0,主页-quiz-home,换一换功能,标签池已加载,1.点击"换一换"按钮,标签池重新洗牌，🔄图标旋转动画，标签掉落入场重新触发,【已知问题】:key重建不触发CSS animation
+P0,主页-quiz-home,精选发疯推荐,云函数有数据,1.查看"精选发疯"区域,显示top3标签，每条含emoji+标签名+描述,精选推荐取自allTags.slice(0,3)，如果数据不足3个会显示较少
+P0,主页-quiz-home,精选发疯收藏,已登录,1.点击精选卡片右侧☆按钮,☆变为⭐，再次点击恢复为☆，收藏状态持久化,【风险】toggleFavorite未登录时静默失败（前端不报错，云函数返回AUTH_ERROR）
+P0,主页-quiz-home,右上角功能按钮,页面正常,1.点击🥸 2.点击⭐ 3.点击📋,分别跳转到profile、favorites、answer-history页面,导航正常
+P0,主页-quiz-home,未登录状态首页显示,未登录,1.清除token后刷新首页,首页正常显示，精选卡片☆可显示但点击可能需先登录,loadFavorites中catch块会清除uni_id_token——如果仅是网络问题就清token过于激进
+P0,搜索页-search-page,搜索栏加载,进入搜索页,1.输入关键词（如"社恐"）2.查看搜索结果,输入后300ms防抖，显示匹配的标签列表，每项含emoji+标签名+收藏按钮,按tag.name.includes(kw)匹配，前端拼音不支持
+P0,搜索页-search-page,搜索结果收藏,已登录,1.搜索到结果后点击☆按钮,☆变为⭐成功切换,同主页收藏风险
+P0,搜索页-search-page,分类手风琴展开,分类数据加载成功,1.点击一个分类的展开箭头,手风琴展开，显示该分类下的标签（洗牌后取16个），子标题+换一换按钮,【风险】getCategories()返回空
+P0,搜索页-search-page,分类换一换,手风琴已展开,1.点击分类内的"换一换"按钮,标签重新洗牌刷新,【已知问题】换一换后无掉落动画
+P0,搜索页-search-page,空搜索状态,首次进入搜索页无输入,1.不输入任何文字,显示提示文字"输入点什么吧，你不打字我怎么知道你想测啥",正确
+P0,搜索页-search-page,冷启动数据加载,首次进入,1.进入搜索页 2.观察加载过程,getCategories和getTagList并行加载，各带3次500ms重试,重试机制可能导致首页展示延迟1.5s+
+P1,答题页-answer-quiz,加载问卷,从首页/搜索页点标签进入,1.传入有效tag 2.观察加载,显示骨架屏→加载完成后显示第一题,【风险】getSurveyByTag找不到问卷→toast"该标签暂无问卷数据"→1s后返回
+P1,答题页-answer-quiz,答题流程,问卷加载完成,1.点击选项按钮 2.观察反馈,选项选中态闪现→充能环动画（长按870ms）→水波纹+粒子迸溅+全屏flash+边缘光晕→连击徽章→切到下一题,【风险】onTouchEnd不清除chargeReady，滑动后chargeReady残留导致下次短点击触发全特效
+P1,答题页-answer-quiz,切换题目双槽位,答题中,1.连续答多题 2.观察卡片切换,A/B双槽交替，入场动画（逐字浮现+选项阶梯延迟）→离场动画（上移消失）,"【风险】pick()时序依赖多个定时器(420ms/520ms/720ms/1170ms)，定时器竞争条件可能导致卡片状态不一致"
+P1,答题页-answer-quiz,进度显示,答题过程中,1.观察顶部步进点、进度条、题号,步进点逐个点亮，进度条渐变色填充，题号有数字翻滚动画,步进点只有颜色变化（渐进色），无more层指示
+P1,答题页-answer-quiz,最后一题纸屑效果,答最后一题,1.答完最后一题后立即观察,纸屑从顶部掉落（40片），颜色随机,低端机降级为20片
+P1,答题页-answer-quiz,结果跳转,答完最后一题,1.等待1.1秒后,自动跳转到结果页（redirectTo），传参包含tag/dims/scores/emoji/rname/rdesc/colors,【风险】URL传参通过encodeURIComponent传递JSON.stringify，当维度数据量极大时URL可能超过浏览器限制
+P1,答题页-answer-quiz,结果计算,答完所有题,1.检查goResult()逻辑,前端简单算分：平均分归一化→最高维度匹配→随机噪声±8，【严重问题】前端算法与survey-utils.js中的最近邻匹配(nearestNeighborMatch)不一致
+P1,答题页-answer-quiz,分数噪声行为,结果页生成,1.检查scores计算,`Math.round((Math.random()-0.5)*16)`产生±8的随机噪声，可能导致分数在不同答题中差异大，【风险】噪声可能导致结果类型变化（最高维度被覆盖）
+P1,答题页-answer-quiz,低端机降级,低端设备模拟,1.降低benchmarkLevel<10 2.答题,背景光斑消失，纸屑20片，无水波纹/粒子等特效,benchmarkLevel在部分设备上不存在，try/catch后lowPerf默认为false（不降级）
+P1,答题页-answer-quiz,网络错误重试,云函数异常,1.断网后点击标签进入答题页 2.点击"点我重试",显示😵重试界面，点击重试重新加载,正确
+P1,答题页-answer-quiz,问卷提交,答完题,1.完成答题后检查数据库,云函数submitAnswer成功写入survey-answers表,【风险】surveySnapshot字段可能过大超出文档大小限制；【风险】未登录时submitAnswer静默失败（云函数返回AUTH_ERROR，前端catch仅打log）
+P1,答题页-answer-quiz,H5调试面板,H5环境,1.H5模式答题 2.查看底部,底部始终显示调试面板（showDebug:true），含充能延迟参数和调试按钮,生产环境不应默认显示调试面板
+P1,结果页-result,结果展示,跳转到结果页,1.查看结果页,显示大emoji+"你被确诊为"+结果名称徽章+雷达图+描述卡片+收藏按钮+赞/踩投票+底部按钮,【风险】URL参数中的scores/dims是JSON字符串，parse失败时使用硬编码默认值（[85,90,40,75,80]和5个假维度的标签
+P1,结果页-result,雷达图渲染,结果页加载完成,1.查看雷达图,Canvas 2D绘制，弹性入场动画（easeOutBack 600ms），多维度不同颜色，顶点圆圈，数据面+描边，网格+轴线,【风险】createSelectorQuery取不到node节点时函数直接return，雷达图不渲染
+P1,结果页-result,雷达图颜色动态适配,多维度问卷,1.维度数≠5的情况 2.查看雷达图颜色,colors从URL传参或通过genPalette自动生成，【严重问题】genPalette当dims>7时返回hsl格式颜色，但hexAlpha()只处理hex格式——hsl颜色传入hexAlpha会崩溃
+P1,结果页-result,收藏功能,已登录,1.点击☆/⭐收藏按钮 2.检查结果,收藏/取消收藏成功，按钮状态切换,【风险】未登录时云函数返回AUTH_ERROR，前端仅打log不提示用户
+P1,结果页-result,投票功能,已登录,1.点击👍 2.再次点击 3.点击👎 4.刷新页面,点赞/点踩切换→取消→切换→刷新后状态正确保持，计数实时更新,【风险】voteTag同标签切换时逻辑复杂（取消/切换），需验证三种场景
+P1,结果页-result,"再来一次"功能,结果页展示,1.点击"🔄再来一次"按钮,redirectTo到答题页，重新加载同标签问卷,正确
+P1,结果页-result,"分享给朋友"功能,结果页展示,1.点击"↗分享给朋友"按钮,**无任何响应**【严重BUG】shareResult()是空方法，按钮完全不可用
+P1,结果页-result,加载投票信息,结果页onReady,1.观察loadVoteInfo执行,并行请求getVoteStats/getUserVote/checkFavorites,checkFavorites使用了catch(() => ({}))包装，即使失败也不影响
+P1,结果页-result,从历史记录跳转,答题历史页,1.从answer-history点记录跳转 2.检查数据,【严重问题】answer-history传给result.vue的rdesc是空字符串，描述卡片不显示任何描述；且没有传递colors参数，雷达图颜色全靠自动生成
+P1,结果页-result,返回按钮,结果页展示,1.点击左上角返回按钮 2.查看行为,uni.reLaunch到quiz-home页（非navigateBack），跳转后首页重新加载,reLaunch会清空路由栈，用户无法通过返回按钮回溯到之前的页面
+P1.5,答题历史-answer-history,历史记录列表,已登录且有答题记录,1.进入answer-history页 2.查看列表,列表显示每条记录（emoji+标签名+结果名+时间），【风险】空数据时显示"还没有答题记录",数据从survey-answers聚合，按createdAt降序
+P1.5,答题历史-answer-history,下拉刷新,历史列表展示中,1.下拉页面,触发onPullDownRefresh，重新加载数据,页面配置了enablePullDownRefresh，onPullDownRefresh中调用了uni.stopPullDownRefresh
+P1.5,答题历史-answer-history,点击跳转,有记录,1.点击一条记录,跳转到result结果页，传参包含tag/dims/scores/emoji/rname/rdesc,【已知问题】跳转时不传colors参数，也不传rdesc（空字符串），结果页描述卡片为空；打分使用dimScores[dim]映射，如果dimScores中某个维度缺失则兜底50分
+P1.5,答题历史-answer-history,未登录状态,清除token后进入,1.未登录进入history页,云函数返回AUTH_ERROR，前端打log，list保持空数组，显示空状态,无引导登录的机制
+P1.5,用户画像-profile,"已诊断"列表,已登录且有答题记录,1.进入profile页 2.查看列表,显示"已确诊N个标签"，列表每项（emoji+标签名+结果名），去重（同一标签仅显示首次结果）,【严重问题】点击列表项跳转到答题页（重答）而非查看之前的结果——用户预期是"查看结果"而不是"重新答题"
+P1.5,用户画像-profile,空状态,未答题/无记录,1.首次进入profile页,显示📋和"你还没有诊断过任何标签"+引导语"去首页随便测测吧",正确
+P1.5,收藏列表-favorites,收藏列表,已登录且有收藏,1.进入favorites页 2.查看列表,显示收藏的标签列表（标签名+收藏时间）,数据从survey-favorites表获取
+P1.5,收藏列表-favorites,点击跳转,有收藏记录,1.点击标签名,跳到答题页开始答题,正确（跳答题页重新测，逻辑合理）
+P1.5,收藏列表-favorites,空状态,未收藏,1.首次进入favorites页,显示⭐和"还没有收藏，去逛一逛吧",正确
+P2,答题页-answer-quiz,闲置呼吸动画,答题卡显示5秒内无操作,1.停在某题不动 2.观察选项区域,4秒后选项开始轻微上下浮动呼吸，【风险】答题过程中多次resetIdleTimer可能导致timer泄漏,resetIdleTimer每次切题都会调用，clearTimeout只清最新的timer没问题
+P2,答题页-answer-quiz,长按彩蛋气泡,长按选项约870ms,1.长按一个选项约1秒,充能环动画→气泡显示"别急，仔细想想🤔"→2.2s消失→选项被标记为chargeReady,onTouchEnd不清理chargeReady，若用户只滑动不点击则chargeReady残留
+P2,答题页-answer-quiz,答题按钮点击加速,短点击选项,1.快速轻触选项,不等待870ms充能直接选中答题，不触发水波纹/粒子/震动，只触发flash+连击,这是设计行为
+P2,答题页-answer-quiz,选项文本随机,多题过程,1.连续答6+题 2.观察选项文字,每道题随机从三级池（16种否定/16种中立/16种肯定）各选1条，组合模式4096种，几乎不重复,当前三级池各16条，后续可扩充到30+
+P2,答题页-answer-quiz,背景颜色渐变,答题过程,1.答每道题时观察背景,背景在6种颜色中循环渐变（F7F8FA/FFF9F4/F4F7FB/F7FAF4/FCF6F4/F4F8F9）,颜色变化在模板中用transition实现
+P2,结果页-result,瓜分动画性能,低端设备,1.低端机观察雷达图动画,Canvas requestAnimationFrame 600ms弹性动画，低端设备可能卡顿,无低端机降级判断（vs answer-quiz有lowPerf检测）
+P2,结果页-result,返回后数据刷新,reLaunch到首页,1.从结果页点左上角←返回首页 2.观察,reLaunch导致首页全部重新加载，重新触发OnShow,可能因为重新获取数据而短暂闪烁
+P2,搜索页-search-page,自动聚焦搜索框,进入搜索页,1.观察搜索框,input元素自动获取焦点，弹出键盘,input设置了:focus="true"
+P2,搜索页-search-page,防抖搜索,输入过程中,1.连续输入文字 2.观察请求,300ms防抖，停止输入后才执行搜索过滤,使用前端filter而非云函数搜索，适用于数据量小时
+P2,主页-quiz-home,换一换按钮旋转动画,点击换一换,1.连续快速点击换一换,每次点击🔄旋转360°，连续点击因isRefreshing标志忽略多余点击,isRefreshing在500ms内阻止重复操作
+P2,各页面,空状态兼容性,各页面数据为空,1.依次检查answer-history/favorites/profile的空状态,每个页面都显示对应的空状态提示+emoji,都已实现
+P2,各页面,胶囊按钮定位,所有自定义导航页,1.检查search/result/answer-quiz的导航定位,胶囊按钮计算getMenuButtonBoundingClientRect调整位置，try/catch提供默认值,search页降级默认statusBarHeight=44
+P2,个人中心-ucenter,用户信息展示,已登录,1.进入ucenter页,显示头像+昵称，功能网格和列表完整,ucenter使用uni-starter模板
+P2,个人中心-ucenter,签到功能,已登录,1.进入签到页面 2.点击签到,签到成功有反馈,签到组件依赖uni-starter模板功能
+P2,个人中心-ucenter,阅读记录/设置/关于,个人中心页,1.点击各功能入口,跳转到对应页面,部分功能依赖uni-starter模板
+P2,全局,国际化配置,切换系统语言,1.修改手机语言为中/英 2.重新打开app,i18n.enable为false时国际化不生效，默认中文,uni-starter.config.js中i18n.enable=false
+P2,全局,uni-starter模板残留,应用信息,1.检查manifest.json 2.检查uni-starter.config.js,公司名"北京xx网络技术有限公司"、logo为static/logo.png、下载链接为示例地址、应用名称"uni-starter",【问题】品牌信息未更新为"快乐大狐狸"
+P2,全局,微信小程序appid,小程序上线,1.检查manifest.json,appid为wx49daec5e2229d643,已在微信开放平台注册
+P2,全局,分包优化,小程序编译,1.检查pages.json,主包+2个分包（pages-tools和uni-id-pages），开启subPackages优化,分包策略合理
+P2,全局,HBuilderX缓存,开发调试,1.修改.vue文件后保存 2.重新运行,**已知问题**：微信小程序模拟器缓存bug，修改后页面不刷新，需删除unpackage文件夹后重新运行
+P3,答题页-answer-quiz,连击徽章,连续答题,1.快速连续答3+题 2.观察,每次答题后连击数递增，显示"X连击🔥"徽章，1.4s后消失,streak一直累加不重置，跨页面也会累积（页面卸载后重置）
+P3,答题页-answer-quiz,载失败重试,云函数异常,1.模拟网络异常 2.进入答题页,显示😵网络不太给力+点我重试按钮,正确
+P3,答题页-answer-quiz,骨架屏,加载中,1.慢网速进入答题页,显示模拟题目和选项的灰色骨架块,骨架无动画，只有静态色块
+P3,答题页-answer-quiz,数据提交,答题完成,1.检查submitAnswer返回,返回{errCode:0, data:{id:xxx}},正确
+P3,结果页-result,多种投票状态切换,已投票,1.点赞→取消点赞→点赞→点踩→点赞,多次切换时云函数voteTag逻辑正确（取消/切换/新增），三种场景都验证,【风险】切换场景复杂：①取消已有vote②切换type③首次vote
+P3,结果页-result,收藏状态同步,结果页和其他收藏入口,1.在结果页收藏→回到首页精选→收藏状态是否一致,不同页面的收藏状态通过各自独立调用getFavorites获取，不做实时同步,各页面独立查询数据库，收藏后其他页面需刷新才同步
+P3,主页-quiz-home,换一换动画刷新,刷新触发,1.点击换一换 2.观察标签掉落,animFlip切换(A/B)触发不同类名的animation,refreshId递增形成不同key触发DOM重建→动画触发
+P3,主页-quiz-home,标签点击跳转,标签池展示,1.点击任意标签,导航到答题页传入tag参数,正确
+P3,主页-quiz-home,标签稀有度展示,标签池有多种稀有度,1.查看common/rare/epic/darkgold标签,darkgold样式空白（设计中）",【问题】.tag-darkgold只有注释"/* 暗金 — 设计中 */"无实际样式，显示时无背景/边框/颜色
+P3,主页-quiz-home,标签行数计算,不同长度标签,1.大量不同长度标签（4-10字）测试,calculateTagsForRows根据每个标签的稀有度字号+字宽+padding计算行数，最多7行，超出的标签被截断,字号计算系数0.85为经验值，不同字体在不同设备上可能有偏差，极端情况下标签可能溢出或行数计算不准确
+P3,搜索页-search-page,自动匹配,搜索,1.输入关键词检查匹配,按标签名.toLowerCase().includes()匹配，不区分大小写,不支持拼音、同义词等智能搜索
+P3,搜索页-search-page,未搜索结果处理,无匹配结果,1.输入完全无关的关键词,搜索结果区域为空，下方依然显示分类手风琴和"翻翻看"区域,正确
+P3,搜索页-search-page,手风琴互斥展开,多分类,1.展开A分类→展开B分类,A分类自动折叠，B分类展开,手风琴互斥逻辑正确
+P3,数据库-云函数,数据隔离验收,各用户数据,1.验证survey-answers/favorites/likes表的数据隔离,云函数中所有接口都有uid守卫（if(!uid)return AUTH_ERROR），查询全部where({userId: uid}),已基本完成
+P3,数据库-云函数,surveySnapshot大小,问卷量大型,1.验证包含完整问卷的快照存储,surveySnapshot字段存储完整survey对象，可能因题目+选项+结果类型数据量大超出uniCloud文档大小限制（10MB）,建议只存关键字段（tagName/dims/resultTypes）而非完整survey
+P3,数据库-云函数,importSurveys逐条插入,批量导入,1.调用importSurveys导入10+条,逐条循环add，返回每条的id和索引，过滤掉_status='failed'的条目,逐条插入效率较低（每次add触发一次写入），适合小批量（5-10条）
+P3,数据库-数据库表结构,数据冗余,字段完整性,1.检查各表字段匹配,数据库表结构与前端期望字段一致，无多余或缺失字段,survey-tags表有rarity字段但"tag-darkgold样式为空
+P3,工具脚本-evaluate_all.js,正则匹配错误,运行评估脚本,1.运行node evaluate_all.js,【严重BUG】scoreDimensionA函数中对HIGH_A_KEYWORDS使用k.test(tag)正确，但如果使用tag.includes(k)会报错——evaluation_output.txt显示"First argument to String.prototype.includes must not be a regular expression",根因已知：includes不接受正则，需改为k.test(tag)
+P3,工具脚本-extract_surveys.js,文件路径,运行提取脚本,1.检查脚本路径依赖,硬编码了"docs/问卷与后端/coze输出二期/全部问卷_合并.json"，文件不存在时脚本崩溃,路径依赖强
+P3,工具脚本-check_data_status.js,文件路径,运行检查脚本,1.检查脚本,读取02_问卷_1-50.json和01_标签全部.json，文件路径依赖docs/目录,需确认文件存在
+P3,配置-manifest.json,appid与版本,微信小程序发布,1.检查配置 2.准备提审,appid配置正确，版本号1.0.0，versionCode100,首次提审需准备完整小程序资料
+P3,配置-pages.json,分包配置,微信运行,1.编译微信小程序 2.检查分包,主包+pages-tools分包+uni-id-pages分包，分包优化已启用,pages-tools是独立分包还是分包内的子包？需确认路由匹配
+P3,配置-uni-starter.config.js,品牌信息未更新,应用运行,1.检查uni-starter.config.js,应用名称为"uni-starter"，logo为"static/logo.png"，公司为"北京xx网络技术有限公司",【问题】全部是模板残留信息，未更新为快乐大狐狸的品牌信息
+P3,App.vue-silentLogin,微信静默登录,微信小程序启动,1.启动小程序 2.检查控制台,自动执行uni.login→loginByWeixin，token不存在或过期时重新登录,【问题】token存在但已过期时先清除token再重新登录；兼容数组返回或对象返回两种格式
+P3,App.vue-silentLogin,登录事件发射,静默登录成功,1.登录成功后检查,emit('uni-id-pages-login-success')事件，各页面监听此事件可刷新用户态,正确
+P3,common-appInit.js,云对象拦截,登录操作,1.执行登录相关操作,拦截uni-id-co对象，读取剪贴板检测是否有邀请码（前缀uniInvitationCode:）,仅微信小程序环境有效
+P3,common-appInit.js,clientDB异常绑定,数据库操作,1.数据库查询失败时,db.on('error', onDBError)绑定，错误打印到console,仅clientDB查询时触发，云对象调用不触发

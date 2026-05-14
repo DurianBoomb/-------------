@@ -4,6 +4,9 @@
 		<view class="back-btn" :style="{ top: topPad + 'px' }" hover-class="btn-press" :hover-start-time="0" :hover-stay-time="100" @click="goHome">
 			<text>←</text>
 		</view>
+		<!-- 隐藏 Canvas：用于生成分享图 -->
+		<canvas type="2d" id="shareCanvas" class="share-canvas"></canvas>
+
 		<scroll-view class="body" scroll-y>
 			<view class="body-inner">
 				<view class="emoji-circle">
@@ -45,9 +48,9 @@
 				<view class="btn-retry" hover-class="btn-press" :hover-start-time="0" :hover-stay-time="150" @click="retry">
 					<text>🔄</text><text>再来一次</text>
 				</view>
-				<view class="btn-share" hover-class="btn-press" :hover-start-time="0" :hover-stay-time="150" @click="shareResult">
+				<button class="btn-share" open-type="share" hover-class="btn-press">
 					<text>↗</text><text>分享给朋友</text>
-				</view>
+				</button>
 			</view>
 			<text class="footer-tag">测着玩的，别当真 😅</text>
 		</view>
@@ -68,7 +71,8 @@ export default {
 			userVote: null,
 			voteStats: { likes: 0, dislikes: 0 },
 			favorited: false,
-			topPad: 48
+			topPad: 48,
+			shareImagePath: '',
 		}
 	},
 	onLoad(o) {
@@ -85,7 +89,16 @@ export default {
 		this.$nextTick(() => {
 			this.initRadar()
 			this.loadVoteInfo()
+			this.initShareCanvas()
 		})
+	},
+
+	onShareAppMessage() {
+		return {
+			title: '来看看「' + (this.rname || '结果') + '」',
+			path: '/pages-tools/answer-quiz/answer-quiz?tag=' + encodeURIComponent(this.tag),
+			imageUrl: this.shareImagePath || '/static/share-banner.png'
+		}
 	},
 	methods: {
 		initRadar() {
@@ -204,10 +217,220 @@ export default {
 			})
 		},
 
+		// ====== 分享图 ======
+
+		initShareCanvas() {
+			const query = uni.createSelectorQuery().in(this)
+			query.select('#shareCanvas').fields({ node: true, size: true }).exec(async res => {
+				if (!res[0] || !res[0].node) return
+				const canvas = res[0].node
+				const ctx = canvas.getContext('2d')
+				const dpr = uni.getSystemInfoSync().pixelRatio
+				const W = 500, H = 400
+				canvas.width = W * dpr
+				canvas.height = H * dpr
+				ctx.scale(dpr, dpr)
+
+				const foxImg = await this._loadImage(canvas, '/static/给狐狸.png')
+
+				this._drawShareCard(ctx, W, H, foxImg)
+
+				uni.canvasToTempFilePath({
+					canvas,
+					success: (r) => {
+						this.shareImagePath = r.tempFilePath
+					},
+					fail: () => {}
+				}, this)
+			})
+		},
+
+		_drawShareCard(ctx, W, H, foxImg) {
+			// ====== 1. 背景渐变 ======
+			const bgGrad = ctx.createLinearGradient(0, 0, 0, H)
+			bgGrad.addColorStop(0, '#FFF7ED')
+			bgGrad.addColorStop(1, '#FFEAD5')
+			ctx.fillStyle = bgGrad
+			ctx.fillRect(0, 0, W, H)
+
+			// ====== 2. 装饰色斑 ======
+			ctx.beginPath()
+			ctx.arc(520, -40, 170, 0, Math.PI * 2)
+			ctx.fillStyle = 'rgba(251,146,60,0.20)'
+			ctx.fill()
+			ctx.beginPath()
+			ctx.arc(-30, 420, 130, 0, Math.PI * 2)
+			ctx.fillStyle = 'rgba(252,211,77,0.22)'
+			ctx.fill()
+
+			// 小圆点
+			const dots = [
+				{ x: 52, y: 96, r: 3, color: '#F97316' },
+				{ x: 458, y: 118, r: 4, color: '#FB923C' },
+				{ x: 78, y: 348, r: 3, color: '#FCD34D' },
+				{ x: 432, y: 372, r: 3, color: '#F97316' },
+			]
+			dots.forEach(d => {
+				ctx.beginPath()
+				ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2)
+				ctx.fillStyle = d.color
+				ctx.fill()
+			})
+
+			// ====== 3. 左 pill ======
+			this._roundRect(ctx, 32, 32, 124, 36, 18)
+			ctx.fillStyle = '#1F2937'
+			ctx.fill()
+			ctx.font = '600 14px sans-serif'
+			const brandText = '大狐狸出品'
+			const brandW = ctx.measureText(brandText).width
+			const foxW = 22, gap = 4
+			const startX = 32 + (124 - (foxW + gap + brandW)) / 2
+			if (foxImg) {
+				ctx.drawImage(foxImg, startX, 38, foxW, 22)
+			}
+			ctx.fillStyle = '#FFFFFF'
+			ctx.textAlign = 'left'
+			ctx.textBaseline = 'middle'
+			ctx.fillText(brandText, startX + foxW + gap, 50)
+
+			// ====== 4. 右 pill ======
+			this._roundRect(ctx, 360, 32, 108, 36, 18)
+			ctx.fillStyle = 'rgba(255,255,255,0.70)'
+			ctx.fill()
+			ctx.strokeStyle = '#F97316'
+			ctx.lineWidth = 1.5
+			ctx.stroke()
+			ctx.fillStyle = '#F97316'
+			ctx.textAlign = 'center'
+			ctx.textBaseline = 'middle'
+			ctx.font = '600 13px sans-serif'
+			ctx.fillText('🔥 趣味测试', 414, 50)
+
+			// ====== 5. 今日确诊 ======
+			this._roundRect(ctx, 38, 120, 84, 26, 13)
+			ctx.fillStyle = '#F97316'
+			ctx.fill()
+			ctx.fillStyle = '#FFFFFF'
+			ctx.textAlign = 'center'
+			ctx.textBaseline = 'middle'
+			ctx.font = '700 13px sans-serif'
+			ctx.fillText('今日确诊', 80, 133)
+
+			// ====== 6. 主标题：emoji + 结果名 ======
+			const mainTitle = (this.emoji || '') + ' ' + (this.rname || '')
+			ctx.textAlign = 'left'
+			ctx.textBaseline = 'top'
+			ctx.fillStyle = '#1F2937'
+			// 先测完整宽度，按字数选字号
+			const titleSizes = [
+				{ maxLen: 8, size: 48 },
+				{ maxLen: 12, size: 40 },
+				{ maxLen: Infinity, size: 32 },
+			]
+			let tSize = 48
+			for (const t of titleSizes) {
+				if (mainTitle.length <= t.maxLen) { tSize = t.size; break }
+			}
+			while (tSize > 32) {
+				ctx.font = `900 ${tSize}px sans-serif`
+				if (ctx.measureText(mainTitle).width <= 420) break
+				const idx = titleSizes.findIndex(ti => ti.size === tSize)
+				tSize = idx < titleSizes.length - 1 ? titleSizes[idx + 1].size : 32
+			}
+			ctx.font = `900 ${tSize}px sans-serif`
+			ctx.fillText(mainTitle, 38, 158)
+
+			// ====== 7. 副标题：描述 ======
+			const desc = this.rdesc || ''
+			ctx.fillStyle = '#6B7280'
+			ctx.font = '400 16px sans-serif'
+			// 超长截断
+			let dispDesc = desc
+			if (ctx.measureText(desc).width > 420) {
+				let s = desc
+				while (s.length > 0) {
+					const test = s.slice(0, -1) + '…'
+					if (ctx.measureText(test).width <= 420) { dispDesc = test; break }
+					s = s.slice(0, -1)
+				}
+			}
+			ctx.fillText(dispDesc, 38, 222)
+
+			// ====== 8. 分隔线 + 菱形 ======
+			ctx.strokeStyle = '#FCD34D'
+			ctx.lineWidth = 2
+			ctx.beginPath()
+			ctx.moveTo(38, 274)
+			ctx.lineTo(220, 274)
+			ctx.stroke()
+			ctx.beginPath()
+			ctx.moveTo(260, 274)
+			ctx.lineTo(462, 274)
+			ctx.stroke()
+			ctx.save()
+			ctx.translate(240, 274)
+			ctx.rotate(Math.PI / 4)
+			ctx.fillStyle = '#F97316'
+			ctx.fillRect(-5, -5, 10, 10)
+			ctx.restore()
+
+			// ====== 9. CTA 按钮 ======
+			this._roundRect(ctx, 32, 296, 436, 72, 24)
+			const ctaGrad = ctx.createLinearGradient(32, 332, 468, 332)
+			ctaGrad.addColorStop(0, '#FB923C')
+			ctaGrad.addColorStop(1, '#EA580C')
+			ctx.fillStyle = ctaGrad
+			ctx.fill()
+
+			// CTA 内容
+			ctx.textBaseline = 'middle'
+			ctx.textAlign = 'left'
+			ctx.fillStyle = '#FFFFFF'
+			ctx.font = '28px sans-serif'
+			ctx.fillText('👉', 56, 332)
+			const tagName = this.tag || ''
+			const ctaText = '来看看「' + tagName + '」'
+			ctx.font = '700 20px sans-serif'
+			// 超长截断
+			let dispCta = ctaText
+			if (ctx.measureText(ctaText).width > 320) {
+				const prefix = '来看看「'
+				const suffix = '」'
+				let t = tagName
+				while (t.length > 0) {
+					const test = prefix + t.slice(0, -1) + '…' + suffix
+					if (ctx.measureText(test).width <= 320) { dispCta = test; break }
+					t = t.slice(0, -1)
+				}
+			}
+			ctx.fillText(dispCta, 96, 332)
+			ctx.font = '700 32px sans-serif'
+			ctx.fillText('›', 440, 332)
+		},
+
+		_roundRect(ctx, x, y, w, h, r) {
+			ctx.beginPath()
+			ctx.moveTo(x + r, y)
+			ctx.arcTo(x + w, y, x + w, y + h, r)
+			ctx.arcTo(x + w, y + h, x, y + h, r)
+			ctx.arcTo(x, y + h, x, y, r)
+			ctx.arcTo(x, y, x + w, y, r)
+			ctx.closePath()
+		},
+
+		_loadImage(canvas, src) {
+			return new Promise(resolve => {
+				const img = canvas.createImage()
+				img.onload = () => resolve(img)
+				img.onerror = () => resolve(null)
+				img.src = src
+			})
+		},
+
 		goHome() {
 			uni.reLaunch({ url: '/pages-tools/quiz-home/quiz-home' })
 		},
-		shareResult() {},
 		retry() {
 			uni.redirectTo({ url: '/pages-tools/answer-quiz/answer-quiz?tag=' + encodeURIComponent(this.tag) })
 		},
@@ -333,7 +556,17 @@ export default {
 .btn-share {
 	flex: 1; background: linear-gradient(90deg, #FFB900 0%, #FF6900 100%); color: #fff;
 	box-shadow: 0 2rpx 4rpx -2rpx rgba(255,105,0,.3), 0 4rpx 6rpx -1rpx rgba(255,105,0,.3);
+	margin: 0; padding: 0; border: none; line-height: 1;
 }
+.btn-share::after { border: none; }
 .btn-press { transform: scale(.96); }
 .footer-tag { font-size: 24rpx; color: #99A1AF; font-weight: 500; margin-top: 16rpx; }
+
+.share-canvas {
+	position: fixed;
+	left: -9999px;
+	top: -9999px;
+	width: 500px;
+	height: 400px;
+}
 </style>

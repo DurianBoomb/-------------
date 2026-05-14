@@ -6,7 +6,7 @@
 			<!-- 返回按钮行（与胶囊平齐） -->
 			<view class="nav-row" :style="{ height: capsuleH + 'px', marginTop: capsuleGap + 'px' }">
 				<view class="back-btn" hover-class="press-95" :hover-start-time="0" :hover-stay-time="150" @click="goBack">
-					<text class="back-icon">←</text>
+					<image class="back-icon" src="/static/left.svg" mode="aspectFit"></image>
 				</view>
 			</view>
 			<!-- 搜索栏行（胶囊下方） -->
@@ -72,7 +72,7 @@
 							<text class="accordion-name" :class="{ 'name-active': cat.expanded }">{{ cat.name }}</text>
 						</view>
 						<view class="accordion-arrow-wrap" :class="{ 'arrow-expanded': cat.expanded }">
-							<text class="accordion-arrow" :class="{ open: cat.expanded }">▾</text>
+							<image class="accordion-arrow" :class="{ open: cat.expanded }" src="/static/down.svg" mode="aspectFit"></image>
 						</view>
 					</view>
 					<view class="accordion-body">
@@ -325,7 +325,7 @@ view { box-sizing: border-box; }
 	border-radius: 50%; background: #F7F8FA;
 	transition: transform 0.15s;
 }
-.back-icon { font-size: 36rpx; color: #1E2939; font-weight: 600; line-height: 1; }
+.back-icon { width: 28rpx; height: 28rpx; }
 
 /* ====== 搜索栏行 ====== */
 .search-row { margin-top: 12rpx; }
@@ -375,7 +375,7 @@ view { box-sizing: border-box; }
 	background: #F9FAFB; display: flex; align-items: center; justify-content: center;
 }
 .accordion-arrow-wrap.arrow-expanded { background: #FFF7ED; }
-.accordion-arrow { font-size: 20rpx; color: #666; transition: transform 0.3s ease-in-out; }
+.accordion-arrow { width: 20rpx; height: 20rpx; transition: transform 0.3s ease-in-out; }
 .accordion-arrow.open { transform: rotate(180deg); }
 
 /* ====== 手风琴主体 ====== */

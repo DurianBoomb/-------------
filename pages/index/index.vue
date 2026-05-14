@@ -4,7 +4,7 @@
 		<!-- 顶部品牌区 -->
 		<view class="header">
 			<view class="brand">
-				<text class="brand-emoji">🦊</text>
+				<image class="brand-emoji" src="/static/给狐狸.png" mode="aspectFit"></image>
 				<view class="brand-text">
 					<text class="brand-title">快乐大狐狸</text>
 					<text class="brand-subtitle">一个小工具箱</text>
@@ -81,7 +81,7 @@ export default {
 	padding: 128rpx 48rpx 0;
 }
 .brand { display: flex; align-items: flex-start; gap: 14rpx; }
-.brand-emoji { font-size: 72rpx; animation: foxBreathe 3.5s ease-in-out infinite; }
+.brand-emoji { width: 72rpx; height: 72rpx; animation: foxBreathe 3.5s ease-in-out infinite; }
 .brand-text { display: flex; flex-direction: column; }
 .brand-title { font-size: 44rpx; font-weight: 700; color: #101828; }
 .brand-subtitle {
