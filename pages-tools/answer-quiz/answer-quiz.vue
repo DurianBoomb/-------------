@@ -27,7 +27,7 @@
 				<!-- ====== 顶部栏 ====== -->
 				<view class="hd" :style="{ paddingTop: capsuleBottom + 'px' }">
 					<view class="hd-row1">
-						<view class="hd-back" hover-class="press-95" :hover-start-time="0" :hover-stay-time="150" @click="goBack"><text>←</text></view>
+						<view class="hd-back" hover-class="press-95" :hover-start-time="0" :hover-stay-time="150" @click="goBack"><image class="back-arrow" src="/static/left.svg" mode="aspectFit"></image></view>
 						<text class="hd-tag">{{ title }}</text>
 					</view>
 					<view class="hd-row2">
@@ -36,7 +36,7 @@
 							<text :class="['digit-roll', digitFlip ? 'a' : 'b']">{{ idx + 1 }}</text>
 							<text>/{{ qs.length }} 题</text>
 						</view>
-						<text class="hd-motto">{{ motto }}</text>
+						<text :class="['hd-motto', digitFlip ? 'motto-a' : 'motto-b']">{{ motto }}</text>
 					</view>
 					<view class="hd-dots">
 						<view v-for="(q, i) in qs" :key="i" class="step-dot"
@@ -70,7 +70,7 @@
 									:hover-start-time="0" :hover-stay-time="150"
 									@touchstart="onTouchStart(slot, i, $event)"
 									@touchend="onTouchEnd(slot, i)"
-									@touchcancel="onTouchEnd(slot, i)"
+									@touchcancel="onTouchCancel(slot, i)"
 									@click="pick(slot, i, $event)"
 								>
 									<view class="o-inner"
@@ -84,6 +84,10 @@
 									>
 										<!-- 字母标 -->
 										<view v-if="showLetters" class="o-letter">{{ ['A','B','C','D'][i] }}</view>
+										<!-- 长按充能环（居中，在文字下方） -->
+										<view class="charge-ring" :style="{ width: chargeSize + 'rpx', height: chargeSize + 'rpx' }" v-if="pressFill === i">
+											<view class="charge-fill"></view>
+										</view>
 										<!-- 选项文字 -->
 										<text class="o-txt">{{ o.text }}</text>
 										<!-- 水波纹（v-for渲染 ripples） -->
@@ -134,6 +138,58 @@
 					></view>
 				</view>
 			</view>
+			<!-- #ifdef H5 -->
+			<!-- 调试面板 -->
+			<view class="debug-panel">
+				<view class="debug-hd">
+					<text class="debug-title">🛠 调试</text>
+					<view class="debug-close" @click="showDebug = false">✕</view>
+				</view>
+				<view class="debug-row">
+					<text class="debug-label">充能延迟(ms)：</text>
+					<input class="debug-input" type="number" v-model="debugChargeDelay" />
+				</view>
+				<view class="debug-row">
+					<text class="debug-label">充能环大小：</text>
+					<view class="debug-size-group">
+						<view class="debug-size-btn" @click="chargeSize = Math.max(20, chargeSize - 4)">−</view>
+						<text class="debug-size-val">{{ chargeSize }}</text>
+						<view class="debug-size-btn" @click="chargeSize = Math.min(120, chargeSize + 4)">+</view>
+					</view>
+				</view>
+				<view class="debug-row">
+					<view class="debug-btn-wrap">
+						<view class="o-wrap"
+							hover-class="o-press" :hover-start-time="0" :hover-stay-time="150"
+							@touchstart="debugTouchStart($event)"
+							@touchend="debugTouchEnd"
+							@touchcancel="debugTouchEnd"
+						>
+							<view class="o-inner" style="width:260rpx;">
+								<text class="o-txt">调试按钮</text>
+								<view class="charge-ring" :style="{ width: chargeSize + 'rpx', height: chargeSize + 'rpx' }" v-if="debugPressFill === 0">
+									<view class="charge-fill"></view>
+								</view>
+								<view v-for="rp in debugRipples" :key="rp.id"
+									class="ripple-circle"
+									:style="{ left: rp.x + 'px', top: rp.y + 'px' }"
+								></view>
+							</view>
+							<view class="o-fx">
+								<view v-for="rp in debugRipples" :key="'ring-' + rp.id"
+									class="ring-pulse"
+								></view>
+								<view v-for="n in 6" :key="'b-' + n"
+									class="burst-dot"
+									:style="{ '--angle': ((n - 2.5) * 28) + 'deg' }"
+									v-if="debugBurstVisible"
+								></view>
+							</view>
+						</view>
+					</view>
+				</view>
+			</view>
+			<!-- #endif -->
 		</template>
 	</view>
 </template>
@@ -195,7 +251,24 @@ export default {
 			burstVisible: {},
 			idleTimer: null,
 			pressTimer: null,
-			idleActive: false
+			chargeTimer: null,
+			idleActive: false,
+			/* #ifdef H5 */
+			// 调试面板
+			showDebug: true,
+			debugChargeDelay: 1000,
+			debugPressFill: null,
+			debugRipples: [],
+			debugRippleId: 0,
+			debugBurstVisible: false,
+			debugChargeTimer: null,
+			debugChargeEndTimer: null,
+			debugChargeComplete: false,
+			/* #endif */
+			// 充能环大小
+			chargeSize: 240,
+			// 答题按钮充能就绪标记
+			chargeReady: false
 		}
 	},
 	computed: {
@@ -228,13 +301,15 @@ export default {
 			cur.sel = i
 			cur.confirm = i
 
-			// T+0ms: 震动反馈（最后一题三连震）
-			if (this.isLast) {
-				uni.vibrateShort({ type: 'heavy' })
-				at(260, () => uni.vibrateShort({ type: 'medium' }))
-				at(520, () => uni.vibrateShort({ type: 'light' }))
-			} else {
-				uni.vibrateShort({ type: 'light' })
+			// T+0ms: 震动反馈（最后一题三连震）— 仅充能完毕触发
+			if (this.chargeReady) {
+				if (this.isLast) {
+					uni.vibrateShort({ type: 'heavy' })
+					at(260, () => uni.vibrateShort({ type: 'medium' }))
+					at(520, () => uni.vibrateShort({ type: 'light' }))
+				} else {
+					uni.vibrateShort({ type: 'light' })
+				}
 			}
 
 			// T+0ms: 记录答案
@@ -245,11 +320,14 @@ export default {
 				optionIndex: i
 			})
 
-			// T+0ms: 特效触发（ripple/flash/edge/burst）
-			this.spawnRipple(slot, i, e)
+			// T+0ms: 特效触发 — 仅充能完毕才触发水波纹/粒子迸溅
+			if (this.chargeReady) {
+				this.spawnRipple(slot, i, e)
+				this.triggerBurst(slot, i)
+				this.chargeReady = false
+			}
 			this.flashVisible = true
 			this.edgeGlowVisible = true
-			this.triggerBurst(slot, i)
 			this.checkStreak()
 
 			// T+0ms: 最后一题纸屑
@@ -290,6 +368,10 @@ export default {
 				this.activeSlot = next
 				// 重置闲置呼吸
 				this.resetIdleTimer()
+				// T+1370ms (= 520 + 850): 新卡入场动画完成后回到 entered
+				at(1370, () => {
+					if (ns.phase === 'in') ns.phase = 'entered'
+				})
 			})
 
 			// T+720ms: 旧卡销毁
@@ -343,18 +425,69 @@ export default {
 			}, 4000)
 		},
 
-		// ====== 长按彩蛋 ======
+		/* #ifdef H5 */
+		// ====== 调试面板 ======
+		debugTouchStart(e) {
+			this.debugChargeComplete = false
+			clearTimeout(this.debugChargeTimer)
+			clearTimeout(this.debugChargeEndTimer)
+			// 充能环出现（fill 动画开始）
+			this.debugChargeTimer = setTimeout(() => {
+				this.debugPressFill = 0
+			}, this.debugChargeDelay)
+			// 充能环 fill 动画完毕（0.6s）
+			this.debugChargeEndTimer = setTimeout(() => {
+				this.debugChargeComplete = true
+			}, this.debugChargeDelay + 600)
+		},
+		debugTouchEnd() {
+			if (this.debugChargeComplete) {
+				// 充能完毕后才触发全套特效
+				const id = ++this.debugRippleId
+				this.debugRipples.push({ id, x: 50, y: 50 })
+				setTimeout(() => {
+					this.debugRipples = this.debugRipples.filter(r => r.id !== id)
+				}, 700)
+				this.debugBurstVisible = true
+				setTimeout(() => { this.debugBurstVisible = false }, 600)
+				uni.vibrateShort({ type: 'light' })
+			}
+			this.debugPressFill = null
+			this.debugChargeComplete = false
+			clearTimeout(this.debugChargeTimer)
+			clearTimeout(this.debugChargeEndTimer)
+		},
+		/* #endif */
+
+		// ====== 长按彩蛋 + 充能环 ======
 		onTouchStart(slot, i, e) {
-			this.pressFill = i
+			this.chargeReady = false
 			clearTimeout(this.pressTimer)
+			clearTimeout(this.chargeTimer)
+			// 270ms 触发充能环开始蓄力
+			this.chargeTimer = setTimeout(() => {
+				this.pressFill = i
+			}, 270)
+			// 充能环动画 0.6s 充能完毕后触发彩蛋气泡 + 标记就绪（270 + 600 = 870ms）
 			this.pressTimer = setTimeout(() => {
+				this.chargeReady = true
 				this.teaseVisible = true
 				setTimeout(() => { this.teaseVisible = false }, 2200)
-			}, 600)
+			}, 870)
 		},
 		onTouchEnd(slot, i) {
 			this.pressFill = null
+			this.teaseVisible = false
 			clearTimeout(this.pressTimer)
+			clearTimeout(this.chargeTimer)
+			// chargeReady 不清，留给后面 pick() 消费
+		},
+		onTouchCancel(slot, i) {
+			this.pressFill = null
+			this.teaseVisible = false
+			this.chargeReady = false
+			clearTimeout(this.pressTimer)
+			clearTimeout(this.chargeTimer)
 		},
 
 		// ====== 纸屑 ======
@@ -411,9 +544,15 @@ export default {
 				const survey = uniCloud.importObject('survey')
 				const res = await survey.getSurveyByTag({ tagName: this.tag })
 				if (res && res.data) {
-					this.survey = res.data
-					this.slots.A.q = { ...this.qs[0], opts: this.pickOpts() }
-					this.loading = false
+				this.survey = res.data
+				this.slots.A.q = { ...this.qs[0], opts: this.pickOpts() }
+				// 首题入场动画完成后切到 entered 态（避免切题时 in→out 的 fill-mode 释放闪烁）
+				this.$nextTick(() => {
+					setTimeout(() => {
+						if (this.slots.A.phase === 'in') this.slots.A.phase = 'entered'
+					}, 850)
+				})
+				this.loading = false
 				} else {
 					this.loading = false
 					this.loadFailed = true
@@ -544,10 +683,10 @@ export default {
 	width: 64rpx; height: 64rpx;
 	background: #fff; border-radius: 999rpx;
 	display: flex; align-items: center; justify-content: center;
-	font-size: 28rpx; color: #4B5563;
 	box-shadow: 0 2rpx 8rpx -2rpx rgba(0,0,0,0.08);
 	transition: transform 0.15s;
 }
+.back-arrow { width: 28rpx; height: 28rpx; }
 .hd-back:active { transform: scale(0.95); }
 .hd-tag {
 	font-size: 28rpx; font-weight: 500;
@@ -568,6 +707,8 @@ export default {
 .digit-roll.a { animation: digitRollInA 0.45s cubic-bezier(0.34,1.45,0.64,1) both; }
 .digit-roll.b { animation: digitRollInB 0.45s cubic-bezier(0.34,1.45,0.64,1) both; }
 .hd-motto { font-size: 24rpx; color: #9CA3AF; font-weight: 700; }
+.hd-motto.motto-a { animation: mottoRollA 0.45s cubic-bezier(0.34,1.45,0.64,1) both; }
+.hd-motto.motto-b { animation: mottoRollB 0.45s cubic-bezier(0.34,1.45,0.64,1) both; }
 
 /* ===== 步点 ===== */
 .hd-dots {
@@ -626,12 +767,13 @@ export default {
 
 /* ===== 题目 ===== */
 .q-wrap {
-	width: 100%; flex: 1;
+	width: 80%; flex: 1;
 	display: flex; align-items: center; justify-content: center;
 	padding: 0 64rpx;
+	transform: translateY(-47rpx) translateX(12rpx);
 }
 .q-txt {
-	font-size: 52rpx; font-weight: 900; color: #1F2937;
+	font-size: 46rpx; font-weight: 900; color: #1F2937;
 	text-align: center; line-height: 1.375;
 	letter-spacing: 0.05em;
 	width: 100%;
@@ -649,6 +791,8 @@ export default {
 .o-wrap {
 	position: relative;
 	overflow: visible;
+	border-radius: 48rpx;
+	-webkit-tap-highlight-color: transparent;
 	transition: transform 0.18s cubic-bezier(0.34, 1.25, 0.64, 1);
 }
 .o-press {
@@ -658,7 +802,7 @@ export default {
 
 .o-inner {
 	position: relative; overflow: hidden;
-	width: 100%; padding: 40rpx;
+	width: 100%; padding: 40rpx 0;
 	border-radius: 48rpx;
 	background: #fff;
 	border: 2rpx solid transparent;
@@ -688,7 +832,9 @@ export default {
 
 /* 选项文字 */
 .o-txt {
-	font-size: 34rpx; font-weight: 700; color: #374151;
+	position: relative; z-index: 2;
+	color: #374151;
+	font-size: 34rpx; font-weight: 700;
 	transition: color 0.3s ease-out;
 	line-height: 1.2;
 }
@@ -727,6 +873,13 @@ export default {
 }
 .card.in .o-inner {
 	animation: oIn 0.3s ease-out calc(var(--idx) * 0.06s) both;
+}
+
+/* 静止态：entered — 无 animation，自然停在终态（与入场动画 100% 帧一致） */
+.card.entered .q-txt,
+.card.entered .char-drop,
+.card.entered .o-inner {
+	/* intentionally empty */
 }
 
 /* ===== 离场动画 ===== */
@@ -785,6 +938,31 @@ export default {
 .idle-breathe .o-inner {
 	animation: idleBreathe 1.8s ease-in-out infinite;
 	animation-delay: calc(var(--idx) * 0.18s);
+}
+
+/* ===== 长按充能环 ===== */
+.charge-ring {
+	position: absolute; left: 50%; top: 50%;
+	transform: translate(-50%, -50%);
+	width: 56rpx; height: 56rpx;
+	border-radius: 50%;
+	pointer-events: none;
+	z-index: 1;
+	border: 4rpx solid rgba(249,115,22,0.35);
+	overflow: hidden;
+}
+.charge-fill {
+	position: absolute; top: 0; left: 0;
+	width: 100%; height: 100%;
+	border-radius: 50%;
+	background: #F97316;
+	animation: chargeUp 0.6s ease-out forwards;
+	transform-origin: center;
+}
+@keyframes chargeUp {
+	0%   { transform: scale(0); opacity: 0.8; }
+	80%  { transform: scale(1); opacity: 0.35; }
+	100% { transform: scale(1); opacity: 0.25; }
 }
 
 /* ============================
@@ -904,6 +1082,16 @@ export default {
 	100% { opacity: 1; transform: translateY(0) rotateX(0); }
 }
 
+/* motto 双态翻滚动画 */
+@keyframes mottoRollA {
+	0%   { opacity: 0; transform: translateY(28rpx) rotateX(-60deg); }
+	100% { opacity: 1; transform: translateY(0) rotateX(0); }
+}
+@keyframes mottoRollB {
+	0%   { opacity: 0; transform: translateY(28rpx) rotateX(-60deg); }
+	100% { opacity: 1; transform: translateY(0) rotateX(0); }
+}
+
 /* 题目入场 */
 @keyframes qIn {
 	0%   { opacity: 0; transform: translateY(64rpx); }
@@ -1005,4 +1193,42 @@ export default {
 	50%  { opacity: 1; }
 	100% { opacity: 0.5; }
 }
+
+/* #ifdef H5 */
+/* ===== 调试面板 ===== */
+.debug-panel {
+	position: fixed; bottom: 0; left: 0; right: 0;
+	padding: 20rpx 32rpx 40rpx;
+	background: rgba(255,255,255,0.96);
+	backdrop-filter: blur(16rpx);
+	z-index: 999;
+	border-top: 2rpx solid rgba(0,0,0,0.06);
+	box-shadow: 0 -8rpx 32rpx rgba(0,0,0,0.06);
+}
+.debug-hd {
+	display: flex; align-items: center; justify-content: space-between;
+	margin-bottom: 12rpx;
+}
+.debug-title { font-size: 22rpx; color: #999; font-weight: 600; }
+.debug-close {
+	width: 36rpx; height: 36rpx; border-radius: 50%;
+	background: #f0f0f0; display: flex;
+	align-items: center; justify-content: center;
+	font-size: 22rpx; color: #999;
+}
+.debug-row {
+	display: flex; align-items: center; gap: 16rpx;
+	margin-bottom: 12rpx;
+}
+.debug-row:last-child { margin-bottom: 0; }
+.debug-label { font-size: 24rpx; color: #666; white-space: nowrap; }
+.debug-input {
+	flex: 1; height: 56rpx; border: 2rpx solid #ddd;
+	border-radius: 8rpx; padding: 0 16rpx; font-size: 26rpx;
+	background: #fff; color: #333;
+}
+.debug-btn-wrap {
+	position: relative;
+}
+/* #endif */
 </style>
