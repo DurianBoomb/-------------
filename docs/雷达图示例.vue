@@ -61,7 +61,7 @@
 
 <script>
 export default {
-	data() {
+		data() {
 		return {
 			scores: [85, 90, 40, 75, 80],
 			labels: ['淀粉肠指数', '加肉程度', '社交油腻度', '性价比', '抗造性'],
@@ -70,6 +70,7 @@ export default {
 			rdesc: '别挣扎了，你骨子里就是根5块钱的淀粉肠。',
 			colors: [],
 			tag: '',
+			tagId: '',
 			userVote: null,
 			voteStats: { likes: 0, dislikes: 0 },
 			favorited: false,
@@ -79,7 +80,8 @@ export default {
 	},
 	onLoad(o) {
 		try { const menu = uni.getMenuButtonBoundingClientRect(); this.topPad = menu.top } catch (e) {}
-		if (o.tag) this.tag = decodeURIComponent(o.tag)
+		this.tagId = o.tagId || ''
+		this.tag = decodeURIComponent(o.tag || '')
 		if (o.scores) this.scores = JSON.parse(decodeURIComponent(o.scores))
 		if (o.dims) this.labels = JSON.parse(decodeURIComponent(o.dims))
 		if (o.emoji) this.emoji = decodeURIComponent(o.emoji)
@@ -90,6 +92,7 @@ export default {
 	onReady() {
 		this.$nextTick(() => {
 			this.initRadar()
+			this.loadTagInfo()
 			this.loadVoteInfo()
 			this.initShareCanvas()
 		})
@@ -104,7 +107,7 @@ export default {
 	onShareAppMessage() {
 		return {
 			title: '来看看「' + (this.rname || '结果') + '」',
-			path: '/pages-tools/answer-quiz/answer-quiz?tag=' + encodeURIComponent(this.tag),
+			path: '/pages-tools/answer-quiz/answer-quiz?tagId=' + encodeURIComponent(this.tagId),
 			imageUrl: this.shareImagePath || '/static/share-banner.png'
 		}
 	},
@@ -113,7 +116,10 @@ export default {
 			// H5: 直接通过 DOM 获取 canvas 元素
 			if (typeof window !== 'undefined' && document) {
 				const el = document.getElementById('radarCanvas')
-				if (el) { this._setupCanvas(el); return }
+				if (el) {
+					this._setupCanvas(el)
+					return
+				}
 			}
 			// 小程序: 通过 SelectorQuery 获取 Canvas 2D 节点
 			const q = uni.createSelectorQuery().in(this)
@@ -589,42 +595,60 @@ export default {
 			uni.reLaunch({ url: '/pages-tools/quiz-home/quiz-home' })
 		},
 		retry() {
-			uni.redirectTo({ url: '/pages-tools/answer-quiz/answer-quiz?tag=' + encodeURIComponent(this.tag) })
+			uni.redirectTo({ url: '/pages-tools/answer-quiz/answer-quiz?tagId=' + encodeURIComponent(this.tagId) })
+		},
+
+		async loadTagInfo() {
+			if (!this.tagId) return
+			try {
+				const survey = uniCloud.importObject('survey')
+				const res = await survey.getTagInfo({ tagId: this.tagId })
+				if (res.errCode === 0 && res.data) {
+					if (!this.tag) this.tag = res.data.name
+				}
+			} catch (e) { console.error('[result] loadTagInfo:', e) }
 		},
 
 		async loadVoteInfo() {
-			if (!this.tag) return
+			const id = this.tagId || this.tag
+			if (!id) return
 			try {
 				const survey = uniCloud.importObject('survey')
+				const params = this.tagId ? { tagId: this.tagId } : { tagName: this.tag }
 				const [statRes, voteRes, favRes] = await Promise.all([
-					survey.getVoteStats({ tagName: this.tag }),
-					survey.getUserVote({ tagName: this.tag }),
-					survey.checkFavorites({ tagNames: [this.tag] }).catch(() => ({}))
+					survey.getVoteStats({ ...params }),
+					survey.getUserVote({ ...params }),
+					survey.checkFavorites({ tagIds: this.tagId ? [this.tagId] : undefined, tagNames: this.tagId ? undefined : [this.tag] }).catch(() => ({}))
 				])
 				if (statRes.errCode === 0) this.voteStats = statRes.data
 				if (voteRes.errCode === 0) this.userVote = voteRes.data.voted
-				if (favRes.errCode === 0) this.favorited = !!favRes.data[this.tag]
+				const key = this.tagId || this.tag
+				if (favRes.errCode === 0) this.favorited = !!favRes.data[key]
 			} catch (e) { console.error('[result] loadVoteInfo:', e) }
 		},
 
 		async toggleFav() {
-			if (!this.tag) return
+			const id = this.tagId || this.tag
+			if (!id) return
 			try {
 				const survey = uniCloud.importObject('survey')
-				const res = await survey.toggleFavorite({ tagName: this.tag })
+				const params = this.tagId ? { tagId: this.tagId } : { tagName: this.tag }
+				const res = await survey.toggleFavorite(params)
 				if (res.errCode === 0) this.favorited = res.data.favorited
 			} catch (e) { console.error('[result] toggleFav:', e) }
 		},
 
 		async doVote(type) {
-			if (!this.tag) return
+			const id = this.tagId || this.tag
+			if (!id) return
 			try {
 				const survey = uniCloud.importObject('survey')
-				const res = await survey.voteTag({ tagName: this.tag, type })
+				const params = this.tagId ? { tagId: this.tagId, type } : { tagName: this.tag, type }
+				const res = await survey.voteTag(params)
 				if (res.errCode === 0) {
 					this.userVote = res.data.voted
 					// 刷新统计
-					const statRes = await survey.getVoteStats({ tagName: this.tag })
+					const statRes = await survey.getVoteStats(this.tagId ? { tagId: this.tagId } : { tagName: this.tag })
 					if (statRes.errCode === 0) this.voteStats = statRes.data
 				}
 			} catch (e) { console.error('[result] doVote:', e) }
