@@ -92,7 +92,8 @@
 									hover-class="press-9"
 									:hover-start-time="0"
 									:hover-stay-time="150"
-									@click="goQuiz(t.name)"
+									:data-tag="t.name"
+									@click="handleTagClick"
 								>
 									<view :class="['tag-inner', t.cls, cat.animFlip ? 'anim-a' : 'anim-b']" :style="t.animStyle">
 										<text>{{ t.name }}</text>
@@ -280,6 +281,11 @@ export default {
 
 		goQuiz(tag) {
 			uni.navigateTo({ url: '/pages-tools/answer-quiz/answer-quiz?tag=' + encodeURIComponent(tag) })
+		},
+
+		handleTagClick(e) {
+			const tag = e.currentTarget.dataset.tag
+			if (tag) this.goQuiz(tag)
 		},
 		async loadFavorites() {
 			if (!uni.getStorageSync('uni_id_token')) return
