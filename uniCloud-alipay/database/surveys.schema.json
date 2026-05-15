@@ -98,15 +98,6 @@
 				}
 			}
 		},
-		"status": {
-			"bsonType": "string",
-			"description": "状态：active / disabled",
-			"defaultValue": "active",
-			"enum": [
-				{ "value": "active", "text": "启用" },
-				{ "value": "disabled", "text": "禁用" }
-			]
-		},
 		"create_date": {
 			"bsonType": "timestamp",
 			"description": "创建时间",
@@ -115,32 +106,5 @@
 			}
 		}
 	},
-	"indexes": [
-		{
-			"name": "tagName_status",
-			"fields": [
-				{
-					"name": "tagName",
-					"direction": "asc"
-				},
-				{
-					"name": "status",
-					"direction": "asc"
-				}
-			]
-		},
-		{
-			"name": "status_create_date",
-			"fields": [
-				{
-					"name": "status",
-					"direction": "asc"
-				},
-				{
-					"name": "create_date",
-					"direction": "desc"
-				}
-			]
-		}
-	]
+	"indexes": []
 }

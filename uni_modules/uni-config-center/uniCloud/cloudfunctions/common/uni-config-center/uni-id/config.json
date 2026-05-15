@@ -1,7 +1,7 @@
 {
   "dcloudAppid": "__UNI__1B5F317",
-  "passwordSecret": "passwordSecret-demo",
-  "tokenSecret": "tokenSecret-demo",
+  "passwordSecret": "8kFsZ3mNpQx7vJ4y",
+  "tokenSecret": "aB3cD5eF7gH9iJkLmNoPqRsTuVwXyZ12",
   "tokenExpiresIn": 7200,
   "tokenExpiresThreshold": 3600,
   "passwordErrorLimit": 6,

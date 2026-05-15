@@ -10,10 +10,23 @@ const surveysCol = db.collection('surveys')
 const answersCol = db.collection('survey-answers')
 const favoritesCol = db.collection('survey-favorites')
 const likesCol = db.collection('survey-likes')
+const uniID = require('uni-id-common')
 
 module.exports = {
-	_before() {
+	async _before() {
 		this.timestamp = Date.now()
+		this.uid = null
+		const token = this.getUniIdToken()
+		if (!token) return
+		try {
+			const uniIDInstance = uniID.createInstance({ context: this.getCloudInfo() })
+			const payload = await uniIDInstance.checkToken(token)
+			if (payload.uid) {
+				this.uid = payload.uid
+			}
+		} catch (e) {
+			// token 校验失败，uid 保持 null
+		}
 	},
 
 	async getCategories() {
@@ -34,7 +47,7 @@ module.exports = {
 			if (params.category) where.category = params.category
 
 			const query = tagsCol.where(where)
-				.field({ _id: true, name: true, category: true, emoji: true, description: true, popularity: true, surveyCount: true })
+				.field({ _id: true, name: true, category: true, emoji: true, description: true, popularity: true, surveyCount: true, rarity: true })
 
 			const ordered = params.sortBy === 'random' ? query : query.orderBy('popularity', 'desc')
 
@@ -63,7 +76,7 @@ module.exports = {
 	},
 
 	async submitAnswer(params) {
-		const uid = this.getClientInfo().uid
+		const uid = this.uid
 		if (!uid) return { errCode: 'AUTH_ERROR', errMsg: '未登录' }
 		if (!params || !params.surveyId || !params.answers) {
 			return { errCode: 'PARAM_ERROR', errMsg: '参数不完整' }
@@ -86,7 +99,7 @@ module.exports = {
 	},
 
 	async getAnswerHistory(params = {}) {
-		const uid = this.getClientInfo().uid
+		const uid = this.uid
 		if (!uid) return { errCode: 'AUTH_ERROR', errMsg: '未登录' }
 		try {
 			const page = params.page || 1
@@ -122,7 +135,7 @@ module.exports = {
 
 	async toggleFavorite(params) {
 		if (!params || !params.tagName) return { errCode: 'PARAM_ERROR', errMsg: '标签名不能为空' }
-		const uid = this.getClientInfo().uid
+		const uid = this.uid
 		if (!uid) return { errCode: 'AUTH_ERROR', errMsg: '未登录' }
 		try {
 			const existing = await favoritesCol.where({ userId: uid, tagName: params.tagName }).get()
@@ -139,7 +152,7 @@ module.exports = {
 	},
 
 	async getFavorites() {
-		const uid = this.getClientInfo().uid
+		const uid = this.uid
 		if (!uid) return { errCode: 'AUTH_ERROR', errMsg: '未登录' }
 		try {
 			const res = await favoritesCol.where({ userId: uid }).orderBy('createdAt', 'desc').get()
@@ -151,7 +164,7 @@ module.exports = {
 
 	async checkFavorites(params) {
 		if (!params || !params.tagNames) return { errCode: 'PARAM_ERROR', errMsg: '参数错误' }
-		const uid = this.getClientInfo().uid
+		const uid = this.uid
 		if (!uid) return { errCode: 0, data: {} }
 		try {
 			const res = await favoritesCol.where({ userId: uid, tagName: db.command.in(params.tagNames) }).get()
@@ -166,7 +179,7 @@ module.exports = {
 	async voteTag(params) {
 		if (!params || !params.tagName || !params.type) return { errCode: 'PARAM_ERROR', errMsg: '参数不完整' }
 		if (!['like', 'dislike'].includes(params.type)) return { errCode: 'PARAM_ERROR', errMsg: 'type 无效' }
-		const uid = this.getClientInfo().uid
+		const uid = this.uid
 		if (!uid) return { errCode: 'AUTH_ERROR', errMsg: '未登录' }
 		try {
 			const existing = await likesCol.where({ userId: uid, tagName: params.tagName }).get()
@@ -203,7 +216,7 @@ module.exports = {
 
 	async getUserVote(params) {
 		if (!params || !params.tagName) return { errCode: 'PARAM_ERROR', errMsg: '参数错误' }
-		const uid = this.getClientInfo().uid
+		const uid = this.uid
 		if (!uid) return { errCode: 0, data: { voted: null } }
 		try {
 			const res = await likesCol.where({ userId: uid, tagName: params.tagName }).get()
@@ -214,7 +227,7 @@ module.exports = {
 	},
 
 	async getUserProfile() {
-		const uid = this.getClientInfo().uid
+		const uid = this.uid
 		if (!uid) return { errCode: 'AUTH_ERROR', errMsg: '未登录' }
 		try {
 			const res = await answersCol.where({ userId: uid }).orderBy('createdAt', 'asc').get()
@@ -258,10 +271,9 @@ module.exports = {
 			// 逐条插入，避免批量 add 超过限制
 			const results = []
 			for (let i = 0; i < valid.length; i++) {
-				// 清除 Coze 内部字段
-				const { _status, _error, prompt_version, ...record } = valid[i]
-				record.status = record.status || 'active'
-				const res = await surveysCol.add(record)
+			// 清除 Coze 内部字段
+			const { _status, _error, prompt_version, ...record } = valid[i]
+			const res = await surveysCol.add(record)
 				results.push({ index: i, id: res.id, tagName: record.tagName })
 			}
 			return { errCode: 0, data: { total, imported: results.length, results } }
@@ -297,10 +309,9 @@ module.exports = {
 			return { errCode: 'PARAM_ERROR', errMsg: '标签名不能为空' }
 		}
 		try {
-			const res = await surveysCol.where({
-				tagName: params.tagName,
-				status: 'active'
-			}).get()
+		const res = await surveysCol.where({
+			tagName: params.tagName
+		}).get()
 
 			const list = res.data || []
 			if (list.length === 0) {
