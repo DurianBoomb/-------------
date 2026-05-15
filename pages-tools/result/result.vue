@@ -42,17 +42,7 @@
 						</view>
 					</view>
 				</view>
-				<view v-if="isCreator && allResultTypes.length > 1" class="creator-section anim-res-3">
-					<text class="creator-label">🪄 你是创建者，可预览所有结果</text>
-					<view v-for="(rt, idx) in allResultTypes" :key="idx" class="result-card" :style="{ borderLeftColor: rt.emojiBg || '#F3F4F6' }">
-						<view class="result-card-header">
-							<text class="result-emoji">{{ rt.emoji }}</text>
-							<text class="result-name">{{ rt.name }}</text>
-						</view>
-						<text class="result-desc">{{ rt.desc }}</text>
-					</view>
-				</view>
-				<view class="bottom-spacer"></view>
+			<view class="bottom-spacer"></view>
 			</view>
 		</scroll-view>
 
@@ -90,9 +80,7 @@ export default {
 			topPad: 48,
 			shareImagePath: '',
 
-			// 创建者预览
-			isCreator: false,
-			allResultTypes: [],
+	
 		}
 	},
 	onLoad(o) {
@@ -111,7 +99,6 @@ export default {
 			this.initRadar()
 			this.loadVoteInfo()
 			this.initShareCanvas()
-			this.loadSurveyDetail()
 		})
 	},
 
@@ -605,20 +592,6 @@ export default {
 			uni.redirectTo({ url: '/pages-tools/answer-quiz/answer-quiz?tag=' + encodeURIComponent(this.tag) })
 		},
 
-		async loadSurveyDetail() {
-			if (!this.surveyId) return
-			try {
-				const survey = uniCloud.importObject('survey')
-				const res = await survey.getSurveyDetail({ surveyId: this.surveyId })
-				if (res.errCode === 0) {
-					this.isCreator = res.data.isCreator
-					this.allResultTypes = res.data.resultTypes || []
-				}
-			} catch (e) {
-				console.error('[result] loadSurveyDetail:', e)
-			}
-		},
-
 		async loadVoteInfo() {
 			if (!this.tag) return
 			try {
@@ -742,18 +715,6 @@ export default {
 .vote-active.dislike { background: #FFF0F0; outline-color: #EF4444; color: #991B1B; }
 .vote-count { font-size: 24rpx; font-weight: 600; }
 
-/* ====== 创建者预览结果类型 ====== */
-.creator-section { width: 100%; margin-top: 40rpx; }
-.creator-label { font-size: 24rpx; color: #99A1AF; font-weight: 500; display: block; margin-bottom: 20rpx; text-align: center; }
-.result-card {
-	background: white; border-radius: 32rpx; padding: 28rpx;
-	margin-bottom: 16rpx; border-left: 8rpx solid #F3F4F6;
-	box-shadow: 0 1rpx 2rpx -1rpx rgba(0,0,0,.1), 0 1rpx 3rpx rgba(0,0,0,.1);
-}
-.result-card-header { display: flex; align-items: center; gap: 12rpx; margin-bottom: 8rpx; }
-.result-emoji { font-size: 40rpx; }
-.result-name { font-size: 30rpx; font-weight: 700; color: #1E2939; }
-.result-desc { font-size: 26rpx; color: #6A7282; line-height: 1.6; }
 .bottom-spacer { height: 200rpx; }
 .footer {
 	position: fixed; bottom: 0; left: 0; right: 0; padding: 0 24rpx 30rpx;

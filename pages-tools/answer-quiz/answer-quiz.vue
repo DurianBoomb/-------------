@@ -29,7 +29,7 @@
 					<view class="hd-row1">
 						<view class="hd-back" hover-class="press-95" :hover-start-time="0" :hover-stay-time="150" @click="goBack"><image class="back-arrow" src="/static/left.svg" mode="aspectFit"></image></view>
 						<text class="hd-tag">{{ title }}</text>
-						<text v-if="isUserGenerated" class="hd-author">🧑‍🎨</text>
+						<text v-if="isUserGenerated" class="hd-author">🧑‍🎨 {{ creatorNickname || '用户' }}</text>
 					</view>
 					<view class="hd-row2">
 						<view class="hd-step">
@@ -270,7 +270,8 @@ export default {
 			// 充能环大小
 			chargeSize: 240,
 			// 答题按钮充能就绪标记
-			chargeReady: false
+			chargeReady: false,
+			creatorNickname: ''
 		}
 	},
 	computed: {
@@ -558,6 +559,10 @@ export default {
 				const res = await survey.getSurveyByTag({ tagName: this.tag })
 				if (res && res.data) {
 				this.survey = res.data
+				// 如果是用户生成问卷，查创建者昵称
+				if (this.survey.creatorId) {
+					this.loadCreatorNickname(this.survey.creatorId)
+				}
 				this.slots.A.q = { ...this.qs[0], opts: this.pickOpts() }
 				// 首题入场动画完成后切到 entered 态（避免切题时 in→out 的 fill-mode 释放闪烁）
 				this.$nextTick(() => {
@@ -582,6 +587,18 @@ export default {
 			}
 		},
 		manualRetry() { this.loadSurvey() },
+
+		async loadCreatorNickname(uid) {
+			try {
+				const db = uniCloud.database()
+				const res = await db.collection('uni-id-users').doc(uid).field('nickname').get()
+				if (res.data && res.data.length > 0) {
+					this.creatorNickname = res.data[0].nickname || '找找去哪换名字'
+				}
+			} catch (e) {
+				console.error('[answer-quiz] loadCreatorNickname:', e)
+			}
+		},
 
 		// ====== 返回 ======
 		goBack() { uni.navigateBack() },

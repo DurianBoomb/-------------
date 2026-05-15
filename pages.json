@@ -147,6 +147,12 @@
 				"style": {
 					"navigationBarTitleText": "已生成问卷"
 				}
+			},
+			{
+				"path": "survey-preview/survey-preview",
+				"style": {
+					"navigationStyle": "custom"
+				}
 			}]
 		},
 		{

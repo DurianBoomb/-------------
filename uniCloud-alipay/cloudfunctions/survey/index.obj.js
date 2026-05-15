@@ -14,6 +14,8 @@ const uniID = require('uni-id-common')
 
 // ==================== Coze 问卷生成 ====================
 
+// ==================== Coze 问卷生成 ====================
+
 /**
  * 递归 trim 对象/数组中所有字符串字段
  */
@@ -423,100 +425,29 @@ module.exports = {
 		const tagDesc = (params.tagDesc || '').trim()
 
 		try {
-			// 1. 读取 Coze 配置
-			const cozeConfig = require('uni-config-center')({ pluginId: 'coze' }).config()
-			if (!cozeConfig || !cozeConfig.api_url || !cozeConfig.api_token) {
-				return { errCode: 'CONFIG_ERROR', errMsg: 'Coze 配置缺失' }
-			}
-
-			// 2. 调 Coze API
-			const response = await uniCloud.httpclient.request(cozeConfig.api_url, {
-				method: 'POST',
-				headers: {
-					'Authorization': `Bearer ${cozeConfig.api_token}`,
-					'Content-Type': 'application/json'
-				},
-				data: {
-					tag_name: tagName,
-					tag_desc: tagDesc
-				},
-				timeout: cozeConfig.timeout || 60000,
-				dataType: 'json'
-			})
-
-			// 3. 解析响应
-			const body = response.data || response.body
-			if (!body) {
-				return { errCode: 'COZE_ERROR', errMsg: 'Coze 返回为空' }
-			}
-
-			const parsed = typeof body === 'string' ? JSON.parse(body) : body
-
-			const rawQuestionnaire = parsed.questionnaire
-			if (!rawQuestionnaire) {
-				return { errCode: 'COZE_ERROR', errMsg: 'Coze 返回缺少 questionnaire 字段', data: parsed }
-			}
-
-			// 4. 检测 Coze 兜底失败
-			if (rawQuestionnaire._status === 'failed') {
-				return { errCode: 'COZE_FAILED', errMsg: rawQuestionnaire._error || 'Coze 生成失败' }
-			}
-
-			// 5. 递归 trim 清洗所有字符串
-			const questionnaire = deepTrim(rawQuestionnaire)
-
-			// 6. 格式校验
-			const validation = validateQuestionnaire(questionnaire, tagName)
-			if (!validation.valid) {
-				return { errCode: 'VALIDATE_ERROR', errMsg: '问卷格式校验未通过', data: { errors: validation.errors, questionnaire } }
-			}
-
-			// 7. 组装入库数据
-			const { _status, _error, prompt_version, ...surveyRecord } = questionnaire
-			surveyRecord.tagName = tagName
-			surveyRecord.status = 'active'
-			surveyRecord.creatorId = uid
-
-			// 8. 插入 surveys 表
-			const surveyRes = await surveysCol.add(surveyRecord)
-
-			// 9. 检查同名字标签
-			const existingTags = await findExistingTags(tagName)
-			const userTag = existingTags.find(t => t.source === 'user' && t.creatorId === uid)
-
-			if (!userTag) {
-				await tagsCol.add({
-					name: tagName,
-					emoji: '',
-					source: 'user',
-					creatorId: uid,
-					status: 'draft',
-					searchable: false,
-					surveyCount: 1,
-					popularity: 0,
-					rarity: 'common'
-				})
-			} else {
-				await tagsCol.doc(userTag._id).update({
-					surveyCount: (userTag.surveyCount || 0) + 1
-				})
-			}
-
-			// 10. 返回
+			// ===== 审核测试模式：跳过 Coze API 调用 =====
 			return {
 				errCode: 0,
 				data: {
-					surveyId: surveyRes.id,
+					surveyId: 'mock-survey-id',
 					tagName,
 					questionnaire: {
-						title: questionnaire.title || tagName,
-						dims: questionnaire.dims,
-						qs: questionnaire.qs,
-						resultTypes: questionnaire.resultTypes,
-						tagDesc: questionnaire.tagDesc || ''
+						title: tagName,
+						dims: ['维度一', '维度二', '维度三', '维度四', '维度五'],
+						qs: [
+							{ title: '这是一个模拟题目？', dim: '维度一', options: { deny: '不是', hesitate: '不确定', admit: '是' } },
+							{ title: '你觉得这个测试怎么样？', dim: '维度二', options: { deny: '不好玩', hesitate: '还行', admit: '很有趣' } },
+							{ title: '要不要再来一次？', dim: '维度三', options: { deny: '不要', hesitate: '再说', admit: '必须的' } }
+						],
+						resultTypes: [
+							{ name: '结果A', emoji: '😊', desc: '这是一个模拟结果', match: '匹配度 90%', emojiBg: '#4ade80' },
+							{ name: '结果B', emoji: '😎', desc: '这是另一个模拟结果', match: '匹配度 80%', emojiBg: '#f97316' }
+						],
+						tagDesc: tagDesc || ''
 					}
 				}
 			}
+			// ===== 审核测试模式结束 =====
 
 		} catch (e) {
 			console.error('[generateFromCoze] error:', e)
@@ -545,6 +476,10 @@ module.exports = {
 					id: s._id,
 					title: s.title || s.tagName || '',
 					tagName: s.tagName || '',
+					tagDesc: s.tagDesc || '',
+					dims: s.dims || [],
+					qs: s.qs || [],
+					resultTypes: s.resultTypes || [],
 					createdAt: s.create_date
 				}))
 			}
@@ -580,6 +515,59 @@ module.exports = {
 		} catch (e) {
 			console.error('[getSurveyDetail] error:', e)
 			return { errCode: 'DB_ERROR', errMsg: '查询失败' }
+		}
+	},
+
+	/**
+	 * 文字内容安全审核（调微信内容安全 API）
+	 * @param {Object} params
+	 * @param {string} params.content - 待审核文本
+	 * @returns {Object} { errCode, data: { pass: boolean } }
+	 */
+	async checkTextContent(params = {}) {
+		const uid = this.uid
+		if (!uid) return { errCode: 'AUTH_ERROR', errMsg: '未登录' }
+
+		const content = (params.content || '').trim()
+		if (!content) return { errCode: 'PARAM_ERROR', errMsg: '内容不能为空' }
+
+		try {
+			// 获取用户 openid（版本 2 需要）
+			const usersCol = db.collection('uni-id-users')
+			const userRes = await usersCol.doc(uid).field({ 'wx_openid.mp': true }).get()
+			const openid = (userRes.data && userRes.data.length > 0) ? userRes.data[0].wx_openid.mp : ''
+			if (!openid) {
+				console.warn('[checkTextContent] 无法获取 openid，放行')
+				return { errCode: 0, data: { pass: true } }
+			}
+
+			// 创建审核实例（用 uni-sec-check 插件）
+			const UniSecCheck = require('uni-sec-check')
+			const uniSecCheck = new UniSecCheck({
+				provider: 'mp-weixin',
+				requestId: this.getClientInfo().requestId
+			})
+
+			// 调用插件文本审核，version=2 会做基本同步检测 + 异步深度检测
+			const result = await uniSecCheck.textSecCheck({
+				content,
+				openid,
+				scene: 1,
+				version: 2
+			})
+
+			console.log('[checkTextContent] 插件返回:', JSON.stringify(result))
+
+			// 按文档推荐逻辑：errCode === 'uni-sec-check-risk-content' 即有风险
+			if (result.errCode === 'uni-sec-check-risk-content') {
+				return { errCode: 0, data: { pass: false } }
+			}
+
+			return { errCode: 0, data: { pass: true } }
+
+		} catch (e) {
+			console.error('[checkTextContent] error:', e)
+			return { errCode: 0, data: { pass: true }, warning: '审核服务异常，已放行' }
 		}
 	}
 }

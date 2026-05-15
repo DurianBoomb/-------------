@@ -25,12 +25,16 @@
 					<text class="empty-txt">还没有生成过问卷，去搜索页定制一个吧 🧐</text>
 				</view>
 				<view v-else class="list">
-					<view v-for="(item, idx) in list" :key="idx" class="card" hover-class="press-98" :hover-start-time="0" :hover-stay-time="150" @click="goQuiz(item.tagName, item.id)">
-						<view class="card-info">
-							<text class="card-name">{{ item.title }}</text>
-							<text class="card-time">{{ fmtTime(item.createdAt) }}</text>
+					<view v-for="(item, idx) in list" :key="idx" class="card">
+						<view class="card-main" hover-class="press-98" :hover-start-time="0" :hover-stay-time="150" @click="goQuiz(item.tagName, item.id)">
+							<view class="card-info">
+								<text class="card-name">{{ item.title }}</text>
+								<text class="card-time">{{ fmtTime(item.createdAt) }}</text>
+							</view>
 						</view>
-						<view class="card-arrow">▶</view>
+						<view class="card-preview" hover-class="press-95" :hover-start-time="0" :hover-stay-time="150" @click="goPreview(item)">
+							<text class="preview-txt">预览</text>
+						</view>
 					</view>
 				</view>
 				<view class="bottom-spacer"></view>
@@ -73,6 +77,25 @@ export default {
 			if (surveyId) url += '&surveyId=' + surveyId
 			uni.navigateTo({ url })
 		},
+		goPreview(item) {
+			const qs = item.qs || []
+			const dims = item.dims || []
+			const rts = item.resultTypes || []
+			if (!qs.length || !dims.length) {
+				uni.showToast({ title: '问卷数据不完整', icon: 'none' })
+				return
+			}
+			uni.navigateTo({
+				url: '/pages-tools/survey-preview/survey-preview?' +
+					'tag=' + encodeURIComponent(item.tagName) +
+					'&surveyId=' + item.id +
+					'&title=' + encodeURIComponent(item.title || '') +
+					'&tagDesc=' + encodeURIComponent(item.tagDesc || '') +
+					'&dims=' + encodeURIComponent(JSON.stringify(dims)) +
+					'&qs=' + encodeURIComponent(JSON.stringify(qs)) +
+					'&rts=' + encodeURIComponent(JSON.stringify(rts))
+			})
+		},
 		goBack() { uni.navigateBack() }
 	}
 }
@@ -92,10 +115,14 @@ export default {
 .empty-state { display: flex; flex-direction: column; align-items: center; padding: 120rpx 0; }
 .empty-icon { font-size: 80rpx; margin-bottom: 20rpx; }
 .empty-txt { font-size: 28rpx; color: #99A1AF; text-align: center; }
-.card { display: flex; align-items: center; background: white; border-radius: 32rpx; padding: 24rpx; gap: 16rpx; margin-bottom: 16rpx; box-shadow: 0 1rpx 2rpx -1rpx rgba(0,0,0,.1), 0 1rpx 3rpx rgba(0,0,0,.1); }
+.card { display: flex; align-items: center; background: white; border-radius: 32rpx; padding: 0; margin-bottom: 16rpx; box-shadow: 0 1rpx 2rpx -1rpx rgba(0,0,0,.1), 0 1rpx 3rpx rgba(0,0,0,.1); overflow: hidden; }
+.card-main { display: flex; align-items: center; flex: 1; padding: 24rpx; gap: 16rpx; }
 .card-info { flex: 1; min-width: 0; }
 .card-name { font-size: 30rpx; font-weight: 700; color: #1E2939; display: block; }
 .card-time { font-size: 22rpx; color: #99A1AF; display: block; margin-top: 4rpx; }
-.card-arrow { font-size: 20rpx; color: #D1D5DC; flex-shrink: 0; }
+.card-preview { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12rpx 20rpx; background: #FFF7ED; height: 100%; flex-shrink: 0; gap: 4rpx; }
+.preview-icon { font-size: 28rpx; }
+.preview-txt { font-size: 22rpx; color: #C2410C; font-weight: 600; }
+.press-95 { transform: scale(.95); }
 .bottom-spacer { height: 60rpx; }
 </style>

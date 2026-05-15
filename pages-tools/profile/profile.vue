@@ -8,7 +8,24 @@
 				</view>
 				<text class="hd-title">照照镜子</text>
 			</view>
+			<view class="hd-nickname" @click="showNicknameEditor = true">
+				<text class="hd-nickname-label">昵称：</text>
+				<text class="hd-nickname-val">{{ nickname }}</text>
+				<text class="hd-nickname-edit">✏️</text>
+			</view>
 			<text class="hd-subtitle">已确诊 {{ list.length }} 个标签</text>
+		</view>
+
+		<!-- 昵称编辑弹窗 -->
+		<view v-if="showNicknameEditor" class="modal-overlay" @click="cancelNicknameEdit">
+			<view class="modal-box" @click.stop>
+				<text class="modal-title">修改昵称</text>
+				<input class="modal-input" v-model="editNickname" maxlength="20" placeholder="输入新昵称" @confirm="saveNickname" />
+				<view class="modal-btns">
+					<view class="modal-btn modal-btn-cancel" hover-class="press-95" @click="cancelNicknameEdit">取消</view>
+					<view class="modal-btn modal-btn-confirm" hover-class="press-95" @click="saveNickname">保存</view>
+				</view>
+			</view>
 		</view>
 
 		<scroll-view class="body" scroll-y>
@@ -43,10 +60,38 @@
 <script>
 export default {
 	data() {
-		return { loading: true, list: [] }
+		return {
+			loading: true, list: [],
+			nickname: '',
+			showNicknameEditor: false,
+			editNickname: ''
+		}
 	},
-	onLoad() { this.loadProfile() },
+	onLoad() {
+		this.loadNickname()
+		this.loadProfile()
+	},
 	methods: {
+		async loadNickname() {
+			try {
+				const db = uniCloud.database()
+				const uid = uni.getStorageSync('uni-id-pages-userInfo') && uni.getStorageSync('uni-id-pages-userInfo').uid
+				// 如果缓存有就直接用，没有就查
+				const userInfo = uni.getStorageSync('uni-id-pages-userInfo')
+				if (userInfo && userInfo.nickname) {
+					this.nickname = userInfo.nickname
+				} else if (uid) {
+					const res = await db.collection('uni-id-users').doc(uid).field('nickname').get()
+					if (res.data && res.data.length > 0) {
+						this.nickname = res.data[0].nickname || '找找去哪换名字'
+					}
+				}
+				if (!this.nickname) this.nickname = '找找去哪换名字'
+			} catch (e) {
+				console.error('[profile] loadNickname:', e)
+				this.nickname = '找找去哪换名字'
+			}
+		},
 		async loadProfile() {
 			this.loading = true
 			try {
@@ -57,6 +102,53 @@ export default {
 				console.error('[profile] load error:', e)
 			}
 			this.loading = false
+		},
+		cancelNicknameEdit() {
+			this.showNicknameEditor = false
+			this.editNickname = ''
+		},
+		async saveNickname() {
+			const name = (this.editNickname || '').trim()
+			if (!name) {
+				uni.showToast({ title: '昵称不能为空', icon: 'none' })
+				return
+			}
+
+			// 内容安全审核
+			uni.showLoading({ title: '审核中...', mask: true })
+			try {
+				const survey = uniCloud.importObject('survey')
+				const checkRes = await survey.checkTextContent({ content: name })
+				if (checkRes.errCode === 0 && checkRes.data && !checkRes.data.pass) {
+					uni.hideLoading()
+					uni.showToast({ title: '昵称包含违规内容', icon: 'none' })
+					return
+				}
+			} catch (e) {
+				// 审核异常时放行
+				console.error('[profile] checkTextContent error:', e)
+			}
+
+			try {
+				const db = uniCloud.database()
+				const uid = uni.getStorageSync('uni-id-pages-userInfo') && uni.getStorageSync('uni-id-pages-userInfo').uid
+				await db.collection('uni-id-users').doc(uid).update({
+					nickname: name
+				})
+				uni.hideLoading()
+				this.nickname = name
+				this.showNicknameEditor = false
+				this.editNickname = ''
+				// 更新缓存
+				const userInfo = uni.getStorageSync('uni-id-pages-userInfo') || {}
+				userInfo.nickname = name
+				uni.setStorageSync('uni-id-pages-userInfo', userInfo)
+				uni.showToast({ title: '昵称已更新', icon: 'success' })
+			} catch (e) {
+				uni.hideLoading()
+				console.error('[profile] saveNickname:', e)
+				uni.showToast({ title: '修改失败', icon: 'none' })
+			}
 		},
 		goResult(item) {
 			uni.navigateTo({ url: '/pages-tools/answer-quiz/answer-quiz?tag=' + encodeURIComponent(item.tagName) })
@@ -74,6 +166,40 @@ export default {
 .back-arrow { width: 28rpx; height: 28rpx; }
 .hd-title { font-size: 40rpx; font-weight: 700; color: #101828; }
 .hd-subtitle { font-size: 26rpx; color: #99A1AF; font-weight: 500; display: block; margin-top: 8rpx; }
+.hd-nickname {
+	display: flex; align-items: center; gap: 6rpx;
+	margin-top: 16rpx; padding: 16rpx 20rpx;
+	background: #F7F8FA; border-radius: 24rpx;
+}
+.hd-nickname-label { font-size: 26rpx; color: #6A7282; }
+.hd-nickname-val { font-size: 28rpx; font-weight: 600; color: #1E2939; flex: 1; }
+.hd-nickname-edit { font-size: 24rpx; flex-shrink: 0; }
+
+/* ====== 昵称编辑弹窗 ====== */
+.modal-overlay {
+	position: fixed; inset: 0; z-index: 999;
+	background: rgba(0,0,0,0.4);
+	display: flex; align-items: center; justify-content: center;
+}
+.modal-box {
+	width: 560rpx; background: white; border-radius: 40rpx;
+	padding: 48rpx; box-shadow: 0 8rpx 24rpx rgba(0,0,0,0.15);
+}
+.modal-title { font-size: 34rpx; font-weight: 700; color: #1E2939; display: block; text-align: center; margin-bottom: 32rpx; }
+.modal-input {
+	width: 100%; height: 80rpx; border: 2rpx solid #E5E7EB;
+	border-radius: 20rpx; padding: 0 24rpx; font-size: 28rpx;
+	box-sizing: border-box;
+}
+.modal-btns { display: flex; gap: 20rpx; margin-top: 36rpx; }
+.modal-btn {
+	flex: 1; height: 80rpx; border-radius: 40rpx;
+	display: flex; align-items: center; justify-content: center;
+	font-size: 28rpx; font-weight: 600;
+}
+.modal-btn-cancel { background: #F3F4F6; color: #6A7282; }
+.modal-btn-confirm { background: linear-gradient(90deg, #FFB900 0%, #FF6900 100%); color: white; }
+.press-95 { transform: scale(0.95); }
 .body { flex: 1; }
 .body-inner { padding: 32rpx 40rpx 0; }
 .press-9 { transform: scale(.9); }

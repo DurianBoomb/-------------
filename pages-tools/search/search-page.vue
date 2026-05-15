@@ -363,21 +363,44 @@ export default {
 		hideCustomPopup() {
 			this.showCustomSheet = false
 		},
-		submitCustomTag() {
+		async submitCustomTag() {
 			const name = this.customTagName.trim()
 			if (!name) {
 				uni.showToast({ title: '请输入标签名称', icon: 'none' })
 				return
 			}
 
-			// 先关弹窗，让用户看到页面
+			const desc = this.customTagDesc.trim()
+
+			// 内容安全审核
+			uni.showLoading({ title: '内容审核中...', mask: true })
+			try {
+				const survey = uniCloud.importObject('survey')
+				const content = name + (desc ? '，' + desc : '')
+				const checkRes = await survey.checkTextContent({ content })
+				uni.hideLoading()
+				if (checkRes.errCode === 0 && checkRes.data && !checkRes.data.pass) {
+					uni.showModal({
+						title: '内容违规',
+						content: '你输入的标签名称或描述包含违规内容，请修改后重试',
+						showCancel: false
+					})
+					return
+				}
+			} catch (e) {
+				console.error('[search] checkTextContent error:', e)
+				// 审核异常时放行，不阻塞用户
+			}
+
+			// 先关弹窗
 			this.hideCustomPopup()
 
-			// 跳过广告直接生成（等有流量主资格后再接激励视频）
-			this.doGenerate(name, this.customTagDesc.trim())
+			// 直接进入生成流程
+			this.doGenerate(name, desc)
 		},
 
 		async doGenerate(tagName, tagDesc) {
+			const _t = Date.now()
 			uni.showLoading({ title: 'AI 正在为你生成...', mask: true })
 
 			try {
@@ -390,9 +413,18 @@ export default {
 				uni.hideLoading()
 
 				if (res.errCode === 0) {
-					// 生成成功 → 跳答题页
+					console.log('[generate] 生成耗时: ' + (Date.now() - _t) + 'ms')
+					// 生成成功 → 跳预览页
+					const q = res.data.questionnaire
 					uni.navigateTo({
-						url: '/pages-tools/answer-quiz/answer-quiz?tag=' + encodeURIComponent(tagName) + '&surveyId=' + res.data.surveyId
+						url: '/pages-tools/survey-preview/survey-preview?' +
+							'tag=' + encodeURIComponent(tagName) +
+							'&surveyId=' + encodeURIComponent(res.data.surveyId) +
+							'&title=' + encodeURIComponent(q.title || '') +
+							'&tagDesc=' + encodeURIComponent(q.tagDesc || '') +
+							'&dims=' + encodeURIComponent(JSON.stringify(q.dims || [])) +
+							'&qs=' + encodeURIComponent(JSON.stringify(q.qs || [])) +
+							'&rts=' + encodeURIComponent(JSON.stringify(q.resultTypes || []))
 					})
 				} else if (res.errCode === 'AUTH_ERROR') {
 					uni.showModal({
@@ -416,6 +448,7 @@ export default {
 				}
 			} catch (e) {
 				uni.hideLoading()
+				console.log('[generate] 生成失败耗时: ' + (Date.now() - _t) + 'ms')
 				console.error('[generate] error:', e)
 				uni.showToast({ title: '网络异常，请稍后重试', icon: 'none' })
 			}
