@@ -114,40 +114,31 @@ export default {
 				return
 			}
 
-			// 内容安全审核
 			uni.showLoading({ title: '审核中...', mask: true })
 			try {
 				const survey = uniCloud.importObject('survey')
-				const checkRes = await survey.checkTextContent({ content: name })
-				if (checkRes.errCode === 0 && checkRes.data && !checkRes.data.pass) {
-					uni.hideLoading()
+				const res = await survey.updateNickname({ nickname: name })
+
+				uni.hideLoading()
+
+				if (res.errCode === 0) {
+					this.nickname = name
+					this.showNicknameEditor = false
+					this.editNickname = ''
+					// 更新缓存
+					const userInfo = uni.getStorageSync('uni-id-pages-userInfo') || {}
+					userInfo.nickname = name
+					uni.setStorageSync('uni-id-pages-userInfo', userInfo)
+					uni.showToast({ title: '昵称已更新', icon: 'success' })
+				} else if (res.errCode === 'RISK_CONTENT') {
 					uni.showToast({ title: '昵称包含违规内容', icon: 'none' })
-					return
+				} else {
+					uni.showToast({ title: res.errMsg || '修改失败', icon: 'none' })
 				}
 			} catch (e) {
-				// 审核异常时放行
-				console.error('[profile] checkTextContent error:', e)
-			}
-
-			try {
-				const db = uniCloud.database()
-				const uid = uni.getStorageSync('uni-id-pages-userInfo') && uni.getStorageSync('uni-id-pages-userInfo').uid
-				await db.collection('uni-id-users').doc(uid).update({
-					nickname: name
-				})
 				uni.hideLoading()
-				this.nickname = name
-				this.showNicknameEditor = false
-				this.editNickname = ''
-				// 更新缓存
-				const userInfo = uni.getStorageSync('uni-id-pages-userInfo') || {}
-				userInfo.nickname = name
-				uni.setStorageSync('uni-id-pages-userInfo', userInfo)
-				uni.showToast({ title: '昵称已更新', icon: 'success' })
-			} catch (e) {
-				uni.hideLoading()
-				console.error('[profile] saveNickname:', e)
-				uni.showToast({ title: '修改失败', icon: 'none' })
+				console.error('[profile] updateNickname error:', e)
+				uni.showToast({ title: '网络异常，请稍后重试', icon: 'none' })
 			}
 		},
 		goResult(item) {

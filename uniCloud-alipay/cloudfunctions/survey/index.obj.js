@@ -558,8 +558,15 @@ module.exports = {
 
 			console.log('[checkTextContent] 插件返回:', JSON.stringify(result))
 
+			// 记录审核结果明细
+			const r = result.result || {}
+			const suggest = r.suggest || 'unknown'
+			const label = r.label || 'unknown'
+			console.log('[checkTextContent] 审核明细 | suggest:', suggest, '| label:', label, '| content:', content)
+
 			// 按文档推荐逻辑：errCode === 'uni-sec-check-risk-content' 即有风险
 			if (result.errCode === 'uni-sec-check-risk-content') {
+				console.warn('[checkTextContent] 内容违规 | suggest:', suggest, '| label:', label)
 				return { errCode: 0, data: { pass: false } }
 			}
 
@@ -568,6 +575,58 @@ module.exports = {
 		} catch (e) {
 			console.error('[checkTextContent] error:', e)
 			return { errCode: 0, data: { pass: true }, warning: '审核服务异常，已放行' }
+		}
+	},
+
+	/**
+	 * 更新用户昵称（含内容安全审核）
+	 * @param {Object} params
+	 * @param {string} params.nickname - 新昵称
+	 * @returns {Object} { errCode, data: { nickname } }
+	 */
+	async updateNickname(params = {}) {
+		const uid = this.uid
+		if (!uid) return { errCode: 'AUTH_ERROR', errMsg: '未登录' }
+
+		const nickname = (params.nickname || '').trim()
+		if (!nickname) return { errCode: 'PARAM_ERROR', errMsg: '昵称不能为空' }
+
+		try {
+			// 内容安全审核（inline checkTextContent 逻辑，避免跨方法调用）
+			const usersCol = db.collection('uni-id-users')
+			const userRes = await usersCol.doc(uid).field({ 'wx_openid.mp': true }).get()
+			const openid = (userRes.data && userRes.data.length > 0) ? userRes.data[0].wx_openid.mp : ''
+
+			if (openid) {
+				const UniSecCheck = require('uni-sec-check')
+				const uniSecCheck = new UniSecCheck({
+					provider: 'mp-weixin',
+					requestId: this.getClientInfo().requestId
+				})
+
+				const checkRes = await uniSecCheck.textSecCheck({
+					content: nickname,
+					openid,
+					scene: 1,
+					version: 2
+				})
+
+				const r = checkRes.result || {}
+				console.log('[updateNickname] 审核明细 | suggest:', r.suggest || 'unknown', '| label:', r.label || 'unknown', '| content:', nickname)
+
+				if (checkRes.errCode === 'uni-sec-check-risk-content') {
+					console.warn('[updateNickname] 内容违规 | suggest:', r.suggest, '| label:', r.label)
+					return { errCode: 'RISK_CONTENT', errMsg: '昵称包含违规内容' }
+				}
+			}
+
+			// 更新昵称
+			await usersCol.doc(uid).update({ nickname })
+			return { errCode: 0, data: { nickname } }
+
+		} catch (e) {
+			console.error('[updateNickname] error:', e)
+			return { errCode: 'DB_ERROR', errMsg: '昵称修改失败' }
 		}
 	}
 }
