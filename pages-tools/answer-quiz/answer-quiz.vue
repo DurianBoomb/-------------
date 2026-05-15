@@ -29,6 +29,7 @@
 					<view class="hd-row1">
 						<view class="hd-back" hover-class="press-95" :hover-start-time="0" :hover-stay-time="150" @click="goBack"><image class="back-arrow" src="/static/left.svg" mode="aspectFit"></image></view>
 						<text class="hd-tag">{{ title }}</text>
+						<text v-if="isUserGenerated" class="hd-author">🧑‍🎨</text>
 					</view>
 					<view class="hd-row2">
 						<view class="hd-step">
@@ -273,6 +274,7 @@ export default {
 		}
 	},
 	computed: {
+		isUserGenerated() { return !!(this.survey && this.survey.creatorId) },
 		qs() { return (this.survey && this.survey.qs) || [] },
 		title() { return (this.survey && this.survey.title) || this.tag || '' },
 		pct() { return this.qs.length ? (this.idx / this.qs.length) * 100 : 0 },
@@ -704,6 +706,11 @@ export default {
 	font-size: 28rpx; font-weight: 500;
 	color: #9CA3AF; line-height: 1;
 	overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+}
+.hd-author {
+	font-size: 22rpx; flex-shrink: 0;
+	background: #F3F4F6; border-radius: 20rpx;
+	padding: 4rpx 12rpx;
 }
 .hd-row2 {
 	display: flex; justify-content: space-between;
