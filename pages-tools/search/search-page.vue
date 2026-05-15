@@ -356,7 +356,7 @@ export default {
 			} catch (e) { console.error('[search] toggleFav:', e) }
 		},
 		showCustomPopup() {
-			this.customTagName = ''
+			this.customTagName = this.keyword
 			this.customTagDesc = ''
 			this.showCustomSheet = true
 		},
