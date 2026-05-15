@@ -18,9 +18,9 @@
 						<text class="badge-txt">{{ rname }}</text>
 					</view>
 				</view>
-				<view class="radar-area anim-res-2">
-					<canvas type="2d" id="radarCanvas" class="radar-canvas"></canvas>
-				</view>
+			<view class="radar-area anim-res-2" :style="{ width: _px(radarSize) + 'px', height: _px(radarSize) + 'px' }">
+				<canvas type="2d" id="radarCanvas" class="radar-canvas" :style="{ width: _px(radarSize) + 'px', height: _px(radarSize) + 'px' }"></canvas>
+			</view>
 				<view class="desc-card anim-res-3">
 					<text class="desc-quote">"</text>
 					<text class="desc-txt">{{ rdesc }}</text>
@@ -45,6 +45,7 @@
 				<view class="bottom-spacer"></view>
 			</view>
 		</scroll-view>
+
 		<view class="footer anim-res-4">
 			<view class="footer-inner">
 				<view class="btn-retry" hover-class="btn-press" :hover-start-time="0" :hover-stay-time="150" @click="retry">
@@ -70,6 +71,8 @@ export default {
 			rdesc: '别挣扎了，你骨子里就是根5块钱的淀粉肠。',
 			colors: [],
 			tag: '',
+			radarSize: 660,
+
 			userVote: null,
 			voteStats: { likes: 0, dislikes: 0 },
 			favorited: false,
@@ -97,7 +100,8 @@ export default {
 
 	onShow() {
 		if (this._radarCanvas && this._radarCtx) {
-			this.startRadarAnim(this._radarCanvas, this._radarCtx, this.scores, this.labels)
+			const SIZE = Math.round(this.radarSize / 2)
+			this.startRadarAnim(this._radarCanvas, this._radarCtx, this.scores, this.labels, SIZE)
 		}
 	},
 
@@ -109,6 +113,7 @@ export default {
 		}
 	},
 	methods: {
+		_px(r) { try { return uni.upx2px(r) } catch (e) { return r } },
 		initRadar() {
 			// H5: 直接通过 DOM 获取 canvas 元素
 			if (typeof window !== 'undefined' && document) {
@@ -122,20 +127,26 @@ export default {
 				this._setupCanvas(res[0].node)
 			})
 		},
+		adjustRadarSize(delta) {
+			this.radarSize = Math.max(400, Math.min(700, this.radarSize + delta))
+			this.$nextTick(() => this.initRadar())
+		},
+
+
 		_setupCanvas(canvas) {
 			const ctx = canvas.getContext('2d')
 			const dpr = uni.getSystemInfoSync().pixelRatio
-			const SIZE = 280
+			const SIZE = Math.round(this.radarSize / 2)
 			canvas.width = SIZE * dpr
 			canvas.height = SIZE * dpr
 			ctx.scale(dpr, dpr)
 			this._radarCanvas = canvas
 			this._radarCtx = ctx
-			this.startRadarAnim(canvas, ctx, this.scores, this.labels)
+			this.startRadarAnim(canvas, ctx, this.scores, this.labels, SIZE)
 		},
 
-		startRadarAnim(canvas, ctx, scores, labels) {
-			const SIZE = 280, CENTER = 140, RADIUS = 90
+		startRadarAnim(canvas, ctx, scores, labels, SIZE) {
+			const CENTER = SIZE / 2, RADIUS = Math.round(SIZE * 0.322)
 			const N = labels.length, ANGLE_STEP = (Math.PI * 2) / N, START_ANGLE = -Math.PI / 2
 			const DURATION = 1900, START_DELAY = 450
 
@@ -299,35 +310,21 @@ export default {
 				ctx.globalAlpha = 1
 			}
 
-			// Layer 9: 得分数字滚动
-			const drawScores = (t) => {
-				for (let i = 0; i < N; i++) {
-					const [a, b] = win(i, N, 0.52, 0.18, 0.35)
-					const local = sub(t, a, b)
-					if (local <= 0) continue
-					const display = Math.round(scores[i] * easeOutCubic(local))
-					const r = Math.max((scores[i] / 100) * RADIUS - 16, 22)
-					const angle = i * ANGLE_STEP + START_ANGLE
-					const x = CENTER + r * Math.cos(angle)
-					const y = CENTER + r * Math.sin(angle) + 4
-					ctx.fillStyle = '#F97316'
-					ctx.font = '900 11px sans-serif'
-					ctx.textAlign = 'center'
-					ctx.textBaseline = 'alphabetic'
-					ctx.globalAlpha = Math.min(1, local * 2)
-					ctx.fillText(display + '', Math.round(x), Math.round(y))
-				}
-				ctx.globalAlpha = 1
+			// Layer 10: 维度标签淡入（每4字自动换行）
+			const drawLabel = (text, x, y) => {
+				const lines = text.match(/.{1,4}/g) || [text]
+				const lineH = 15
+				const startY = y - (lines.length - 1) * lineH / 2
+				lines.forEach((line, li) => {
+					ctx.fillText(line, Math.round(x), Math.round(startY + li * lineH))
+				})
 			}
-
-			// Layer 10: 维度标签淡入
 			const drawLabels = (t) => {
 				for (let i = 0; i < N; i++) {
 					const [a, b] = win(i, N, 0.82, 0.10, 0.16)
 					const local = sub(t, a, b)
 					if (local <= 0) continue
-					const p = getPoint(130, i)
-					// textAlign 三分支: 左/右/中
+					const p = getPoint(123, i)
 					if (p.x < CENTER - 10) ctx.textAlign = 'right'
 					else if (p.x > CENTER + 10) ctx.textAlign = 'left'
 					else ctx.textAlign = 'center'
@@ -335,7 +332,7 @@ export default {
 					ctx.font = 'bold 12px sans-serif'
 					ctx.textBaseline = 'alphabetic'
 					ctx.globalAlpha = local
-					ctx.fillText(labels[i], Math.round(p.x), Math.round(p.y + 4))
+					drawLabel(labels[i], p.x, p.y + 4)
 				}
 				ctx.globalAlpha = 1; ctx.textAlign = 'start'
 			}
@@ -353,7 +350,6 @@ export default {
 				drawStroke(t, points)
 				drawFlash(t, points)
 				drawDots(t, points)
-				drawScores(t)
 				drawLabels(t)
 			}
 
@@ -647,7 +643,7 @@ export default {
 	0%   { opacity: 0; transform: translateY(40px); }
 	100% { opacity: 1; transform: translateY(0); }
 }
-.anim-res-1 { animation: resDrop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0s both; }
+.anim-res-1 { animation: resDrop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0s both; display: flex; flex-direction: column; align-items: center; width: 100%; }
 .anim-res-2 { animation: resScale 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s both; }
 .anim-res-3 { animation: resSlide 0.4s ease-out 0.3s both; }
 .anim-res-4 { animation: resSlide 0.3s ease-out 0.45s both; }
@@ -677,11 +673,10 @@ export default {
 	outline: 3rpx solid #FFD6A8; outline-offset: -3rpx;
 }
 .badge-txt { font-size: 28rpx; color: #CA3500; font-weight: 700; white-space: nowrap; }
-.radar-area { width: 560rpx; height: 560rpx; margin-top: 48rpx; }
-.radar-canvas { width: 560rpx; height: 560rpx; }
+.radar-area { margin-top: 32rpx; }
 .desc-card {
 	width: 100%; background: #fff; border-radius: 48rpx; padding: 50rpx;
-	margin-top: 48rpx; position: relative;
+	margin-top: 64rpx; position: relative;
 	box-shadow: 0 1rpx 2rpx -1rpx rgba(0,0,0,.1), 0 1rpx 3rpx rgba(0,0,0,.1);
 	outline: 3rpx solid #F3F4F6; outline-offset: -3rpx;
 }
@@ -744,4 +739,5 @@ export default {
 	width: 500px;
 	height: 400px;
 }
+
 </style>
