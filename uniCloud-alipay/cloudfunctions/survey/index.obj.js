@@ -358,9 +358,9 @@ module.exports = {
 			// 逐条插入，避免批量 add 超过限制
 			const results = []
 			for (let i = 0; i < valid.length; i++) {
-			// 清除 Coze 内部字段
-			const { _status, _error, prompt_version, ...record } = valid[i]
-			const res = await surveysCol.add(record)
+				// 清除 Coze 内部字段
+				const { _status, _error, prompt_version, ...record } = valid[i]
+				const res = await surveysCol.add(record)
 				results.push({ index: i, id: res.id, tagName: record.tagName })
 			}
 			return { errCode: 0, data: { total, imported: results.length, results } }
@@ -396,9 +396,9 @@ module.exports = {
 			return { errCode: 'PARAM_ERROR', errMsg: '标签名不能为空' }
 		}
 		try {
-		const res = await surveysCol.where({
-			tagName: params.tagName
-		}).get()
+			const res = await surveysCol.where({
+				tagName: params.tagName
+			}).get()
 
 			const list = res.data || []
 			if (list.length === 0) {
@@ -421,40 +421,78 @@ module.exports = {
 
 		const tagName = (params.tagName || '').trim()
 		if (!tagName) return { errCode: 'PARAM_ERROR', errMsg: '标签名不能为空' }
-
 		const tagDesc = (params.tagDesc || '').trim()
 
 		try {
-			// ===== 审核测试模式：跳过 Coze API 调用 =====
+			// 1. 加载配置
+			const configCenter = require('uni-config-center')
+			const cozeConfig = configCenter({ pluginId: 'coze' }).config()
+
+			// 2. 调用扣子编程新版工作流 API（参数直接放顶层，不用 inputs 包裹）
+			const body = JSON.stringify({ tag_name: tagName, tag_desc: tagDesc })
+			const res = await uniCloud.httpclient.request(cozeConfig.api_url, {
+				method: 'POST',
+				headers: {
+					'Authorization': 'Bearer ' + cozeConfig.api_token,
+					'Content-Type': 'application/json'
+				},
+				data: body,
+				timeout: cozeConfig.timeout || 60000,
+				dataType: 'json'
+			})
+
+			// 3. 解析响应
+			const raw = res.data
+			console.log('[generateFromCoze] Coze raw response:', JSON.stringify(raw).slice(0, 1000))
+
+			// 3a. 检查 Coze API 自身错误（如参数校验失败）
+			if (raw.detail && raw.detail.error_code) {
+				console.error('[generateFromCoze] Coze API error:', raw.detail.error_message)
+				return { errCode: 'COZE_ERROR', errMsg: 'Coze 生成异常: ' + (raw.detail.error_message || '未知错误') }
+			}
+
+			// 3b. 新版同步 API 返回格式：工作流输出参数名作为顶层 key
+			// 如 { questionnaire: {...}, run_id: "xxx" }
+			const questionnaire = raw && (raw.questionnaire || raw.result)
+			if (!questionnaire || typeof questionnaire !== 'object') {
+				console.error('[generateFromCoze] 无法识别的 Coze 响应:', JSON.stringify(raw).slice(0, 500))
+				throw new Error('Coze 返回内容格式异常')
+			}
+
+			console.log('[generateFromCoze] parsed questionnaire:', JSON.stringify(questionnaire).slice(0, 1000))
+
+			// 4. 补充 + 校验 + 入库
+			questionnaire.title = questionnaire.title || tagName
+			questionnaire.tag = questionnaire.tag || tagName
+			questionnaire.tagDesc = questionnaire.tagDesc || tagDesc || ''
+
+			const cleaned = deepTrim(questionnaire)
+			const validation = validateQuestionnaire(cleaned, tagName)
+			if (!validation.valid) {
+				console.error('[generateFromCoze] 校验失败, errors:', JSON.stringify(validation.errors))
+				console.error('[generateFromCoze] cleaned:', JSON.stringify(cleaned).slice(0, 1500))
+				return { errCode: 'VALIDATE_ERROR', errMsg: 'AI 生成的内容格式有误，请修改标签名后重试', data: { errors: validation.errors } }
+			}
+
+			const surveyRes = await surveysCol.add({
+				tagName, tagDesc: tagDesc || '',
+				title: cleaned.title, dims: cleaned.dims,
+				qs: cleaned.qs, resultTypes: cleaned.resultTypes,
+				creatorId: uid, source: 'coze',
+				status: 'active', create_date: Date.now()
+			})
+
 			return {
 				errCode: 0,
-				data: {
-					surveyId: 'mock-survey-id',
-					tagName,
-					questionnaire: {
-						title: tagName,
-						dims: ['维度一', '维度二', '维度三', '维度四', '维度五'],
-						qs: [
-							{ title: '这是一个模拟题目？', dim: '维度一', options: { deny: '不是', hesitate: '不确定', admit: '是' } },
-							{ title: '你觉得这个测试怎么样？', dim: '维度二', options: { deny: '不好玩', hesitate: '还行', admit: '很有趣' } },
-							{ title: '要不要再来一次？', dim: '维度三', options: { deny: '不要', hesitate: '再说', admit: '必须的' } }
-						],
-						resultTypes: [
-							{ name: '结果A', emoji: '😊', desc: '这是一个模拟结果', match: '匹配度 90%', emojiBg: '#4ade80' },
-							{ name: '结果B', emoji: '😎', desc: '这是另一个模拟结果', match: '匹配度 80%', emojiBg: '#f97316' }
-						],
-						tagDesc: tagDesc || ''
-					}
-				}
+				data: { surveyId: surveyRes.id, tagName, questionnaire: cleaned }
 			}
-			// ===== 审核测试模式结束 =====
 
 		} catch (e) {
-			console.error('[generateFromCoze] error:', e)
-			if (e.message && e.message.includes('timeout')) {
-				return { errCode: 'COZE_TIMEOUT', errMsg: 'Coze 生成超时，请稍后重试' }
+			console.error('[generateFromCoze]', e.message)
+			return {
+				errCode: e.message && e.message.includes('timeout') ? 'COZE_TIMEOUT' : 'COZE_ERROR',
+				errMsg: e.message && e.message.includes('timeout') ? 'Coze 生成超时，请稍后重试' : 'Coze 生成异常: ' + (e.message || '未知错误')
 			}
-			return { errCode: 'COZE_ERROR', errMsg: 'Coze 生成异常: ' + (e.message || '未知错误') }
 		}
 	},
 
@@ -504,11 +542,27 @@ module.exports = {
 			}
 
 			const survey = res.data[0]
+
+			// 联查创建者昵称
+			let creatorNickname = ''
+			if (survey.creatorId) {
+				try {
+					const usersCol = db.collection('uni-id-users')
+					const userRes = await usersCol.doc(survey.creatorId).field({ nickname: true }).get()
+					if (userRes.data && userRes.data.length > 0) {
+						creatorNickname = userRes.data[0].nickname || ''
+					}
+				} catch (e) {
+					console.warn('[getSurveyDetail] 查询创建者昵称失败:', e)
+				}
+			}
+
 			return {
 				errCode: 0,
 				data: {
 					resultTypes: survey.resultTypes || [],
 					creatorId: survey.creatorId || '',
+					creatorNickname,
 					isCreator: !!(uid && survey.creatorId && uid === survey.creatorId)
 				}
 			}

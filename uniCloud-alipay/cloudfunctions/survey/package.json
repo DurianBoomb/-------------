@@ -2,7 +2,8 @@
   "name": "survey",
   "dependencies": {
     "uni-id-common": "file:../../../uni_modules/uni-id-common/uniCloud/cloudfunctions/common/uni-id-common",
-    "uni-sec-check": "file:../../../uni_modules/uni-sec-check/uniCloud/cloudfunctions/common/uni-sec-check"
+    "uni-sec-check": "file:../../../uni_modules/uni-sec-check/uniCloud/cloudfunctions/common/uni-sec-check",
+    "uni-config-center": "file:../../../uni_modules/uni-config-center/uniCloud/cloudfunctions/common/uni-config-center"
   },
   "extensions": {
     "uni-cloud-jql": {}

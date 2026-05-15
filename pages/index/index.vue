@@ -14,7 +14,7 @@
 
 		<scroll-view class="body" scroll-y>
 			<view class="body-inner">
-	<view class="tool-grid" v-if="showGrid">
+			<view class="tool-grid" v-if="showGrid">
 					<view
 						v-for="(tool, idx) in tools" :key="tool.id"
 						class="card-wrapper"
@@ -31,6 +31,17 @@
 						</view>
 					</view>
 				</view>
+
+				<!-- mock：结果页 desc-card + 作者行预览 -->
+				<view class="mock-section">
+					<text class="mock-label">📱 结果页预览</text>
+					<view class="mock-desc-card">
+						<text class="mock-quote">"</text>
+						<text class="mock-desc-txt">别挣扎了，你骨子里就是根5块钱的淀粉肠。</text>
+						<text class="mock-creator-line">—— 来自 <text class="mock-creator-name">张三</text> 的创作</text>
+					</view>
+				</view>
+
 				<view class="bottom-spacer"></view>
 			</view>
 		</scroll-view>
@@ -124,6 +135,22 @@ export default {
 	font-size: 22rpx; color: #6A7282; font-weight: 500; display: block;
 	margin-top: 6rpx;
 }
+
+/* ====== mock：结果页预览 ====== */
+.mock-section { margin-top: 48rpx; }
+.mock-label { font-size: 24rpx; color: #99A1AF; font-weight: 500; display: block; margin-bottom: 16rpx; }
+.mock-desc-card {
+	background: #FFFFFF; border-radius: 28rpx; padding: 36rpx 32rpx;
+	box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.06);
+	position: relative;
+}
+.mock-quote {
+	position: absolute; top: 6rpx; left: 18rpx;
+	font-size: 56rpx; color: #E5E9F0; font-weight: 700; line-height: 1;
+}
+.mock-desc-txt { font-size: 30rpx; color: #4A5565; font-weight: 500; line-height: 1.8; text-align: justify; letter-spacing: 0.76rpx; }
+.mock-creator-line { display: block; font-size: 24rpx; color: #99A1AF; margin-top: 24rpx; text-align: right; font-weight: 400; }
+.mock-creator-name { color: #F97316; font-weight: 600; }
 
 /* ====== 底部 spacer ====== */
 .bottom-spacer { height: 60rpx; width: 100%; }

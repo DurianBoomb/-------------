@@ -24,6 +24,7 @@
 				<view class="desc-card anim-res-3">
 					<text class="desc-quote">"</text>
 					<text class="desc-txt">{{ rdesc }}</text>
+					<text class="creator-line" v-if="creatorNickname">—— 来自 <text class="creator-name">{{ creatorNickname }}</text> 的创作</text>
 				</view>
 				<view class="vote-area">
 					<view class="fav-btn" :class="{ 'fav-active': favorited }" hover-class="btn-press" :hover-start-time="0" :hover-stay-time="100" @click="toggleFav">
@@ -77,6 +78,7 @@ export default {
 			userVote: null,
 			voteStats: { likes: 0, dislikes: 0 },
 			favorited: false,
+			creatorNickname: '',
 			topPad: 48,
 			shareImagePath: '',
 
@@ -98,6 +100,7 @@ export default {
 		this.$nextTick(() => {
 			this.initRadar()
 			this.loadVoteInfo()
+			this.loadCreatorInfo()
 			this.initShareCanvas()
 		})
 	},
@@ -607,6 +610,17 @@ export default {
 			} catch (e) { console.error('[result] loadVoteInfo:', e) }
 		},
 
+		async loadCreatorInfo() {
+			if (!this.surveyId) return
+			try {
+				const survey = uniCloud.importObject('survey')
+				const res = await survey.getSurveyDetail({ surveyId: this.surveyId })
+				if (res.errCode === 0 && res.data.creatorNickname) {
+					this.creatorNickname = res.data.creatorNickname
+				}
+			} catch (e) { console.error('[result] loadCreatorInfo:', e) }
+		},
+
 		async toggleFav() {
 			if (!this.tag) return
 			try {
@@ -689,6 +703,8 @@ export default {
 	font-size: 160rpx; color: #F9FAFB; font-family: Georgia; line-height: 1; opacity: .5;
 }
 .desc-txt { font-size: 30rpx; color: #4A5565; font-weight: 500; line-height: 1.8; text-align: justify; letter-spacing: 0.76rpx; }
+.creator-line { display: block; font-size: 24rpx; color: #99A1AF; margin-top: 24rpx; text-align: right; font-weight: 400; }
+.creator-name { color: #F97316; font-weight: 600; }
 .vote-area { display: flex; flex-direction: column; align-items: center; margin-top: 40rpx; gap: 16rpx; width: 100%; }
 .fav-btn {
 	display: flex; align-items: center; gap: 8rpx;
