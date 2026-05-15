@@ -141,6 +141,12 @@
 				"style": {
 					"navigationBarTitleText": "照照镜子"
 				}
+			},
+			{
+				"path": "my-surveys/my-surveys",
+				"style": {
+					"navigationBarTitleText": "已生成问卷"
+				}
 			}]
 		},
 		{

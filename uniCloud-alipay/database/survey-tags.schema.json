@@ -1,6 +1,6 @@
 {
 	"bsonType": "object",
-	"required": ["name", "category"],
+	"required": ["name"],
 	"permission": {
 		"read": true,
 		"create": "auth.uid != null",
@@ -13,13 +13,13 @@
 		},
 		"name": {
 			"bsonType": "string",
-			"description": "标签名，唯一，如\"确诊为烤肠\"",
+			"description": "标签名，如\"确诊为烤肠\"。注意：不设唯一约束，同名标签可共存。",
 			"trim": "both",
 			"maxLength": 50
 		},
 		"category": {
 			"bsonType": "string",
-			"description": "所属分类 ID（关联 survey-categories._id）",
+			"description": "所属分类 ID（关联 survey-categories._id），用户生成标签可留空",
 			"trim": "both"
 		},
 		"emoji": {
@@ -51,9 +51,34 @@
 				{ "value": "darkgold", "text": "暗金" }
 			]
 		},
+		"source": {
+			"bsonType": "string",
+			"description": "标签来源：system 预置 / user 用户生成",
+			"defaultValue": "system",
+			"enum": [
+				{ "value": "system", "text": "预置" },
+				{ "value": "user", "text": "用户生成" }
+			]
+		},
+		"creatorId": {
+			"bsonType": "string",
+			"description": "创建者用户 ID（用户生成标签时记录，预置标签留空）",
+			"trim": "both"
+		},
+		"shareCount": {
+			"bsonType": "int",
+			"description": "分享计数，达到阈值后可晋升为公共可搜索",
+			"defaultValue": 0,
+			"minimum": 0
+		},
+		"searchable": {
+			"bsonType": "bool",
+			"description": "是否可被公共搜索和标签池刷新展示",
+			"defaultValue": false
+		},
 		"status": {
 			"bsonType": "string",
-			"description": "状态：draft / published / disabled",
+			"description": "状态：draft / published / disabled。用户生成默认为 draft，不进入公共搜索",
 			"defaultValue": "published",
 			"enum": [
 				{ "value": "draft", "text": "草稿" },
@@ -77,16 +102,6 @@
 	},
 	"indexes": [
 		{
-			"name": "name_unique",
-			"unique": true,
-			"fields": [
-				{
-					"name": "name",
-					"direction": "asc"
-				}
-			]
-		},
-		{
 			"name": "category_status",
 			"fields": [
 				{
@@ -95,6 +110,15 @@
 				},
 				{
 					"name": "status",
+					"direction": "asc"
+				}
+			]
+		},
+		{
+			"name": "creatorId",
+			"fields": [
+				{
+					"name": "creatorId",
 					"direction": "asc"
 				}
 			]

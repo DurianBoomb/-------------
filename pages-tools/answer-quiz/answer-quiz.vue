@@ -627,7 +627,8 @@ export default {
 					'&emoji=' + encodeURIComponent(result.emoji) +
 					'&rname=' + encodeURIComponent(result.name) +
 					'&rdesc=' + encodeURIComponent(result.desc) +
-					'&colors=' + encodeURIComponent(JSON.stringify(colors))
+					'&colors=' + encodeURIComponent(JSON.stringify(colors)) +
+					'&surveyId=' + encodeURIComponent(this.survey._id)
 			})
 		}
 	}

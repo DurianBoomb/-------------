@@ -369,9 +369,56 @@ export default {
 				uni.showToast({ title: '请输入标签名称', icon: 'none' })
 				return
 			}
-			// TODO: 播激励视频广告 + 调 Coze 生成问卷
-			uni.showToast({ title: '即将播放广告并生成...', icon: 'none' })
+
+			// 先关弹窗，让用户看到页面
 			this.hideCustomPopup()
+
+			// 跳过广告直接生成（等有流量主资格后再接激励视频）
+			this.doGenerate(name, this.customTagDesc.trim())
+		},
+
+		async doGenerate(tagName, tagDesc) {
+			uni.showLoading({ title: 'AI 正在为你生成...', mask: true })
+
+			try {
+				const survey = uniCloud.importObject('survey')
+				const res = await survey.generateFromCoze({
+					tagName,
+					tagDesc
+				})
+
+				uni.hideLoading()
+
+				if (res.errCode === 0) {
+					// 生成成功 → 跳答题页
+					uni.navigateTo({
+						url: '/pages-tools/answer-quiz/answer-quiz?tag=' + encodeURIComponent(tagName) + '&surveyId=' + res.data.surveyId
+					})
+				} else if (res.errCode === 'AUTH_ERROR') {
+					uni.showModal({
+						title: '请先登录',
+						content: '生成问卷需要登录账号',
+						success: (r) => {
+							if (r.confirm) {
+								uni.navigateTo({ url: '/pages/ucenter/login/login' })
+							}
+						}
+					})
+				} else if (res.errCode === 'VALIDATE_ERROR') {
+					uni.showModal({
+						title: '生成格式异常',
+						content: 'AI 生成的内容格式有误，请修改标签名后重试',
+						showCancel: false
+					})
+					console.error('[generate] validate errors:', res.data && res.data.errors)
+				} else {
+					uni.showToast({ title: res.errMsg || '生成失败，请稍后重试', icon: 'none' })
+				}
+			} catch (e) {
+				uni.hideLoading()
+				console.error('[generate] error:', e)
+				uni.showToast({ title: '网络异常，请稍后重试', icon: 'none' })
+			}
 		}
 	}
 }

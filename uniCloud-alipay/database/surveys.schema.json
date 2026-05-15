@@ -98,6 +98,19 @@
 				}
 			}
 		},
+		"status": {
+			"bsonType": "string",
+			"description": "问卷状态：active / disabled。预置问卷默认不填，Coze 生成的默认 active",
+			"enum": [
+				{ "value": "active", "text": "启用" },
+				{ "value": "disabled", "text": "已禁用" }
+			]
+		},
+		"creatorId": {
+			"bsonType": "string",
+			"description": "创建者用户 ID（用户生成问卷时记录，预置问卷留空）",
+			"trim": "both"
+		},
 		"create_date": {
 			"bsonType": "timestamp",
 			"description": "创建时间",
@@ -106,5 +119,15 @@
 			}
 		}
 	},
-	"indexes": []
+	"indexes": [
+		{
+			"name": "creatorId",
+			"fields": [
+				{
+					"name": "creatorId",
+					"direction": "asc"
+				}
+			]
+		}
+	]
 }

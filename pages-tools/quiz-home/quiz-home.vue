@@ -11,14 +11,17 @@
 					</view>
 				</view>
 				<view class="header-right">
-					<view class="profile-btn" @click="goProfile">
+					<view class="icon-btn" @click="goProfile">
 						<text>🥸</text>
 					</view>
-					<view class="history-btn" @click="goFav">
+					<view class="icon-btn" @click="goFav">
 						<text>⭐</text>
 					</view>
-					<view class="history-btn" @click="goHistory">
+					<view class="icon-btn" @click="goHistory">
 						<text>📋</text>
+					</view>
+					<view class="icon-btn" @click="goGenerated">
+						<text>🪄</text>
 					</view>
 				</view>
 			</view>
@@ -248,6 +251,7 @@ export default {
 		goProfile() { uni.navigateTo({ url: '/pages-tools/profile/profile' }) },
 		goHistory() { uni.navigateTo({ url: '/pages-tools/answer-history/answer-history' }) },
 		goFav() { uni.navigateTo({ url: '/pages-tools/favorites/favorites' }) },
+		goGenerated() { uni.navigateTo({ url: '/pages-tools/my-surveys/my-surveys' }) },
 		goRandom() {
 			if (this.allTags.length === 0) return
 			const tag = this.allTags[Math.floor(Math.random() * this.allTags.length)].name
@@ -303,16 +307,16 @@ export default {
 .brand { display: flex; align-items: center; gap: 10rpx; }
 .brand-emoji { width: 60rpx; height: 60rpx; }
 .brand-title { font-size: 40rpx; font-weight: 700; color: #101828; }
-.header-right { display: flex; align-items: center; gap: 8rpx; }
-.profile-btn {
+.header-right {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 8rpx;
+	flex-shrink: 0;
+}
+.icon-btn {
 	width: 64rpx; height: 64rpx; background: #F3F4F6;
 	border-radius: 50%; display: flex; align-items: center; justify-content: center;
 	font-size: 28rpx;
-}
-.history-btn {
-	width: 64rpx; height: 64rpx; background: #F3F4F6;
-	border-radius: 50%; display: flex; align-items: center; justify-content: center;
-	font-size: 28rpx; margin-left: 8rpx;
 }
 .header-subtitle {
 	font-size: 28rpx; color: #6A7282; font-weight: 500; letter-spacing: 0.7rpx;
