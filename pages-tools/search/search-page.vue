@@ -51,6 +51,18 @@
 						<text>{{ favorites[item.tag] ? '⭐' : '☆' }}</text>
 					</view>
 				</view>
+
+				<!-- 自定义标签入口 -->
+				<view class="custom-tag-card" hover-class="press-95" :hover-start-time="0" :hover-stay-time="150" @click="showCustomPopup">
+					<view class="custom-tag-left">
+						<text class="custom-tag-symbol">🪄</text>
+					</view>
+					<view class="custom-tag-body">
+						<text class="custom-tag-headline">没搜到想要的？</text>
+						<text class="custom-tag-sub">看个广告，我现场给你定制一个！</text>
+					</view>
+					<text class="custom-tag-arrow">›</text>
+				</view>
 			</view>
 
 			<!-- 翻翻看 -->
@@ -108,6 +120,38 @@
 			<view class="bottom-spacer"></view>
 			</view>
 		</scroll-view>
+
+		<!-- ====== 自定义标签弹窗 ====== -->
+		<view class="sheet-overlay" v-if="showCustomSheet" @click="hideCustomPopup">
+			<view class="sheet-panel" @click.stop>
+				<view class="sheet-handle"></view>
+				<view class="sheet-header">
+					<text class="sheet-title">🪄 定制你的专属标签</text>
+					<text class="sheet-close" @click="hideCustomPopup">✕</text>
+				</view>
+				<view class="sheet-body">
+					<text class="sheet-label">标签名称 <text class="required">*</text></text>
+					<input
+						class="sheet-input"
+						v-model="customTagName"
+						placeholder="例如：确诊为芋泥波波奶茶"
+						maxlength="20"
+					/>
+					<text class="sheet-label">标签描述 <text class="optional">（选填）</text></text>
+					<textarea
+						class="sheet-textarea"
+						v-model="customTagDesc"
+						placeholder="简单说说你想要什么样的标签…"
+						maxlength="100"
+					/>
+				</view>
+				<view class="sheet-footer">
+					<view class="sheet-btn" hover-class="press-95" :hover-start-time="0" :hover-stay-time="150" @click="submitCustomTag">
+						<text class="sheet-btn-text">看广告，开始生成</text>
+					</view>
+				</view>
+			</view>
+		</view>
 	</view>
 </template>
 
@@ -125,7 +169,11 @@ export default {
 				// 导航定位
 				statusBarHeight: 44,
 				capsuleH: 32,
-				capsuleGap: 0
+				capsuleGap: 0,
+				// 自定义标签弹窗
+				showCustomSheet: false,
+				customTagName: '',
+				customTagDesc: ''
 			}
 		},
 
@@ -306,6 +354,24 @@ export default {
 				const res = await survey.toggleFavorite({ tagName })
 				if (res.errCode === 0) this.favorites[tagName] = res.data.favorited
 			} catch (e) { console.error('[search] toggleFav:', e) }
+		},
+		showCustomPopup() {
+			this.customTagName = ''
+			this.customTagDesc = ''
+			this.showCustomSheet = true
+		},
+		hideCustomPopup() {
+			this.showCustomSheet = false
+		},
+		submitCustomTag() {
+			const name = this.customTagName.trim()
+			if (!name) {
+				uni.showToast({ title: '请输入标签名称', icon: 'none' })
+				return
+			}
+			// TODO: 播激励视频广告 + 调 Coze 生成问卷
+			uni.showToast({ title: '即将播放广告并生成...', icon: 'none' })
+			this.hideCustomPopup()
 		}
 	}
 }
@@ -356,6 +422,24 @@ view { box-sizing: border-box; }
 .result-info { flex: 1; min-width: 0; }
 .result-title { font-size: 28rpx; font-weight: 600; color: #1E2939; display: block; }
 .result-star { font-size: 36rpx; padding: 10rpx; flex-shrink: 0; }
+
+/* ====== 自定义标签入口 ====== */
+.custom-tag-card {
+	display: flex; align-items: center; padding: 28rpx 24rpx; gap: 16rpx;
+	background: linear-gradient(135deg, #FFF7ED 0%, #FEF2F2 100%);
+	border-top: 1rpx solid #FEE2E2;
+	transition: transform 0.15s;
+}
+.custom-tag-left {
+	width: 80rpx; height: 80rpx; border-radius: 32rpx;
+	background: linear-gradient(135deg, #FFFBEB, #FFF1F0);
+	display: flex; align-items: center; justify-content: center;
+	font-size: 44rpx;
+}
+.custom-tag-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4rpx; }
+.custom-tag-headline { font-size: 28rpx; font-weight: 600; color: #1E2939; }
+.custom-tag-sub { font-size: 24rpx; color: #FB7185; font-weight: 500; }
+.custom-tag-arrow { font-size: 36rpx; color: #99A1AF; font-weight: 300; flex-shrink: 0; }
 
 /* ====== 分类标题 ====== */
 .section-title { font-size: 30rpx; font-weight: 700; color: #1E2939; margin-bottom: 16rpx; }
@@ -429,6 +513,56 @@ view { box-sizing: border-box; }
 /* ====== 底部安全（防截断 spacer） ====== */
 .bottom-spacer { height: 60rpx; width: 100%; }
 
+/* ====== 自定义标签弹窗 ====== */
+.sheet-overlay {
+	position: fixed; inset: 0; z-index: 999;
+	background: rgba(0,0,0,0.4);
+	display: flex; align-items: flex-end;
+	animation: fadeIn 0.2s ease-out;
+}
+.sheet-panel {
+	width: 100%; background: white;
+	border-radius: 32rpx 32rpx 0 0;
+	padding: 0 40rpx 60rpx;
+	animation: slideUp 0.3s cubic-bezier(0.34, 1.25, 0.64, 1);
+}
+.sheet-handle {
+	width: 48rpx; height: 6rpx; border-radius: 4rpx;
+	background: #D1D5DC; margin: 16rpx auto 0;
+}
+.sheet-header {
+	display: flex; justify-content: space-between; align-items: center;
+	margin-top: 24rpx; margin-bottom: 32rpx;
+}
+.sheet-title { font-size: 34rpx; font-weight: 700; color: #1E2939; }
+.sheet-close {
+	font-size: 32rpx; color: #99A1AF; padding: 8rpx;
+	width: 48rpx; height: 48rpx; display: flex;
+	align-items: center; justify-content: center;
+}
+.sheet-body { margin-bottom: 40rpx; }
+.sheet-label { font-size: 28rpx; font-weight: 600; color: #374151; display: block; margin-bottom: 12rpx; }
+.sheet-label .required { color: #EF4444; }
+.sheet-label .optional { font-weight: 400; color: #99A1AF; font-size: 24rpx; }
+.sheet-input {
+	width: 100%; height: 88rpx; border-radius: 20rpx;
+	background: #F7F8FA; padding: 0 24rpx; font-size: 30rpx;
+	border: 1rpx solid #E5E7EB; margin-bottom: 32rpx;
+}
+.sheet-textarea {
+	width: 100%; height: 160rpx; border-radius: 20rpx;
+	background: #F7F8FA; padding: 20rpx 24rpx; font-size: 28rpx;
+	border: 1rpx solid #E5E7EB; resize: none; line-height: 1.5;
+}
+.sheet-footer { padding: 0; }
+.sheet-btn {
+	width: 100%; height: 96rpx; border-radius: 48rpx;
+	background: linear-gradient(135deg, #FF8C42, #FF6B6B);
+	display: flex; align-items: center; justify-content: center;
+	transition: transform 0.15s;
+}
+.sheet-btn-text { font-size: 32rpx; font-weight: 700; color: white; }
+
 /* ====== 动画 ====== */
 @keyframes dropElasticA {
 	0% { opacity: 0; transform: translateY(-80rpx); }
@@ -442,6 +576,16 @@ view { box-sizing: border-box; }
 @keyframes bodySlideIn {
 	0% { opacity: 0; transform: translateY(-12rpx); }
 	100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+	0% { opacity: 0; }
+	100% { opacity: 1; }
+}
+
+@keyframes slideUp {
+	0% { transform: translateY(100%); }
+	100% { transform: translateY(0); }
 }
 
 </style>
