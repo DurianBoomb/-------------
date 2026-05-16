@@ -20,7 +20,7 @@
 		<view v-if="showNicknameEditor" class="modal-overlay" @click="cancelNicknameEdit">
 			<view class="modal-box" @click.stop>
 				<text class="modal-title">修改昵称</text>
-				<input class="modal-input" v-model="editNickname" maxlength="20" placeholder="输入新昵称" @confirm="saveNickname" />
+				<input class="modal-input" v-model="editNickname" maxlength="7" placeholder="最多 7 个汉字" @confirm="saveNickname" />
 				<view class="modal-btns">
 					<view class="modal-btn modal-btn-cancel" hover-class="press-95" @click="cancelNicknameEdit">取消</view>
 					<view class="modal-btn modal-btn-confirm" hover-class="press-95" @click="saveNickname">保存</view>
@@ -58,6 +58,7 @@
 </template>
 
 <script>
+import { checkSafeWord } from '@/uni_modules/check-word-safe2/js_sdk/index.js'
 export default {
 	data() {
 		return {
@@ -114,7 +115,13 @@ export default {
 				return
 			}
 
-			uni.showLoading({ title: '审核中...', mask: true })
+			// 本地敏感词校验
+			if (checkSafeWord.verify(name)) {
+				uni.showToast({ title: '昵称包含敏感词，请修改', icon: 'none' })
+				return
+			}
+
+			uni.showLoading({ title: '保存中...', mask: true })
 			try {
 				const survey = uniCloud.importObject('survey')
 				const res = await survey.updateNickname({ nickname: name })

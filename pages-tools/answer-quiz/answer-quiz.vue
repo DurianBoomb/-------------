@@ -29,7 +29,7 @@
 					<view class="hd-row1">
 						<view class="hd-back" hover-class="press-95" :hover-start-time="0" :hover-stay-time="150" @click="goBack"><image class="back-arrow" src="/static/left.svg" mode="aspectFit"></image></view>
 						<text class="hd-tag">{{ title }}</text>
-						<text v-if="isUserGenerated" class="hd-author">🧑‍🎨 {{ creatorNickname || '用户' }}</text>
+						<text v-if="isUserGenerated" class="creator-line">—— <text class="creator-name">{{ creatorNickname || '用户' }}</text> 创作</text>
 					</view>
 					<view class="hd-row2">
 						<view class="hd-step">
@@ -561,7 +561,7 @@ export default {
 				this.survey = res.data
 				// 如果是用户生成问卷，查创建者昵称
 				if (this.survey.creatorId) {
-					this.loadCreatorNickname(this.survey.creatorId)
+					this.loadCreatorNickname()
 				}
 				this.slots.A.q = { ...this.qs[0], opts: this.pickOpts() }
 				// 首题入场动画完成后切到 entered 态（避免切题时 in→out 的 fill-mode 释放闪烁）
@@ -588,12 +588,12 @@ export default {
 		},
 		manualRetry() { this.loadSurvey() },
 
-		async loadCreatorNickname(uid) {
+		async loadCreatorNickname() {
 			try {
-				const db = uniCloud.database()
-				const res = await db.collection('uni-id-users').doc(uid).field('nickname').get()
-				if (res.data && res.data.length > 0) {
-					this.creatorNickname = res.data[0].nickname || '找找去哪换名字'
+				const survey = uniCloud.importObject('survey')
+				const res = await survey.getSurveyDetail({ surveyId: this.survey._id })
+				if (res.errCode === 0 && res.data.creatorNickname) {
+					this.creatorNickname = res.data.creatorNickname
 				}
 			} catch (e) {
 				console.error('[answer-quiz] loadCreatorNickname:', e)
@@ -729,6 +729,8 @@ export default {
 	background: #F3F4F6; border-radius: 20rpx;
 	padding: 4rpx 12rpx;
 }
+.creator-line { font-size: 22rpx; color: #99A1AF; font-weight: 400; line-height: 1; }
+.creator-name { color: #F97316; font-weight: 600; }
 .hd-row2 {
 	display: flex; justify-content: space-between;
 	align-items: flex-end;

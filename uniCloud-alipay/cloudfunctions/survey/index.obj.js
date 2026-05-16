@@ -646,35 +646,8 @@ module.exports = {
 		if (!nickname) return { errCode: 'PARAM_ERROR', errMsg: '昵称不能为空' }
 
 		try {
-			// 内容安全审核（inline checkTextContent 逻辑，避免跨方法调用）
+			// 更新昵称（敏感词校验已由客户端 check-word-safe 插件完成）
 			const usersCol = db.collection('uni-id-users')
-			const userRes = await usersCol.doc(uid).field({ 'wx_openid.mp': true }).get()
-			const openid = (userRes.data && userRes.data.length > 0) ? userRes.data[0].wx_openid.mp : ''
-
-			if (openid) {
-				const UniSecCheck = require('uni-sec-check')
-				const uniSecCheck = new UniSecCheck({
-					provider: 'mp-weixin',
-					requestId: this.getClientInfo().requestId
-				})
-
-				const checkRes = await uniSecCheck.textSecCheck({
-					content: nickname,
-					openid,
-					scene: 1,
-					version: 2
-				})
-
-				const r = checkRes.result || {}
-				console.log('[updateNickname] 审核明细 | suggest:', r.suggest || 'unknown', '| label:', r.label || 'unknown', '| content:', nickname)
-
-				if (checkRes.errCode === 'uni-sec-check-risk-content') {
-					console.warn('[updateNickname] 内容违规 | suggest:', r.suggest, '| label:', r.label)
-					return { errCode: 'RISK_CONTENT', errMsg: '昵称包含违规内容' }
-				}
-			}
-
-			// 更新昵称
 			await usersCol.doc(uid).update({ nickname })
 			return { errCode: 0, data: { nickname } }
 
