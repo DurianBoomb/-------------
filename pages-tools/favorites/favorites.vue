@@ -21,12 +21,16 @@
 					<text class="empty-txt">还没有收藏，去逛一逛吧 🧐</text>
 				</view>
 				<view v-else class="fav-list">
-					<view v-for="(item, idx) in list" :key="idx" class="fav-card" hover-class="press-98" :hover-start-time="0" :hover-stay-time="150" @click="goQuiz(item.tagName)">
-						<view class="fav-info">
-							<text class="fav-name">{{ item.tagName }}</text>
-							<text class="fav-time">{{ fmtTime(item.createdAt) }}</text>
+					<view v-for="(item, idx) in list" :key="idx" class="fav-card">
+						<view class="fav-main" hover-class="press-98" :hover-start-time="0" :hover-stay-time="150" @click="goQuiz(item.tagName)">
+							<view class="fav-info">
+								<text class="fav-name">{{ item.tagName }}</text>
+								<text class="fav-time">{{ fmtTime(item.createdAt) }}</text>
+							</view>
 						</view>
-						<view class="fav-arrow">▶</view>
+						<view class="fav-del" hover-class="press-95" :hover-start-time="0" :hover-stay-time="150" @click="removeFav(item, idx)">
+							<text class="del-icon">🗑️</text>
+						</view>
 					</view>
 				</view>
 				<view class="bottom-spacer"></view>
@@ -59,6 +63,24 @@ export default {
 			const pad = n => (n + '').padStart(2, '0')
 			return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`
 		},
+		removeFav(item, idx) {
+			uni.showModal({
+				title: '取消收藏',
+				content: `确定取消「${item.tagName}」的收藏吗？`,
+				success: async (res) => {
+					if (!res.confirm) return
+					try {
+						const survey = uniCloud.importObject('survey')
+						await survey.toggleFavorite({ tagName: item.tagName })
+						this.list.splice(idx, 1)
+						uni.showToast({ title: '已取消收藏', icon: 'none' })
+					} catch (e) {
+						console.error('[favorites] remove error:', e)
+						uni.showToast({ title: '操作失败', icon: 'none' })
+					}
+				}
+			})
+		},
 		goQuiz(tag) {
 			uni.navigateTo({ url: '/pages-tools/answer-quiz/answer-quiz?tag=' + encodeURIComponent(tag) })
 		},
@@ -81,10 +103,11 @@ export default {
 .empty-state { display: flex; flex-direction: column; align-items: center; padding: 120rpx 0; }
 .empty-icon { font-size: 80rpx; margin-bottom: 20rpx; }
 .empty-txt { font-size: 28rpx; color: #99A1AF; text-align: center; }
-.fav-card { display: flex; align-items: center; background: white; border-radius: 32rpx; padding: 24rpx; gap: 16rpx; margin-bottom: 16rpx; box-shadow: 0 1rpx 2rpx -1rpx rgba(0,0,0,.1), 0 1rpx 3rpx rgba(0,0,0,.1); }
+.fav-card { display: flex; align-items: center; background: white; border-radius: 32rpx; margin-bottom: 16rpx; box-shadow: 0 1rpx 2rpx -1rpx rgba(0,0,0,.1), 0 1rpx 3rpx rgba(0,0,0,.1); overflow: hidden; }
+.fav-main { display: flex; align-items: center; flex: 1; padding: 24rpx; gap: 16rpx; }
 .fav-info { flex: 1; min-width: 0; }
 .fav-name { font-size: 30rpx; font-weight: 700; color: #1E2939; display: block; }
 .fav-time { font-size: 22rpx; color: #99A1AF; display: block; margin-top: 4rpx; }
-.fav-arrow { font-size: 20rpx; color: #D1D5DC; flex-shrink: 0; }
+.fav-del { display: flex; align-items: center; justify-content: center; padding: 12rpx 24rpx; background: #FEF2F2; height: 100%; flex-shrink: 0; }
 .bottom-spacer { height: 60rpx; }
 </style>

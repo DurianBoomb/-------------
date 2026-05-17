@@ -21,16 +21,20 @@
 					<text class="empty-txt">还没有答题记录，去首页测一个吧 🧐</text>
 				</view>
 				<view v-else class="history-list">
-					<view v-for="(item, idx) in list" :key="idx" class="history-card" hover-class="press-98" :hover-start-time="0" :hover-stay-time="150" @click="goResult(item)">
-						<view class="hc-left">
-							<text class="hc-emoji">{{ item.emoji || '📊' }}</text>
+					<view v-for="(item, idx) in list" :key="idx" class="history-card">
+						<view class="hc-main" hover-class="press-98" :hover-start-time="0" :hover-stay-time="150" @click="goResult(item)">
+							<view class="hc-left">
+								<text class="hc-emoji">{{ item.emoji || '📊' }}</text>
+							</view>
+							<view class="hc-info">
+								<text class="hc-tag">{{ item.tagName }}</text>
+								<text class="hc-result">{{ item.resultName }}</text>
+								<text class="hc-time">{{ fmtTime(item.createdAt) }}</text>
+							</view>
 						</view>
-						<view class="hc-info">
-							<text class="hc-tag">{{ item.tagName }}</text>
-							<text class="hc-result">{{ item.resultName }}</text>
-							<text class="hc-time">{{ fmtTime(item.createdAt) }}</text>
+						<view class="hc-del" hover-class="press-95" :hover-start-time="0" :hover-stay-time="150" @click="removeRecord(item, idx)">
+							<text class="del-icon">🗑️</text>
 						</view>
-						<view class="hc-arrow">▶</view>
 					</view>
 				</view>
 				<view class="bottom-spacer"></view>
@@ -65,6 +69,24 @@ export default {
 			const d = new Date(ts)
 			const pad = n => (n + '').padStart(2, '0')
 			return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`
+		},
+		removeRecord(item, idx) {
+			uni.showModal({
+				title: '删除记录',
+				content: `确定删除「${item.tagName}」的答题记录吗？`,
+				success: async (res) => {
+					if (!res.confirm) return
+					try {
+						const survey = uniCloud.importObject('survey')
+						await survey.removeAnswer({ answerId: item._id })
+						this.list.splice(idx, 1)
+						uni.showToast({ title: '已删除', icon: 'none' })
+					} catch (e) {
+						console.error('[answer-history] remove error:', e)
+						uni.showToast({ title: '操作失败', icon: 'none' })
+					}
+				}
+			})
 		},
 		goResult(item) {
 			const dimScores = item.scores || {}
@@ -102,15 +124,17 @@ export default {
 /* 历史列表 */
 .history-card {
 	display: flex; align-items: center; background: white; border-radius: 32rpx;
-	padding: 24rpx; gap: 16rpx; margin-bottom: 16rpx;
+	margin-bottom: 16rpx;
 	box-shadow: 0 1rpx 2rpx -1rpx rgba(0,0,0,.1), 0 1rpx 3rpx rgba(0,0,0,.1);
+	overflow: hidden;
 }
+.hc-main { display: flex; align-items: center; flex: 1; padding: 24rpx; gap: 16rpx; }
 .hc-left { flex-shrink: 0; }
 .hc-emoji { font-size: 48rpx; display: block; }
 .hc-info { flex: 1; min-width: 0; }
 .hc-tag { font-size: 30rpx; font-weight: 700; color: #1E2939; display: block; }
 .hc-result { font-size: 26rpx; color: #F97316; font-weight: 600; display: block; margin-top: 4rpx; }
 .hc-time { font-size: 22rpx; color: #99A1AF; display: block; margin-top: 4rpx; }
-.hc-arrow { font-size: 20rpx; color: #D1D5DC; flex-shrink: 0; }
+.hc-del { display: flex; align-items: center; justify-content: center; padding: 12rpx 24rpx; background: #FEF2F2; height: 100%; flex-shrink: 0; }
 .bottom-spacer { height: 60rpx; }
 </style>

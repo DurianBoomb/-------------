@@ -126,6 +126,7 @@
 			{
 				"path": "answer-history/answer-history",
 				"style": {
+					"navigationStyle": "custom",
 					"navigationBarTitleText": "答题历史",
 					"enablePullDownRefresh": true
 				}
@@ -133,18 +134,21 @@
 			{
 				"path": "favorites/favorites",
 				"style": {
+					"navigationStyle": "custom",
 					"navigationBarTitleText": "我的收藏"
 				}
 			},
 			{
 				"path": "profile/profile",
 				"style": {
+					"navigationStyle": "custom",
 					"navigationBarTitleText": "照照镜子"
 				}
 			},
 			{
 				"path": "my-surveys/my-surveys",
 				"style": {
+					"navigationStyle": "custom",
 					"navigationBarTitleText": "已生成问卷"
 				}
 			},

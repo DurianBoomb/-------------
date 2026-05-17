@@ -220,6 +220,25 @@ module.exports = {
 		}
 	},
 
+	/**
+	 * 删除单条答题记录
+	 */
+	async removeAnswer(params = {}) {
+		const uid = this.uid
+		if (!uid) return { errCode: 'AUTH_ERROR', errMsg: '未登录' }
+		const answerId = (params.answerId || '').trim()
+		if (!answerId) return { errCode: 'PARAM_ERROR', errMsg: 'answerId 不能为空' }
+		try {
+			const res = await answersCol.doc(answerId).get()
+			if (!res.data || res.data.length === 0) return { errCode: 'NOT_FOUND', errMsg: '记录不存在' }
+			if (res.data[0].userId !== uid) return { errCode: 'AUTH_ERROR', errMsg: '无权操作' }
+			await answersCol.doc(answerId).remove()
+			return { errCode: 0 }
+		} catch (e) {
+			return { errCode: 'DB_ERROR', errMsg: '删除失败' }
+		}
+	},
+
 	async toggleFavorite(params) {
 		if (!params || !params.tagName) return { errCode: 'PARAM_ERROR', errMsg: '标签名不能为空' }
 		const uid = this.uid
@@ -524,6 +543,25 @@ module.exports = {
 		} catch (e) {
 			console.error('[getMySurveys] error:', e)
 			return { errCode: 'DB_ERROR', errMsg: '查询失败' }
+		}
+	},
+
+	/**
+	 * 删除我生成的问卷
+	 */
+	async removeSurvey(params = {}) {
+		const uid = this.uid
+		if (!uid) return { errCode: 'AUTH_ERROR', errMsg: '未登录' }
+		const surveyId = (params.surveyId || '').trim()
+		if (!surveyId) return { errCode: 'PARAM_ERROR', errMsg: 'surveyId 不能为空' }
+		try {
+			const res = await surveysCol.doc(surveyId).get()
+			if (!res.data || res.data.length === 0) return { errCode: 'NOT_FOUND', errMsg: '问卷不存在' }
+			if (res.data[0].creatorId !== uid) return { errCode: 'AUTH_ERROR', errMsg: '无权操作' }
+			await surveysCol.doc(surveyId).remove()
+			return { errCode: 0 }
+		} catch (e) {
+			return { errCode: 'DB_ERROR', errMsg: '删除失败' }
 		}
 	},
 
