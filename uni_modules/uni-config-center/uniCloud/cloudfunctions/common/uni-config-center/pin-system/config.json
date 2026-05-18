@@ -1,0 +1,86 @@
+{
+	"pool": {
+		"poolSizeThreshold": 1000,
+		"poolLifecycleMinutes": 13,
+		"poolLifecycleDisplayMinutes": 15
+	},
+	"seniority": {
+		"levels": [
+			{ "level": 0, "min": 0, "max": 0, "label": "Lv.0 · 新人" },
+			{ "level": 1, "min": 1, "max": 5, "label": "Lv.1 · 偶发者" },
+			{ "level": 2, "min": 6, "max": 20, "label": "Lv.2 · 常客" },
+			{ "level": 3, "min": 21, "max": null, "label": "Lv.3 · 老面孔" }
+		]
+	},
+	"weight": {
+		"haloWeight": 10000,
+		"selfWeightMin": 300,
+		"selfWeightMax": 500,
+		"otherWeightMin": 1,
+		"otherWeightMax": 200,
+		"reverseCompensationCoefficients": {
+			"0": 2.5,
+			"1": 1.5,
+			"2": 1.0,
+			"3": 0.6
+		}
+	},
+	"queue": {
+		"naturalDurationMinutes": 30,
+		"accelJumpMap": {
+			"0": 4,
+			"1": 3,
+			"2": 2,
+			"3": 1
+		},
+		"maxAccelCount": 3,
+		"queueExpireMinutes": 30,
+		"phases": [
+			{ "phase": "queuing", "endMin": 5 },
+			{ "phase": "inspecting", "endMin": 12 },
+			{ "phase": "pushing", "endMin": 22 },
+			{ "phase": "ready", "endMin": 30 }
+		],
+		"logTemplates": {
+			"queuing": [
+				"[系统] 已进入候场区，正在排队...",
+				"[系统] 你的问卷已进入处理队列",
+				"[系统] 当前队列状态：等待分配处理节点"
+			],
+			"inspecting": [
+				"[系统] 正在对问卷进行质量检测...",
+				"[质检] 含梗量检测：通过 ✓",
+				"[质检] 内容合规性审查：通过 ✓",
+				"[质检] 趣味指数评估：优秀"
+			],
+			"pushing": [
+				"[系统] 正在推送至推荐系统...",
+				"[推送] 分配初始曝光权重...",
+				"[推送] 加入候选推荐列表 ✓"
+			],
+			"ready": [
+				"[系统] → 你的问卷已进入置顶池，开始曝光！",
+				"[系统] 你将收到本次曝光战绩单，敬请查收"
+			]
+		},
+		"vipLog": "[VIP] 检测到加速请求，正在开启绿色通道..."
+	},
+	"career": {
+		"viewFloatMin": 1.5,
+		"viewFloatMax": 3.0,
+		"clickRateMin": 0.05,
+		"clickRateMax": 0.15,
+		"favoriteRateMin": 0.05,
+		"favoriteRateMax": 0.20,
+		"bonusTriggerRate": 0.15,
+		"bonusMultiplierMin": 1.5,
+		"bonusMultiplierMax": 2.0,
+		"favoriteFloor": 0,
+		"simulatedActiveUsers": 1000
+	},
+	"security": {
+		"dailyPinSoftCap": 10,
+		"adMinDurationSeconds": 15,
+		"rateLimitPerMinute": 5
+	}
+}

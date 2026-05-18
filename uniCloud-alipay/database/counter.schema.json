@@ -1,0 +1,20 @@
+{
+	"bsonType": "object",
+	"required": ["seq"],
+	"permission": {
+		"read": false,
+		"create": false,
+		"update": false,
+		"delete": false
+	},
+	"properties": {
+		"_id": {
+			"description": "计数器标识，固定值如 careerArchiveSeq"
+		},
+		"seq": {
+			"bsonType": "int",
+			"description": "当前序列值",
+			"minimum": 0
+		}
+	}
+}

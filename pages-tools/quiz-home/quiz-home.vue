@@ -28,6 +28,27 @@
 			<text class="header-subtitle">正经人谁做测试啊...</text>
 		</view>
 
+		<!-- 置顶栏（内联 mock） -->
+		<view class="ptb-inline">
+			<view class="ptb-hdr">
+				<text style="font-size:28rpx;font-weight:700;color:#1E2939;">🔥 置顶热门</text>
+				<text style="font-size:22rpx;color:#99A1AF;margin-left:12rpx;">你的问卷正在被推荐</text>
+			</view>
+			<scroll-view class="ptb-scroll" scroll-x enable-flex>
+				<view v-for="c in mockCards" :key="c.emoji" class="ptb-card" hover-class="press-95">
+					<view class="ptb-cover">
+						<text style="font-size:44rpx;">{{ c.emoji }}</text>
+						<view v-if="c.mine" class="ptb-badge">我</view>
+					</view>
+					<text class="ptb-name">{{ c.title }}</text>
+					<text class="ptb-auth">{{ c.author }}</text>
+				</view>
+			</scroll-view>
+		</view>
+
+		<!-- 看广告置顶入口 -->
+		<pin-terminal-entry></pin-terminal-entry>
+
 		<scroll-view class="body" scroll-y>
 			<!-- 内部容器：解决 scroll-view padding 不生效的问题 -->
 			<view class="body-inner">
@@ -109,9 +130,19 @@
 
 <script>
 export default {
+	components: {
+		PinTerminalEntry: () => import('@/components/pin-terminal-entry/pin-terminal-entry.vue')
+	},
 		data() {
 		return {
 			spinDeg: 0,
+			mockCards: [
+				{ emoji: '📊', title: '今日运势', author: '张三', mine: true },
+				{ emoji: '🧠', title: '智商测试', author: '李四', mine: false },
+				{ emoji: '🎭', title: '人格鉴定', author: '王五', mine: false },
+				{ emoji: '❤️', title: '恋爱分析', author: '赵六', mine: false },
+				{ emoji: '💼', title: '职场人设', author: '钱七', mine: false }
+			],
 			refreshId: 0,
 			isRefreshing: false,
 			animFlip: false,
@@ -432,7 +463,29 @@ export default {
 /* ====== 底部 spacer ====== */
 .bottom-spacer { height: 60rpx; width: 100%; }
 
-
+/* ====== 置顶栏内联 ====== */
+.ptb-inline { padding: 0 40rpx 24rpx; background: linear-gradient(180deg,#FFF 0%,#F7F8FA 100%); }
+.ptb-hdr { display: flex; align-items: baseline; margin-bottom: 16rpx; }
+.ptb-scroll { display: flex; flex-direction: row; }
+.ptb-card {
+	flex-shrink: 0; width: 180rpx; background: white;
+	border-radius: 24rpx; padding: 16rpx 12rpx; margin-right: 16rpx;
+	box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.08); text-align: center;
+}
+.ptb-cover {
+	width: 100rpx; height: 100rpx; margin: 0 auto 10rpx;
+	background: #FFF7ED; border-radius: 20rpx;
+	display: flex; align-items: center; justify-content: center; position: relative;
+}
+.ptb-badge {
+	position: absolute; top: -4rpx; right: -4rpx; background: #F97316;
+	border-radius: 50%; width: 32rpx; height: 32rpx;
+	display: flex; align-items: center; justify-content: center;
+	font-size: 18rpx; color: white; font-weight: 700;
+}
+.ptb-name { font-size: 22rpx; font-weight: 600; color: #1E2939; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ptb-auth { font-size: 18rpx; color: #99A1AF; display: block; margin-top: 4rpx; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.press-95 { transform: scale(0.95); transition: transform 0.1s; }
 
 /* ====== 动画 ====== */
 @keyframes dropElasticA {

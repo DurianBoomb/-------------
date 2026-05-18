@@ -1,0 +1,51 @@
+{
+	"bsonType": "object",
+	"required": ["userId", "surveyId", "enterAt", "acceleratedCount", "seniorityLevel", "currentPhase"],
+	"permission": {
+		"read": "auth.uid == doc.userId",
+		"create": false,
+		"update": false,
+		"delete": false
+	},
+	"properties": {
+		"_id": {
+			"description": "自动生成，格式 queue_{时间戳}_{4位随机数}"
+		},
+		"userId": {
+			"bsonType": "string",
+			"description": "用户标识"
+		},
+		"surveyId": {
+			"bsonType": "string",
+			"description": "正在排队等待入池的问卷标识"
+		},
+		"enterAt": {
+			"bsonType": "timestamp",
+			"description": "进入候场区的时间戳"
+		},
+		"acceleratedCount": {
+			"bsonType": "int",
+			"description": "已通过看广告加速的次数（0/1/2，最多3次）",
+			"minimum": 0,
+			"maximum": 3
+		},
+		"seniorityLevel": {
+			"bsonType": "int",
+			"description": "进入候场区时用户的资历档位快照（0-3）",
+			"minimum": 0,
+			"maximum": 3
+		},
+		"currentPhase": {
+			"bsonType": "string",
+			"description": "当前日志所处的处理阶段标识（queuing / inspecting / pushing / ready）",
+			"enum": ["queuing", "inspecting", "pushing", "ready"]
+		}
+	},
+	"index": [
+		{
+			"name": "idx_userId",
+			"field": "userId",
+			"type": "regular"
+		}
+	]
+}

@@ -1,0 +1,7 @@
+{
+  "name": "test-pin-expiry",
+  "dependencies": {},
+  "extensions": {
+    "uni-cloud-jql": {}
+  }
+}

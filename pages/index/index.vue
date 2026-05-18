@@ -12,6 +12,15 @@
 			</view>
 		</view>
 
+		<!-- 看广告置顶入口 -->
+		<pin-terminal-entry
+			:surveyId="currentSurveyId"
+			@pinned="onPinned"
+			@green-channel="onGreenChannel"></pin-terminal-entry>
+
+		<!-- 置顶栏 -->
+		<pin-topbar ref="pinTopbar"></pin-topbar>
+
 		<scroll-view class="body" scroll-y>
 			<view class="body-inner">
 			<view class="tool-grid" v-if="showGrid">
@@ -42,18 +51,95 @@
 					</view>
 				</view>
 
+				<!-- 置顶系统测试入口（mock 测试用） -->
+				<view class="dev-section">
+					<text class="mock-label">🔧 开发测试</text>
+					<view class="dev-row">
+						<view class="dev-btn dev-btn-sm" hover-class="press-95" @click="goPage('/pages-tools/career/career-detail')">
+							<text class="dev-btn-txt">战绩单详情</text>
+						</view>
+						<view class="dev-btn dev-btn-sm" hover-class="press-95" @click="goPage('/pages-tools/career/career-history')">
+							<text class="dev-btn-txt">历史档案</text>
+						</view>
+						<view class="dev-btn dev-btn-sm" hover-class="press-95" @click="goPinTest">
+							<text class="dev-btn-txt">置顶测试</text>
+						</view>
+					</view>
+				</view>
+
 				<view class="bottom-spacer"></view>
 			</view>
 		</scroll-view>
+
+		<!-- 绿色通道闪屏 overlay -->
+		<green-channel-splash
+			:visible="showGreenChannel"
+			@close="onGreenChannelClose"></green-channel-splash>
+
+		<!-- 未读档案弹窗 -->
+		<view v-if="showCareerPopup" class="career-popup-overlay" @click="dismissCareerPopup">
+			<view class="career-popup" @click.stop>
+				<view class="career-popup-hd">
+					<image class="career-popup-stamp" src="/static/给狐狸.png" mode="aspectFit"></image>
+					<text class="career-popup-title">15分钟名气管理局</text>
+					<text class="career-popup-sub">临时名人档案 · 新到</text>
+				</view>
+				<view class="career-popup-body">
+					<text class="career-popup-honor">🏆 {{ (currentCareer && currentCareer.honor && currentCareer.honor.name) || '内容创作者' }}</text>
+					<text class="career-popup-survey">「{{ (currentCareer && currentCareer.surveyTitle) || '' }}」</text>
+					<view class="career-popup-stats">
+						<view class="career-popup-stat">
+							<text class="career-popup-num">{{ formatNum(currentCareer && currentCareer.stats && currentCareer.stats.views) }}</text>
+							<text class="career-popup-label">驻足注视</text>
+						</view>
+						<text class="career-popup-sep">|</text>
+						<view class="career-popup-stat">
+							<text class="career-popup-num">{{ formatNum(currentCareer && currentCareer.stats && currentCareer.stats.clicks) }}</text>
+							<text class="career-popup-label">好奇打开</text>
+						</view>
+						<text class="career-popup-sep">|</text>
+						<view class="career-popup-stat">
+							<text class="career-popup-num">{{ formatNum(currentCareer && currentCareer.stats && currentCareer.stats.favorites) }}</text>
+							<text class="career-popup-label">决定存档</text>
+						</view>
+					</view>
+					<view v-if="currentCareer && currentCareer.bonusTriggered" class="career-popup-bonus">
+						<text>⚡ 暴击触发 ×{{ currentCareer.bonusMultiplier ? currentCareer.bonusMultiplier.toFixed(1) : '1.5' }}</text>
+					</view>
+				</view>
+				<view class="career-popup-ft">
+					<view class="career-popup-btn career-popup-btn-view" hover-class="press-95" @click="viewCareer">
+						<text>📖 查看档案</text>
+					</view>
+					<view class="career-popup-btn career-popup-btn-close" hover-class="press-95" @click="dismissCareerPopup">
+						<text>稍后再说</text>
+					</view>
+				</view>
+			</view>
+		</view>
 	</view>
+
 </template>
 
 <script>
+import PinTerminalEntry from '@/components/pin-terminal-entry/pin-terminal-entry.vue'
+import PinTopbar from '@/components/pin-topbar/pin-topbar.vue'
+import GreenChannelSplash from '@/components/green-channel-splash/green-channel-splash.vue'
+
 export default {
+	components: { PinTerminalEntry, PinTopbar, GreenChannelSplash },
 	data() {
 		return {
 			showGrid: true,
 			isFirstShow: true,
+			currentSurveyId: '',
+			showGreenChannel: false,
+			greenChannelPinData: null,
+			// 未读档案检测
+			pendingCareers: [],
+			showCareerPopup: false,
+			currentCareer: null,
+			careerIndex: 0,
 			tools: [
 				{
 					id: 'quiz',
@@ -76,9 +162,122 @@ export default {
 		this.$nextTick(() => {
 			this.showGrid = true
 		})
+		// 回访时刷新置顶栏
+		this.$nextTick(() => {
+			this.$refs.pinTopbar?.refresh()
+		})
+		// 检测未读档案（本地缓存优化）
+		this.checkUnreadCareer()
+	},
+	onReady() {
+		// 首次加载时拉取置顶数据
+		this.$nextTick(() => {
+			this.$refs.pinTopbar?.refresh()
+		})
 	},
 	methods: {
-		openTool(tool) { uni.navigateTo({ url: tool.route }) }
+		openTool(tool) { uni.navigateTo({ url: tool.route }) },
+		goPinTest() { uni.navigateTo({ url: '/pages-tools/pin-test/pin-test' }) },
+		goPage(url) { uni.navigateTo({ url }) },
+
+		// 广告置顶完成回调
+		onPinned({ action, pinData, queueData }) {
+			if (action === 'direct_entry') {
+				// 直接入池 → 刷新置顶栏
+				this.$nextTick(() => {
+					this.$refs.pinTopbar?.refresh()
+				})
+			}
+			// enter_queue 由 pin-terminal-entry 内部处理跳转
+		},
+
+		// 绿色通道触发
+		onGreenChannel({ pinData }) {
+			this.greenChannelPinData = pinData
+			this.showGreenChannel = true
+		},
+
+		// 绿色通道闪屏关闭
+		onGreenChannelClose() {
+			this.showGreenChannel = false
+			this.greenChannelPinData = null
+		},
+
+		// ====== 未读档案检测 ======
+
+		// 检测未读档案（缓存优化：本地无未读时不调接口）
+		async checkUnreadCareer() {
+			// 如果已经在弹窗中，不重复检测
+			if (this.showCareerPopup) return
+			const cached = uni.getStorageSync('_hasUnreadCareer')
+			if (cached === false) return
+			try {
+				const ps = uniCloud.importObject('pin-system')
+				const res = await ps.checkCareerStatus()
+				if (res.errCode === 0 && res.data?.hasUnread && res.data?.careers?.length > 0) {
+					this.pendingCareers = res.data.careers
+					this.careerIndex = 0
+					this.showNextCareer()
+				} else {
+					// 无未读，缓存标记
+					uni.setStorageSync('_hasUnreadCareer', false)
+				}
+			} catch (e) {
+				console.error('[index] checkUnreadCareer error:', e)
+			}
+		},
+
+		// 弹出下一条未读档案
+		showNextCareer() {
+			if (this.careerIndex < this.pendingCareers.length) {
+				this.currentCareer = this.pendingCareers[this.careerIndex]
+				this.showCareerPopup = true
+			} else {
+				this.showCareerPopup = false
+				this.currentCareer = null
+				this.pendingCareers = []
+				uni.setStorageSync('_hasUnreadCareer', false)
+			}
+		},
+
+		// 关闭弹窗
+		async dismissCareerPopup() {
+			const careerId = this.currentCareer?.careerId
+			this.showCareerPopup = false
+			if (careerId) {
+				try {
+					const ps = uniCloud.importObject('pin-system')
+					await ps.markCareerAsRead({ careerId })
+				} catch (e) {
+					console.error('[index] markAsRead error:', e)
+				}
+			}
+			this.careerIndex++
+			this.$nextTick(() => { this.showNextCareer() })
+		},
+
+		// 查看档案
+		async viewCareer() {
+			const careerId = this.currentCareer?.careerId
+			this.showCareerPopup = false
+			if (careerId) {
+				try {
+					const ps = uniCloud.importObject('pin-system')
+					await ps.markCareerAsRead({ careerId })
+				} catch (e) {
+					console.error('[index] markAsRead error:', e)
+				}
+				uni.navigateTo({ url: '/pages-tools/career/career-detail?careerId=' + careerId })
+			}
+			this.careerIndex++
+			this.$nextTick(() => { this.showNextCareer() })
+		},
+
+		formatNum(val) {
+			if (typeof val !== 'number') return '--'
+			if (val >= 10000) return (val / 10000).toFixed(1) + '万'
+			return val.toLocaleString()
+		}
 	}
 }
 </script>
@@ -153,7 +352,61 @@ export default {
 .mock-creator-name { color: #F97316; font-weight: 600; }
 
 /* ====== 底部 spacer ====== */
+.dev-section { margin-top: 32rpx; }
+.dev-row { display: flex; gap: 12rpx; }
+.dev-btn {
+	background: #1E2939; border-radius: 24rpx; padding: 20rpx 32rpx;
+	display: flex; align-items: center; justify-content: center; flex: 1;
+}
+.dev-btn-sm { padding: 14rpx 20rpx; }
+.dev-btn-txt { font-size: 24rpx; color: white; font-weight: 600; white-space: nowrap; }
+.press-95 { transform: scale(0.95); }
+
 .bottom-spacer { height: 60rpx; width: 100%; }
+
+/* ====== 未读档案弹窗 ====== */
+.career-popup-overlay {
+	position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+	background: rgba(0,0,0,.5); z-index: 999;
+	display: flex; align-items: center; justify-content: center;
+	padding: 60rpx;
+	animation: fadeIn .25s ease-out;
+}
+.career-popup {
+	background: white; border-radius: 32rpx; width: 100%; max-width: 560rpx;
+	overflow: hidden; box-shadow: 0 16rpx 48rpx rgba(0,0,0,.2);
+	animation: slideUp .3s cubic-bezier(.34,1.56,.64,1);
+}
+.career-popup-hd {
+	background: linear-gradient(135deg, #B91C1C, #DC2626);
+	padding: 40rpx 36rpx 28rpx; text-align: center;
+}
+.career-popup-stamp { width: 56rpx; height: 56rpx; margin-bottom: 12rpx; }
+.career-popup-title { font-size: 32rpx; font-weight: 800; color: white; display: block; letter-spacing: 2rpx; }
+.career-popup-sub { font-size: 22rpx; color: rgba(255,255,255,.7); display: block; margin-top: 6rpx; }
+
+.career-popup-body { padding: 32rpx 36rpx; text-align: center; }
+.career-popup-honor { font-size: 30rpx; font-weight: 800; color: #B91C1C; display: block; margin-bottom: 8rpx; }
+.career-popup-survey { font-size: 24rpx; color: #6B7280; display: block; margin-bottom: 24rpx; }
+.career-popup-stats { display: flex; align-items: center; justify-content: center; gap: 16rpx; margin-bottom: 16rpx; }
+.career-popup-stat { text-align: center; }
+.career-popup-num { font-size: 36rpx; font-weight: 800; color: #EA580C; display: block; font-family: monospace; }
+.career-popup-label { font-size: 20rpx; color: #9CA3AF; display: block; margin-top: 4rpx; }
+.career-popup-sep { font-size: 24rpx; color: #D1D5DC; }
+.career-popup-bonus text {
+	display: inline-block; background: linear-gradient(135deg, #7C3AED, #A855F7);
+	color: white; font-size: 20rpx; font-weight: 700;
+	padding: 4rpx 16rpx; border-radius: 16rpx;
+}
+
+.career-popup-ft { padding: 0 36rpx 36rpx; display: flex; gap: 16rpx; }
+.career-popup-btn {
+	flex: 1; padding: 20rpx; border-radius: 24rpx; text-align: center; font-size: 26rpx; font-weight: 700;
+}
+.career-popup-btn-view { background: #1E2939; color: white; }
+.career-popup-btn-close { background: #F3F4F6; color: #6B7280; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 /* ====== 动画 ====== */
 @keyframes foxBreathe { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6rpx); } }

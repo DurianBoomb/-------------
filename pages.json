@@ -157,6 +157,27 @@
 				"style": {
 					"navigationStyle": "custom"
 				}
+			},
+			{
+				"path": "pin-test/pin-test",
+				"style": {
+					"navigationStyle": "custom",
+					"navigationBarTitleText": "置顶系统测试"
+				}
+			},
+			{
+				"path": "career/career-detail",
+				"style": {
+					"navigationStyle": "custom",
+					"navigationBarTitleText": "战绩单详情"
+				}
+			},
+			{
+				"path": "career/career-history",
+				"style": {
+					"navigationStyle": "custom",
+					"navigationBarTitleText": "历史档案"
+				}
 			}]
 		},
 		{

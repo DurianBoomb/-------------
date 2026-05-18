@@ -1,0 +1,103 @@
+{
+	"bsonType": "object",
+	"required": ["userId", "surveyId", "careerNumber", "archiveNumber", "createdAt", "stats", "honor", "comment", "surveyTitle"],
+	"permission": {
+		"read": "auth.uid == doc.userId",
+		"create": false,
+		"update": false,
+		"delete": false
+	},
+	"properties": {
+		"_id": {
+			"description": "自动生成"
+		},
+		"userId": {
+			"bsonType": "string",
+			"description": "用户标识"
+		},
+		"surveyId": {
+			"bsonType": "string",
+			"description": "关联的问卷标识"
+		},
+		"careerNumber": {
+			"bsonType": "int",
+			"description": "用户第N条战绩单"
+		},
+		"archiveNumber": {
+			"bsonType": "string",
+			"description": "ZW展示编码，如 ZW-2026-01847"
+		},
+		"createdAt": {
+			"bsonType": "timestamp",
+			"description": "档案生成时间"
+		},
+		"stats": {
+			"bsonType": "object",
+			"description": "核心统计数据",
+			"required": ["views", "clicks", "favorites"],
+			"properties": {
+				"views": {
+					"bsonType": "int",
+					"description": "驻足注视（曝光量）",
+					"minimum": 0
+				},
+				"clicks": {
+					"bsonType": "int",
+					"description": "好奇打开（点击量）",
+					"minimum": 0
+				},
+				"favorites": {
+					"bsonType": "int",
+					"description": "决定存档（收藏量）",
+					"minimum": 0
+				}
+			}
+		},
+		"bonusTriggered": {
+			"bsonType": "bool",
+			"description": "是否触发了数据暴击"
+		},
+		"bonusMultiplier": {
+			"bsonType": "double",
+			"description": "暴击倍数（未触发时为 null）"
+		},
+		"honor": {
+			"bsonType": "object",
+			"description": "荣誉称号",
+			"required": ["id", "name", "desc"],
+			"properties": {
+				"id": { "bsonType": "string", "description": "称号唯一标识" },
+				"name": { "bsonType": "string", "description": "称号名称", "maxLength": 50, "trim": "both" },
+				"desc": { "bsonType": "string", "description": "称号描述", "maxLength": 200, "trim": "both" }
+			}
+		},
+		"pinId": {
+			"bsonType": "string",
+			"description": "关联的 pin-pool 文档 ID，用于槽位释放匹配"
+		},
+		"comment": {
+			"bsonType": "string",
+			"description": "档案附注（系统点评）",
+			"maxLength": 500,
+			"trim": "both"
+		},
+		"surveyTitle": {
+			"bsonType": "string",
+			"description": "问卷标题，冗余用于展示",
+			"maxLength": 100,
+			"trim": "both"
+		}
+	},
+	"index": [
+		{
+			"name": "idx_userId",
+			"field": "userId",
+			"type": "regular"
+		},
+		{
+			"name": "idx_createdAt",
+			"field": "createdAt",
+			"type": "regular"
+		}
+	]
+}

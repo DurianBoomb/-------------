@@ -1,0 +1,56 @@
+{
+	"properties": {
+		"career": {
+			"bsonType": "object",
+			"description": "置顶系统用户扩展数据",
+			"required": ["exposureCount", "hasUnread", "unreadCareerIds", "slots"],
+			"properties": {
+				"exposureCount": {
+					"bsonType": "int",
+					"description": "累计置顶成功次数",
+					"minimum": 0
+				},
+				"hasUnread": {
+					"bsonType": "bool",
+					"description": "是否有未读档案"
+				},
+				"unreadCareerIds": {
+					"bsonType": "array",
+					"description": "未读档案ID列表",
+					"items": {
+						"bsonType": "string"
+					}
+				},
+				"slots": {
+					"bsonType": "array",
+					"description": "三槽位状态",
+					"minItems": 3,
+					"maxItems": 3,
+					"items": {
+						"bsonType": "object",
+						"required": ["status", "surveyId", "pinId", "queueId"],
+						"properties": {
+							"status": {
+								"bsonType": "string",
+								"description": "槽位状态：idle | queuing | active | claimable",
+								"enum": ["idle", "queuing", "active", "claimable"]
+							},
+							"surveyId": {
+								"bsonType": "string",
+								"description": "关联的问卷标识"
+							},
+							"pinId": {
+								"bsonType": "string",
+								"description": "关联的 pin-pool 文档标识"
+							},
+							"queueId": {
+								"bsonType": "string",
+								"description": "关联的 survey-queue 候场记录 _id"
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
