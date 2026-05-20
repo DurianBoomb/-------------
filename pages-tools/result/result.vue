@@ -52,6 +52,9 @@
 				<view class="btn-retry" hover-class="btn-press" :hover-start-time="0" :hover-stay-time="150" @click="retry">
 					<text>🔄</text><text>再来一次</text>
 				</view>
+				<view class="btn-promote" hover-class="btn-press" :hover-start-time="0" :hover-stay-time="150" @click="promoteSurvey">
+					<text>📢</text><text>推广本问卷</text>
+				</view>
 				<button class="btn-share" open-type="share" hover-class="btn-press">
 					<text>↗</text><text>分享给朋友</text>
 				</button>
@@ -62,6 +65,7 @@
 </template>
 
 <script>
+import { playAd } from '@/common/ad-utils.js'
 export default {
 		data() {
 		return {
@@ -642,6 +646,13 @@ export default {
 					if (statRes.errCode === 0) this.voteStats = statRes.data
 				}
 			} catch (e) { console.error('[result] doVote:', e) }
+		},
+		promoteSurvey() {
+			if (!this.surveyId) {
+				uni.showToast({ title: '问卷ID不可用', icon: 'none' })
+				return
+			}
+			playAd(this.surveyId)
 		}
 	}
 }
@@ -738,11 +749,16 @@ export default {
 	display: flex; flex-direction: column; align-items: center;
 }
 .footer-inner { display: flex; gap: 12rpx; width: 100%; padding: 0 24rpx; }
-.btn-retry, .btn-share { height: 118rpx; border-radius: 60rpx; display: flex; align-items: center; justify-content: center; gap: 6rpx; font-size: 32rpx; font-weight: 700; }
+.btn-retry, .btn-promote, .btn-share { height: 118rpx; border-radius: 60rpx; display: flex; align-items: center; justify-content: center; gap: 6rpx; font-size: 32rpx; font-weight: 700; flex: 1; }
 .btn-retry {
-	flex: 0 0 212rpx; background: #fff; color: #364153;
+	background: #fff; color: #364153;
 	box-shadow: 0 1rpx 2rpx -1rpx rgba(0,0,0,.1), 0 1rpx 3rpx rgba(0,0,0,.1);
 	outline: 3rpx solid #E5E7EB; outline-offset: -3rpx;
+}
+.btn-promote {
+	background: linear-gradient(90deg, #FEF3C7 0%, #FDE68A 100%); color: #92400E;
+	box-shadow: 0 2rpx 4rpx -2rpx rgba(251,191,36,.3), 0 4rpx 6rpx -1rpx rgba(251,191,36,.3);
+	outline: 3rpx solid #FCD34D; outline-offset: -3rpx;
 }
 .btn-share {
 	flex: 1; background: linear-gradient(90deg, #FFB900 0%, #FF6900 100%); color: #fff;

@@ -13,7 +13,7 @@
 				<text class="hd-nickname-val">{{ nickname }}</text>
 				<text class="hd-nickname-edit">✏️</text>
 			</view>
-			<text class="hd-subtitle">已确诊 {{ list.length }} 个标签</text>
+			<text class="hd-subtitle">已确诊 {{ total }} 个标签</text>
 		</view>
 
 		<!-- 昵称编辑弹窗 -->
@@ -34,19 +34,23 @@
 					<text class="empty-icon">⏳</text>
 					<text class="empty-txt">加载中...</text>
 				</view>
-			<view v-if="list.length === 0" class="empty-state">
+			<view v-else-if="list.length === 0" class="empty-state">
 					<text class="empty-icon">📋</text>
-					<text class="empty-txt">你还没有诊断过任何标签</text>
+					<text class="empty-txt">还没有答题记录</text>
 					<text class="empty-sub">去首页随便测测吧 🧐</text>
 				</view>
 				<view v-else class="profile-list">
-					<view v-for="(item, idx) in list" :key="idx" class="profile-card" hover-class="press-98" :hover-start-time="0" :hover-stay-time="150" @click="goResult(item)">
+					<view v-for="(item, idx) in list" :key="item._id || idx" class="profile-card" hover-class="press-98" :hover-start-time="0" :hover-stay-time="150" @click="goResult(item)">
 						<view class="pc-emoji">
 							<text>{{ item.emoji || '📊' }}</text>
 						</view>
 						<view class="pc-info">
 							<text class="pc-tag">{{ item.tagName }}</text>
 							<text class="pc-result">{{ item.resultName }}</text>
+							<text class="pc-time">{{ fmtTime(item.createdAt) }}</text>
+						</view>
+						<view class="pc-del" hover-class="press-95" @click.stop="confirmDelete(item, idx)">
+							<text>删除</text>
 						</view>
 					</view>
 				</view>
@@ -61,7 +65,7 @@ import { checkSafeWord } from '@/uni_modules/check-word-safe2/js_sdk/index.js'
 export default {
 	data() {
 		return {
-			loading: true, list: [],
+			loading: true, list: [], total: 0,
 			nickname: '',
 			showNicknameEditor: false,
 			editNickname: ''
@@ -96,8 +100,11 @@ export default {
 			this.loading = true
 			try {
 				const survey = uniCloud.importObject('survey')
-				const res = await survey.getUserProfile()
-				if (res.errCode === 0 && res.data) { this.list = res.data }
+				const res = await survey.getAnswerHistory({ pageSize: 100 })
+				if (res.errCode === 0 && res.data) {
+					this.list = res.data.list || []
+					this.total = res.data.total || 0
+				}
 			} catch (e) {
 				console.error('[profile] load error:', e)
 			}
@@ -148,7 +155,41 @@ export default {
 			}
 		},
 		goResult(item) {
-			uni.navigateTo({ url: '/pages-tools/answer-quiz/answer-quiz?tag=' + encodeURIComponent(item.tagName) })
+			uni.navigateTo({ url: '/pages-tools/answer-quiz/answer-quiz?tag=' + encodeURIComponent(item.tagName) + '&surveyId=' + (item.surveyId || '') })
+		},
+		fmtTime(ts) {
+			if (!ts) return ''
+			const d = new Date(ts)
+			const Y = d.getFullYear()
+			const M = String(d.getMonth() + 1).padStart(2, '0')
+			const D = String(d.getDate()).padStart(2, '0')
+			const h = String(d.getHours()).padStart(2, '0')
+			const m = String(d.getMinutes()).padStart(2, '0')
+			return Y + '-' + M + '-' + D + ' ' + h + ':' + m
+		},
+		confirmDelete(item, idx) {
+			uni.showModal({
+				title: '删除记录',
+				content: '确定删除此条答题记录吗？此操作不可恢复。',
+				success: async (r) => {
+					if (r.confirm) {
+						try {
+							const survey = uniCloud.importObject('survey')
+							const res = await survey.removeAnswer({ answerId: item._id })
+							if (res.errCode === 0) {
+								this.list.splice(idx, 1)
+								this.total--
+								uni.showToast({ title: '已删除', icon: 'success' })
+							} else {
+								uni.showToast({ title: res.errMsg || '删除失败', icon: 'none' })
+							}
+						} catch (e) {
+							console.error('[profile] removeAnswer error:', e)
+							uni.showToast({ title: '网络异常', icon: 'none' })
+						}
+					}
+				}
+			})
 		},
 		goBack() { uni.navigateBack() }
 	}
@@ -211,5 +252,11 @@ export default {
 .pc-info { flex: 1; min-width: 0; }
 .pc-tag { font-size: 30rpx; font-weight: 700; color: #1E2939; display: block; }
 .pc-result { font-size: 24rpx; color: #F97316; font-weight: 600; display: block; margin-top: 4rpx; }
+.pc-time { font-size: 22rpx; color: #99A1AF; display: block; margin-top: 4rpx; }
+.pc-del {
+	display: flex; align-items: center; justify-content: center;
+	width: 72rpx; height: 72rpx; background: #FEF2F2; border-radius: 20rpx;
+	color: #991B1B; font-size: 22rpx; font-weight: 600; flex-shrink: 0; margin-left: 8rpx;
+}
 .bottom-spacer { height: 60rpx; }
 </style>

@@ -33,11 +33,14 @@
 							</view>
 						</view>
 						<view class="card-actions">
-							<view class="card-preview" hover-class="press-95" :hover-start-time="0" :hover-stay-time="150" @click="goPreview(item)">
-								<text class="preview-txt">预览</text>
+							<view class="card-promote" hover-class="press-95" @click="promoteSurvey(item)">
+								<text class="action-txt">推广</text>
 							</view>
-							<view class="card-del" hover-class="press-95" :hover-start-time="0" :hover-stay-time="150" @click="removeSurvey(item, idx)">
-								<text class="del-icon">🗑️</text>
+							<view class="card-preview" hover-class="press-95" @click="goPreview(item)">
+								<text class="action-txt">预览</text>
+							</view>
+							<view class="card-del" hover-class="press-95" @click="removeSurvey(item, idx)">
+								<text class="action-txt">删除</text>
 							</view>
 						</view>
 					</view>
@@ -49,6 +52,7 @@
 </template>
 
 <script>
+import { playAd } from '@/common/ad-utils.js'
 export default {
 	data() {
 		return { loading: true, needLogin: false, list: [] }
@@ -119,6 +123,9 @@ export default {
 					'&rts=' + encodeURIComponent(JSON.stringify(rts))
 			})
 		},
+		promoteSurvey(item) {
+			playAd(item.id)
+		},
 		goBack() { uni.navigateBack() }
 	}
 }
@@ -143,11 +150,28 @@ export default {
 .card-info { flex: 1; min-width: 0; }
 .card-name { font-size: 30rpx; font-weight: 700; color: #1E2939; display: block; }
 .card-time { font-size: 22rpx; color: #99A1AF; display: block; margin-top: 4rpx; }
-.card-actions { display: flex; flex-direction: column; height: 100%; flex-shrink: 0; }
-.card-preview { display: flex; align-items: center; justify-content: center; padding: 12rpx 24rpx; background: #FFF7ED; flex: 1; }
-.preview-txt { font-size: 22rpx; color: #C2410C; font-weight: 600; }
-.card-del { display: flex; align-items: center; justify-content: center; padding: 12rpx 24rpx; background: #FEF2F2; flex: 1; }
-.del-icon { font-size: 26rpx; }
+.card-actions {
+	display: flex;
+	flex-direction: row;
+	height: 100%;
+	flex-shrink: 0;
+}
+.action-txt { font-size: 22rpx; font-weight: 600; }
+.card-promote {
+	display: flex; align-items: center; justify-content: center;
+	padding: 12rpx 24rpx; flex: 1;
+	background: #FFFBEB; color: #B45309;
+}
+.card-preview {
+	display: flex; align-items: center; justify-content: center;
+	padding: 12rpx 24rpx; flex: 1;
+	background: #EFF6FF; color: #1D4ED8;
+}
+.card-del {
+	display: flex; align-items: center; justify-content: center;
+	padding: 12rpx 24rpx; flex: 1;
+	background: #FEF2F2; color: #991B1B;
+}
 .press-95 { transform: scale(.95); }
 .bottom-spacer { height: 60rpx; }
 </style>

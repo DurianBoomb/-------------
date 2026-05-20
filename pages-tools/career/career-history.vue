@@ -228,8 +228,9 @@ export default {
 			this.loadingCareers = true
 			try {
 				const db = uniCloud.database()
+				const uid = uni.getStorageSync('uni-id-pages-userInfo')?.uid
 				const res = await db.collection('career-records').where({
-					// 权限已由 schema 的 read 规则控制，只返回当前用户的记录
+					userId: uid
 				}).orderBy('createdAt', 'desc').get()
 				this.careerRecords = res.data || []
 				this.careerTotal = this.careerRecords.length

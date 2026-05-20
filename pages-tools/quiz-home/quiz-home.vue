@@ -17,15 +17,14 @@
 					<view class="icon-btn" @click="goFav">
 						<text>⭐</text>
 					</view>
-					<view class="icon-btn" @click="goHistory">
-						<text>📋</text>
+					<view class="icon-btn" @click="goCareer">
+						<text>📂</text>
 					</view>
 					<view class="icon-btn" @click="goGenerated">
 						<text>🪄</text>
 					</view>
 				</view>
 			</view>
-			<text class="header-subtitle">正经人谁做测试啊...</text>
 		</view>
 
 		<!-- 置顶栏（内联 mock） -->
@@ -45,9 +44,6 @@
 				</view>
 			</scroll-view>
 		</view>
-
-		<!-- 看广告置顶入口 -->
-		<pin-terminal-entry></pin-terminal-entry>
 
 		<scroll-view class="body" scroll-y>
 			<!-- 内部容器：解决 scroll-view padding 不生效的问题 -->
@@ -130,9 +126,6 @@
 
 <script>
 export default {
-	components: {
-		PinTerminalEntry: () => import('@/components/pin-terminal-entry/pin-terminal-entry.vue')
-	},
 		data() {
 		return {
 			spinDeg: 0,
@@ -183,7 +176,7 @@ export default {
 
 	onShareAppMessage() {
 		return {
-			title: '快乐大狐狸 - 正经人谁做测试啊...',
+			title: '快乐大狐狸',
 			path: '/pages-tools/quiz-home/quiz-home',
 			imageUrl: '/static/share-banner.png'
 		}
@@ -280,7 +273,7 @@ export default {
 		goBack() { uni.navigateBack() },
 		goSearch() { uni.navigateTo({ url: '/pages-tools/search/search-page' }) },
 		goProfile() { uni.navigateTo({ url: '/pages-tools/profile/profile' }) },
-		goHistory() { uni.navigateTo({ url: '/pages-tools/answer-history/answer-history' }) },
+		goCareer() { uni.navigateTo({ url: '/pages-tools/career/career-history' }) },
 		goFav() { uni.navigateTo({ url: '/pages-tools/favorites/favorites' }) },
 		goGenerated() { uni.navigateTo({ url: '/pages-tools/my-surveys/my-surveys' }) },
 		goRandom() {
@@ -349,10 +342,7 @@ export default {
 	border-radius: 50%; display: flex; align-items: center; justify-content: center;
 	font-size: 28rpx;
 }
-.header-subtitle {
-	font-size: 28rpx; color: #6A7282; font-weight: 500; letter-spacing: 0.7rpx;
-	margin-top: 16rpx; display: block;
-}
+
 
 /* ====== scroll-view 容器 ====== */
 .body { flex: 1; }
