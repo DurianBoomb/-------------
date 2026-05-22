@@ -37,8 +37,27 @@
 		},
 		"currentPhase": {
 			"bsonType": "string",
-			"description": "当前日志所处的处理阶段标识（queuing / inspecting / pushing / ready）",
-			"enum": ["queuing", "inspecting", "pushing", "ready"]
+			"description": "当前日志所处的处理阶段标识（queuing / reviewing / inspecting / pushing / ready）",
+			"enum": ["queuing", "reviewing", "inspecting", "pushing", "ready"]
+		},
+		"logLines": {
+			"bsonType": "array",
+			"description": "完整日志流（文本数组，每条含 text、interval、prefix）"
+		},
+		"effectiveOffset": {
+			"bsonType": "int",
+			"description": "广告加速累计的时间偏移量（秒），用于推进文本到期",
+			"minimum": 0,
+			"defaultValue": 0
+		},
+		"pinType": {
+			"bsonType": "string",
+			"enum": ["self", "promote"],
+			"description": "置顶类型：self=自己置顶, promote=助力推广"
+		},
+		"pinnerId": {
+			"bsonType": "string",
+			"description": "实际执行入池操作的用户 ID"
 		}
 	},
 	"index": [

@@ -94,6 +94,7 @@
 									<text class="item-date">{{ formatDate(rec.createdAt) }}</text>
 									<view class="item-honor-row">
 										<text class="item-honor">🏅 {{ (rec.honor && rec.honor.name) || '内容创作者' }}</text>
+										<text v-if="rec.pinType === 'promote'" class="item-tag item-tag-promote">推广</text>
 										<text v-if="rec.careerNumber === 1" class="item-tag item-tag-debut">首秀</text>
 										<text v-if="rec.bonusTriggered" class="item-tag item-tag-bonus">破格</text>
 									</view>
@@ -384,6 +385,7 @@ export default {
 .item-tag { font-size: 18rpx; font-weight: 700; padding: 2rpx 10rpx; border-radius: 12rpx; flex-shrink: 0; }
 .item-tag-debut { background: #FEF3C7; color: #D97706; }
 .item-tag-bonus { background: #EDE9FE; color: #7C3AED; }
+.item-tag-promote { background: #DBEAFE; color: #2563EB; }
 
 .item-right { display: flex; align-items: center; gap: 8rpx; flex-shrink: 0; }
 .item-views { font-size: 28rpx; font-weight: 800; color: #F97316; font-family: monospace; }

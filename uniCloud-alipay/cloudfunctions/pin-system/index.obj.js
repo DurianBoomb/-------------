@@ -9,34 +9,7 @@
 
 const db = uniCloud.database()
 const uniID = require('uni-id-common')
-
-// 候场区日志模板
-const LOG_TEMPLATES = {
-  queuing: [
-    '[系统] 已进入候场区，正在排队...',
-    '[系统] 你的问卷已进入处理队列',
-    '[系统] 当前队列状态：等待分配处理节点'
-  ],
-  inspecting: [
-    '[系统] 正在对问卷进行质量检测...',
-    '[质检] 含梗量检测：通过 ✓',
-    '[质检] 内容合规性审查：通过 ✓',
-    '[质检] 趣味指数评估：优秀'
-  ],
-  pushing: [
-    '[系统] 正在推送至推荐系统...',
-    '[推送] 分配初始曝光权重...',
-    '[推送] 加入候选推荐列表 ✓'
-  ],
-  ready: [
-    '[系统] → 你的问卷已进入置顶池，开始曝光！',
-    '[系统] 你将收到本次曝光战绩单，敬请查收'
-  ],
-  vipSlot: [
-    '[VIP] 检测到加速请求，正在开启绿色通道...',
-    '[VIP] 绿色通道已开启，正在加速处理你的问卷...'
-  ]
-}
+const TEXT_POOLS = require('./text-pools.js')
 
 // 置顶系统配置（后续迁移至 uni-config-center）
 const PIN_CONFIG = {
@@ -60,16 +33,9 @@ const PIN_CONFIG = {
     reverseCompensationCoefficients: { '0': 2.5, '1': 1.5, '2': 1.0, '3': 0.6 }
   },
   queue: {
-    naturalDurationMinutes: 30,
-    accelJumpMap: { '0': 4, '1': 3, '2': 2, '3': 1 },
     maxAccelCount: 3,
-    queueExpireMinutes: 30,
-    phases: [
-      { phase: 'queuing', endMin: 5 },
-      { phase: 'inspecting', endMin: 12 },
-      { phase: 'pushing', endMin: 22 },
-      { phase: 'ready', endMin: 30 }
-    ]
+    queueExpireMinutes: 35,
+    accelAdvanceRatio: 0.4
   },
   career: {
     viewFloatMin: 1.5, viewFloatMax: 3.0,
@@ -110,36 +76,154 @@ function getSeniorityLevel(exposureCount) {
 }
 
 /**
- * 候场阶段推进算法
- * 根据已过时间、加速次数、资历档位计算当前应处阶段
- * 自然推进 vs 加速跳跃取较远者
+ * 从数组中随机抽取一条（不修改原数组）
  */
-function calcPhaseImpl(enterAt, acceleratedCount, seniorityLevel) {
-  const now = Date.now()
-  const elapsed = (now - enterAt) / 60000
-  const phaseMap = PIN_CONFIG.queue.phases
+function pickRandom(arr) {
+  if (!arr || arr.length === 0) return null
+  return arr[Math.floor(Math.random() * arr.length)]
+}
 
-  // 自然推进 index
-  // 越过 phase[i] 的 endMin 边界 → 进入下一阶段 (i+1)
-  let naturalIdx = 0
-  for (let i = 0; i < phaseMap.length; i++) {
-    if (elapsed >= phaseMap[i].endMin) naturalIdx = i + 1
+/**
+ * 构建完整日志流
+ * @param {number} exposureCount - 用户当前曝光资历
+ * @param {number} acceleratedCount - 已加速次数（用于特殊状态判定）
+ * @returns {Array} logLines - [{ text, interval, prefix }]
+ */
+function buildLogStream(exposureCount, acceleratedCount) {
+  const level = getSeniorityLevel(exposureCount)
+
+  // 资历-池文本数量查表
+  const NMK = {
+    0: { N: 3,  M: 4,  K: 3 },
+    1: { N: 18, M: 26, K: 12 },
+    2: { N: 65, M: 95, K: 42 },
+    3: { N: 100, M: 145, K: 64 }
   }
-  naturalIdx = Math.min(naturalIdx, phaseMap.length - 1)
+  const { N, M, K } = NMK[level] || NMK[0]
 
-  // 加速跳跃 index
-  const jumpMap = PIN_CONFIG.queue.accelJumpMap
-  const jumpSteps = jumpMap[String(seniorityLevel)] || 1
-  const accelIdx = Math.min(
-    acceleratedCount * jumpSteps,
-    phaseMap.length - 1
-  )
+  const lines = []
 
-  // 取较远者
-  const currentIdx = Math.max(naturalIdx, accelIdx)
-  const currentPhase = phaseMap[currentIdx].phase
+  // === 排队阶段（固定文本） ===
+  lines.push({ text: '════ 排队等候 ════',   interval: 2, prefix: '[系统]' })
+  lines.push({ text: '你的问卷已进入处理队列', interval: 2, prefix: '[系统]' })
+  lines.push({ text: '正在分配处理节点… 节点已就绪', interval: 2, prefix: '[系统]' })
 
-  return { phaseIndex: currentIdx, currentPhase }
+  // === 审核阶段 ===
+  lines.push({ text: '════ 内容审核 ════',   interval: 2, prefix: '[审核]' })
+  const reviewPool = shuffleArray([...TEXT_POOLS.reviewPool])
+  for (let i = 0; i < N; i++) {
+    const item = reviewPool[i % reviewPool.length]
+    lines.push({ text: item.text, interval: 3, prefix: '[审核]' })
+    // L2+ 每3条插入1条填充
+    if (level >= 2 && (i + 1) % 3 === 0 && i < N - 1) {
+      const fillerIdx = Math.floor(i / 3) % TEXT_POOLS.fillerPool.length
+      lines.push({ text: TEXT_POOLS.fillerPool[fillerIdx], interval: 2, prefix: '[系统]' })
+    }
+  }
+  lines.push({ text: '审核意见记录完毕',     interval: 2, prefix: '[审核]' })
+
+  // === 质检阶段 ===
+  lines.push({ text: '════ 质量检测 ════',   interval: 2, prefix: '[质检]' })
+  const qualityPool = shuffleArray([...TEXT_POOLS.qualityPool])
+  for (let i = 0; i < M; i++) {
+    const item = qualityPool[i % qualityPool.length]
+    lines.push({ text: item.text, interval: 5, prefix: '[质检]' })
+    if (level >= 2 && (i + 1) % 3 === 0 && i < M - 1) {
+      const fillerIdx = (Math.floor(N / 3) + Math.floor(i / 3)) % TEXT_POOLS.fillerPool.length
+      lines.push({ text: TEXT_POOLS.fillerPool[fillerIdx], interval: 2, prefix: '[系统]' })
+    }
+  }
+  lines.push({ text: '传播潜力预估完毕',     interval: 2, prefix: '[质检]' })
+
+  // === 推送阶段 ===
+  lines.push({ text: '════ 推送分发 ════',   interval: 2, prefix: '[推送]' })
+  const pushPool = shuffleArray([...TEXT_POOLS.pushPool])
+  for (let i = 0; i < K; i++) {
+    const item = pushPool[i % pushPool.length]
+    lines.push({ text: item.text, interval: 4, prefix: '[推送]' })
+    if (level >= 2 && (i + 1) % 3 === 0 && i < K - 1) {
+      const fillerIdx = (Math.floor(N / 3) + Math.floor(M / 3) + Math.floor(i / 3)) % TEXT_POOLS.fillerPool.length
+      lines.push({ text: TEXT_POOLS.fillerPool[fillerIdx], interval: 2, prefix: '[系统]' })
+    }
+  }
+  lines.push({ text: '分配初始曝光权重… ✓',  interval: 2, prefix: '[推送]' })
+
+  // === 特殊状态判定（互斥四选一，插在完成标题之前） ===
+  const cnHour = new Date().getHours()
+  let specialItem = null
+  if (acceleratedCount > 0) {
+    specialItem = pickRandom(TEXT_POOLS.specialPool.accelerate)
+  } else if (exposureCount === 0) {
+    specialItem = pickRandom(TEXT_POOLS.specialPool.newcomer)
+  } else if (cnHour >= 0 && cnHour < 6) {
+    specialItem = pickRandom(TEXT_POOLS.specialPool.lateNight)
+  } else if (cnHour >= 17 && cnHour < 19) {
+    specialItem = pickRandom(TEXT_POOLS.specialPool.endOfDay)
+  }
+  if (specialItem) {
+    lines.push({ text: specialItem.text, interval: 4, prefix: '[系统]' })
+  }
+
+  // === 完成 ===
+  lines.push({ text: '════ 处理完成 ════',   interval: 2, prefix: '[系统]' })
+  lines.push({ text: '你的问卷已进入置顶池，即将收到战绩单', interval: 1, prefix: '[系统]' })
+
+  return lines
+}
+
+/**
+ * 计算日志流总时长（秒）
+ */
+function computeQueueDuration(logLines) {
+  return logLines.reduce((sum, l) => sum + l.interval, 0)
+}
+
+/**
+ * 计算当前到期可见的日志行
+ * @param {Array} logLines - 完整日志流
+ * @param {number} enterAt - 入候场时间戳 ms
+ * @param {number} effectiveOffset - 加速偏移量 秒
+ * @param {number} now - 当前时间戳 ms
+ * @returns {{ visible: Array, currentPhase: string, allVisible: boolean, effectiveElapsed: number }}
+ */
+function calcVisibleSlots(logLines, enterAt, effectiveOffset, now) {
+  const naturalElapsed = (now - enterAt) / 1000
+  const effectiveElapsed = naturalElapsed + (effectiveOffset || 0)
+  let accumulated = 0
+  const visible = []
+
+  for (const line of logLines) {
+    accumulated += line.interval
+    if (effectiveElapsed >= accumulated) {
+      visible.push(line)
+    } else {
+      break
+    }
+  }
+
+  const allVisible = visible.length >= logLines.length
+  // 根据最后一个可见行所属阶段判断 currentPhase
+  let currentPhase = 'queuing'
+  if (visible.length > 0) {
+    const lastPrefix = visible[visible.length - 1].prefix
+    if (lastPrefix === '[审核]') currentPhase = 'reviewing'
+    else if (lastPrefix === '[质检]') currentPhase = 'inspecting'
+    else if (lastPrefix === '[推送]') currentPhase = 'pushing'
+    if (allVisible) currentPhase = 'ready'
+  }
+
+  return { visible, currentPhase, allVisible, effectiveElapsed }
+}
+
+/**
+ * Fisher-Yates 洗牌
+ */
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]]
+  }
+  return arr
 }
 
 /**
@@ -156,7 +240,7 @@ function calculateWeightImpl(pinDoc, currentUserId, ownPins) {
 
   const cfg = PIN_CONFIG.weight
 
-  if (pinDoc.userId === currentUserId) {
+  if ((pinDoc.surveyCreatorId || pinDoc.userId) === currentUserId) {
     // 2. 归属分层（自己区间）+ 3. 内部排序
     if (!ownPins || ownPins.length <= 1) {
       return Math.floor((cfg.selfWeightMin + cfg.selfWeightMax) / 2)
@@ -206,9 +290,19 @@ async function enterPoolImpl(uid, surveyId) {
     }
 
     // 3. 槽位二次确认
-    const idleIdx = slots.findIndex(s => s.status === 'idle')
+    let idleIdx = slots.findIndex(s => s.status === 'idle')
     if (idleIdx === -1) {
-      return { errCode: 'SLOTS_FULL', errMsg: '已达到 3 条上限，请等待其中一条完成' }
+      // 3b. 没有 idle 时，自动释放已过期的 claimable 槽位（战绩已由 pin-expiry 生成）
+      const claimableIdx = slots.findIndex(s => s.status === 'claimable')
+      if (claimableIdx !== -1) {
+        idleIdx = claimableIdx
+        slots[idleIdx] = { status: 'idle', surveyId: null, pinId: null, queueId: null }
+        await db.collection('uni-id-users').doc(uid).update({
+          [`career.slots.${idleIdx}`]: slots[idleIdx]
+        })
+      } else {
+        return { errCode: 'SLOTS_FULL', errMsg: '已达到 3 条上限，请等待其中一条完成' }
+      }
     }
 
     // 4b. 每日置顶次数软帽检查（阶段七防刷）
@@ -243,17 +337,41 @@ async function enterPoolImpl(uid, surveyId) {
     }
     console.log(`[pin-test] enterPool: uid=${uid} survey=${surveyId} level=${seniorityLevel}(exp=${exposureCount}) green=${isGreenChannel} pool=${poolTotal}/${PIN_CONFIG.pool.poolSizeThreshold} full=${poolFull}`)
 
-    // 7. 获取问卷信息
+    // 7. 获取问卷信息（含 creatorId 用于身份判断）
     let surveyTitle = surveyId
     let surveyCover = ''
+    let creatorId = null
     try {
       const surveyRes = await db.collection('surveys').doc(surveyId).get()
       if (surveyRes.data && surveyRes.data.length > 0) {
         surveyTitle = surveyRes.data[0].title || surveyRes.data[0].tagName || surveyId
         surveyCover = surveyRes.data[0].cover || surveyRes.data[0].surveyCover || ''
+        creatorId = surveyRes.data[0].creatorId || null
       }
     } catch (e) { /* 查不到就用兜底 */ }
-    const surveyAuthor = user.nickname || ''
+
+    // 7b. 官方问卷拦截
+    if (!creatorId) {
+      return { errCode: 'OFFICIAL_SURVEY', errMsg: '官方问卷不可置顶' }
+    }
+
+    // 7c. 确定置顶类型
+    const pinType = creatorId === uid ? 'self' : 'promote'
+    const pinnerId = uid
+
+    // 7d. 修复 surveyAuthor：助力场景取问卷真实创建者昵称
+    let surveyAuthor
+    if (pinType === 'promote') {
+      try {
+        const creatorRes = await db.collection('uni-id-users').doc(creatorId).get()
+        const { data: creatorUser } = creatorRes
+        surveyAuthor = (creatorUser && creatorUser.length > 0) ? (creatorUser[0].nickname || '') : ''
+      } catch (e) {
+        surveyAuthor = ''
+      }
+    } else {
+      surveyAuthor = user.nickname || ''
+    }
 
     if (!poolFull || isGreenChannel) {
       // === 直接入池 ===
@@ -263,7 +381,7 @@ async function enterPoolImpl(uid, surveyId) {
       const expireAt = now + PIN_CONFIG.pool.poolLifecycleMinutes * 60 * 1000
       const weight = PIN_CONFIG.weight.haloWeight
 
-      // 取消该用户已有问卷的光环（仅保留最后一个入池的有光环）
+      // 取消该用户已有问卷的光环（操作人维度：userId 始终为操作人 uid）
       await db.collection('pin-pool').where({
         userId: uid,
         expireAt: { $gt: now }
@@ -274,7 +392,8 @@ async function enterPoolImpl(uid, surveyId) {
         surveyTitle, surveyCover, surveyAuthor,
         weight, createdAt: now, expireAt,
         senioritySnapshot: exposureCount,
-        haloActive: true, isGreenChannel
+        haloActive: true, isGreenChannel,
+        pinType, pinnerId, surveyCreatorId: creatorId
       })
 
       await db.collection('uni-id-users').doc(uid).update({
@@ -292,7 +411,7 @@ async function enterPoolImpl(uid, surveyId) {
 
       return {
         errCode: 0, action: 'direct_entry', greenChannel: isGreenChannel,
-        pinData: { _id: docId, surveyId, surveyTitle, expireAt, haloActive: true }
+        pinData: { _id: docId, surveyId, surveyTitle, surveyAuthor, expireAt, haloActive: true, pinType, pinnerId, surveyCreatorId: creatorId }
       }
     } else {
       // === 进入候场区 ===
@@ -300,10 +419,15 @@ async function enterPoolImpl(uid, surveyId) {
       const queId = `queue${suffix}`
       const now = Date.now()
 
+      // 生成完整日志流
+      const logLines = buildLogStream(exposureCount, 0)
+
       await db.collection('survey-queue').add({
         _id: queId, userId: uid, surveyId,
         enterAt: now, acceleratedCount: 0,
-        seniorityLevel, currentPhase: 'queuing'
+        seniorityLevel, currentPhase: 'queuing',
+        logLines, effectiveOffset: 0,
+        pinType, pinnerId
       })
 
       await db.collection('uni-id-users').doc(uid).update({
@@ -312,12 +436,16 @@ async function enterPoolImpl(uid, surveyId) {
         }
       })
 
+      // 计算初始可见行
+      const { visible } = calcVisibleSlots(logLines, now, 0, now)
+
       return {
         errCode: 0, action: 'enter_queue',
         queueData: {
           queueId: queId, surveyId, enterAt: now,
           seniorityLevel, currentPhase: 'queuing',
-          maxAccelCount: PIN_CONFIG.queue.maxAccelCount
+          maxAccelCount: PIN_CONFIG.queue.maxAccelCount,
+          logLines, visibleLines: visible
         }
       }
     }
@@ -369,17 +497,31 @@ async function queueToPoolImpl(uid, surveyId, queueId) {
       return { errCode: 'SLOT_NOT_FOUND', errMsg: '未找到对应的槽位' }
     }
 
-    // 5. 获取问卷信息
+    // 5. 获取问卷信息（含 creatorId）
     let surveyTitle = surveyId
     let surveyCover = ''
-    const surveyAuthor = user.nickname || ''
+    let creatorId = null
     try {
       const surveyRes = await db.collection('surveys').doc(surveyId).get()
       if (surveyRes.data && surveyRes.data.length > 0) {
         surveyTitle = surveyRes.data[0].title || surveyRes.data[0].tagName || surveyId
         surveyCover = surveyRes.data[0].cover || surveyRes.data[0].surveyCover || ''
+        creatorId = surveyRes.data[0].creatorId || null
       }
     } catch (e) {}
+
+    // 5b. 确定置顶类型与 surveyAuthor
+    const pinType = creatorId === uid ? 'self' : 'promote'
+    const pinnerId = uid
+    let surveyAuthor
+    if (pinType === 'promote') {
+      try {
+        const creatorRes = await db.collection('uni-id-users').doc(creatorId).get()
+        surveyAuthor = (creatorRes.data && creatorRes.data.length > 0) ? (creatorRes.data[0].nickname || '') : ''
+      } catch (e) { surveyAuthor = '' }
+    } else {
+      surveyAuthor = user.nickname || ''
+    }
 
     // 6. 写入 pin-pool
     const suffix = genSuffix()
@@ -399,7 +541,8 @@ async function queueToPoolImpl(uid, surveyId, queueId) {
       surveyTitle, surveyCover, surveyAuthor,
       weight, createdAt: now, expireAt,
       senioritySnapshot: exposureCount,
-      haloActive: true, isGreenChannel: false
+      haloActive: true, isGreenChannel: false,
+      pinType, pinnerId, surveyCreatorId: creatorId
     })
 
     // 7. 资历累加
@@ -422,7 +565,7 @@ async function queueToPoolImpl(uid, surveyId, queueId) {
 
     return {
       errCode: 0, action: 'pool_entry',
-      pinData: { _id: docId, surveyId, surveyTitle, expireAt, haloActive: true }
+      pinData: { _id: docId, surveyId, surveyTitle, surveyAuthor, expireAt, haloActive: true, pinType, pinnerId, surveyCreatorId: creatorId }
     }
   } catch (e) {
     console.error('[pin-system] queueToPool error:', e)
@@ -437,9 +580,13 @@ async function queueToPoolImpl(uid, surveyId, queueId) {
  */
 async function recalcOwnWeights(uid) {
   try {
+    // 用 surveyCreatorId 查询（旧数据无此字段则回退到 userId）
     const ownRes = await db.collection('pin-pool').where({
-      userId: uid,
-      expireAt: { $gt: Date.now() }
+      expireAt: { $gt: Date.now() },
+      $or: [
+        { surveyCreatorId: uid },
+        { userId: uid, surveyCreatorId: db.command.exists(false) }
+      ]
     }).get()
 
     const ownPins = (ownRes.data || []).filter(p => !p.haloActive)
@@ -478,12 +625,13 @@ async function drawImpl(uid, count = 5) {
     }
 
     // 分离当前用户的问卷（按 createdAt 升序，用于内部排序）
-    const ownPins = pins.filter(p => p.userId === uid)
+    const isOwn = (p) => (p.surveyCreatorId || p.userId) === uid
+    const ownPins = pins.filter(isOwn)
       .sort((a, b) => a.createdAt - b.createdAt)
 
     // 计算每条问卷权重
     for (const pin of pins) {
-      const userOwnPins = pin.userId === uid ? ownPins : []
+      const userOwnPins = isOwn(pin) ? ownPins : []
       pin._weight = calculateWeightImpl(pin, uid, userOwnPins)
     }
 
@@ -508,9 +656,9 @@ async function drawImpl(uid, count = 5) {
 
     // 分层随机乱序：光环 > 自己 > 他人，每层内 Fisher-Yates 洗牌去除焊死感
     // 光环仅对自己的问卷生效（视觉诡计），他人的光环问卷归入他人层
-    const haloItems = result.filter(p => p.haloActive && p.userId === uid)
-    const ownItems = result.filter(p => !p.haloActive && p.userId === uid)
-    const otherItems = result.filter(p => p.userId !== uid)
+    const haloItems = result.filter(p => p.haloActive && isOwn(p))
+    const ownItems = result.filter(p => !p.haloActive && isOwn(p))
+    const otherItems = result.filter(p => !isOwn(p))
 
     function shuffle(arr) {
       for (let i = arr.length - 1; i > 0; i--) {
@@ -535,7 +683,10 @@ async function drawImpl(uid, count = 5) {
       surveyCover: p.surveyCover || '',
       surveyAuthor: p.surveyAuthor || '',
       weight: p._weight,
-      isMine: p.userId === uid,
+      isMine: isOwn(p),
+      pinType: p.pinType || 'self',
+      pinnerId: p.pinnerId || p.userId,
+      surveyCreatorId: p.surveyCreatorId || p.userId,
       haloActive: p.haloActive || false,
       expireAt: p.expireAt
     }))
@@ -566,7 +717,11 @@ async function getPoolContentsImpl() {
       userId: p.userId,
       createdAt: p.createdAt,
       expireAt: p.expireAt,
-      remainingMinutes: Math.floor((p.expireAt - now) / 60000)
+      remainingMinutes: Math.floor((p.expireAt - now) / 60000),
+      pinType: p.pinType || 'self',
+      pinnerId: p.pinnerId || '',
+      surveyCreatorId: p.surveyCreatorId || '',
+      surveyAuthor: p.surveyAuthor || ''
     }))
 
     // 按权重降序排列
@@ -603,50 +758,58 @@ async function getQueueStatusImpl(uid, queueId) {
 
     const records = []
     for (const q of queues) {
-      const { phaseIndex, currentPhase } = calcPhaseImpl(
-        q.enterAt, q.acceleratedCount || 0, q.seniorityLevel || 0
-      )
+      const logLines = q.logLines || []
+      const effectiveOffset = q.effectiveOffset || 0
+
+      // 兜底：老候场记录没有 logLines
+      if (logLines.length === 0) {
+        records.push({
+          queueId: q._id, surveyId: q.surveyId,
+          currentPhase: 'queuing', acceleratedCount: q.acceleratedCount || 0,
+          maxAccelCount: PIN_CONFIG.queue.maxAccelCount,
+          logLines: [], visibleLines: [], effectiveElapsed: 0,
+          seniorityLevel: q.seniorityLevel || 0, enterAt: q.enterAt,
+          pinType: q.pinType || 'self'
+        })
+        continue
+      }
+
+      const now = Date.now()
+      const { visible, currentPhase, allVisible, effectiveElapsed } =
+        calcVisibleSlots(logLines, q.enterAt, effectiveOffset, now)
 
       // 检测 ready → 自动兜底入池
-      if (currentPhase === 'ready') {
+      if (allVisible || currentPhase === 'ready') {
         try {
           const poolResult = await queueToPoolImpl(uid, q.surveyId, q._id)
           records.push({
             queueId: q._id, surveyId: q.surveyId,
-            status: 'completed',
-            poolResult
+            status: 'completed', poolResult
           })
           continue
         } catch (e) {
           console.error('[pin-system] getQueueStatus auto queueToPool failed:', e)
           records.push({
             queueId: q._id, surveyId: q.surveyId,
-            status: 'auto_pool_failed',
-            currentPhase: 'ready',
+            status: 'auto_pool_failed', currentPhase: 'ready',
             errMsg: '自动入池失败: ' + (e.message || '')
           })
           continue
         }
       }
 
-      // 收集当前及之前所有阶段的日志
-      const phaseMap = PIN_CONFIG.queue.phases
-      const allLogs = []
-      for (let i = 0; i <= phaseIndex; i++) {
-        const phaseLogs = LOG_TEMPLATES[phaseMap[i].phase]
-        if (phaseLogs) allLogs.push(...phaseLogs)
-      }
-
       records.push({
         queueId: q._id,
         surveyId: q.surveyId,
         currentPhase,
-        phaseIndex,
-        logs: allLogs,
+        logLines,
+        visibleLines: visible,
         acceleratedCount: q.acceleratedCount || 0,
+        effectiveElapsed,
         maxAccelCount: PIN_CONFIG.queue.maxAccelCount,
         seniorityLevel: q.seniorityLevel || 0,
-        enterAt: q.enterAt
+        enterAt: q.enterAt,
+        pinType: q.pinType || 'self'
       })
     }
 
@@ -660,7 +823,7 @@ async function getQueueStatusImpl(uid, queueId) {
 /**
  * 执行广告加速（内部实现，不依赖 this）
  * uid: 用户标识, queueId: 候场记录标识
- * 第三次加速自动调用 queueToPool 完成入池
+ * 推进 effectiveOffset，第三次加速自动调用 queueToPool 完成入池
  */
 async function executeAccelImpl(uid, queueId) {
   try {
@@ -678,28 +841,40 @@ async function executeAccelImpl(uid, queueId) {
     }
 
     const newAccel = currentAccel + 1
+    const logLines = q.logLines || []
+    const totalDuration = computeQueueDuration(logLines)
 
-    // 更新加速次数
+    // 计算本次加速偏移量
+    let advanceSeconds = 0
+    if (newAccel >= PIN_CONFIG.queue.maxAccelCount) {
+      // 第三次加速 → 直接完成
+      advanceSeconds = totalDuration
+    } else {
+      // 加速推进总时长的 accelAdvanceRatio（默认 40%）
+      advanceSeconds = Math.floor(totalDuration * PIN_CONFIG.queue.accelAdvanceRatio)
+    }
+
+    const oldOffset = q.effectiveOffset || 0
+    const newOffset = oldOffset + advanceSeconds
+
+    // 更新数据库
     await db.collection('survey-queue').doc(queueId).update({
-      acceleratedCount: newAccel
+      acceleratedCount: newAccel,
+      effectiveOffset: newOffset
     })
+
+    // 计算加速后的可见行
+    const now = Date.now()
+    const { visible, currentPhase, allVisible, effectiveElapsed } =
+      calcVisibleSlots(logLines, q.enterAt, newOffset, now)
+
+    // 加速前后可见行数量差（用于前端展示"解锁了N行"）
+    const { visible: oldVisible } = calcVisibleSlots(logLines, q.enterAt, oldOffset, now)
+    const newLines = visible.length - oldVisible.length
 
     // 第三次加速 → 自动入池
     if (newAccel >= PIN_CONFIG.queue.maxAccelCount) {
       return await queueToPoolImpl(uid, q.surveyId, queueId)
-    }
-
-    // 计算加速后的新阶段
-    const { phaseIndex, currentPhase } = calcPhaseImpl(
-      q.enterAt, newAccel, q.seniorityLevel || 0
-    )
-
-    // 收集日志（含 VIP 加速日志 + 当前阶段及之前所有阶段日志）
-    const phaseMap = PIN_CONFIG.queue.phases
-    const allLogs = [...LOG_TEMPLATES.vipSlot]
-    for (let i = 0; i <= phaseIndex; i++) {
-      const phaseLogs = LOG_TEMPLATES[phaseMap[i].phase]
-      if (phaseLogs) allLogs.push(...phaseLogs)
     }
 
     return {
@@ -708,10 +883,13 @@ async function executeAccelImpl(uid, queueId) {
       data: {
         queueId,
         currentPhase,
-        phaseIndex,
+        logLines,
+        visibleLines: visible,
+        effectiveElapsed,
         acceleratedCount: newAccel,
-        logs: allLogs,
-        maxAccelCount: PIN_CONFIG.queue.maxAccelCount
+        maxAccelCount: PIN_CONFIG.queue.maxAccelCount,
+        newLinesUnlocked: Math.max(0, newLines),
+        advanceSeconds
       }
     }
   } catch (e) {
@@ -900,7 +1078,8 @@ async function generateCareerRecordImpl(uid, pinDoc) {
       comment, surveyTitle: pinDoc.surveyTitle || pinDoc.surveyId,
       isGreenChannel: pinDoc.isGreenChannel || false,
       haloActive: pinDoc.haloActive || false,
-      senioritySnapshot: pinDoc.senioritySnapshot || 0
+      senioritySnapshot: pinDoc.senioritySnapshot || 0,
+      pinType: pinDoc.pinType || 'self'
     })
 
     // 9. 标记未读

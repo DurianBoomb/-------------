@@ -16,12 +16,8 @@
 					<view class="qt-log-row" v-for="(line, idx) in displayedLogs" :key="idx">
 						<text class="qt-log-time">{{ formatTime(idx) }}</text>
 						<text class="qt-log-arrow">▸</text>
-						<text class="qt-log-text">{{ line }}</text>
-					</view>
-					<view v-if="isTyping" class="qt-log-row qt-cursor-row">
-						<text class="qt-log-time">{{ formatTime(displayedLogs.length) }}</text>
-						<text class="qt-log-arrow">▸</text>
-						<text class="qt-log-text qt-blink">_</text>
+						<text class="qt-log-prefix" v-if="line.prefix">{{ line.prefix }}</text>
+						<text class="qt-log-text">{{ line.text || line }}</text>
 					</view>
 				</view>
 			</scroll-view>
@@ -39,36 +35,52 @@
 </template>
 
 <script>
+/**
+ * 哑终端：只展示后端返回的可见行，不计算时间
+ * 每 3 秒轮询 getQueueStatus 获取最新可展示行
+ */
 export default {
 	name: 'QueueTerminal',
 	props: {
 		visible: { type: Boolean, default: false },
 		queueId: { type: String, default: '' }
 	},
-	data() {
+		data() {
 		return {
-			allLogs: [],
+			logLines: [],
 			displayedLogs: [],
-			isTyping: false,
-			scrollTop: 99999,
+			scrollTop: 0,
+			scrollCounter: 0,
 			logAreaHeight: 400,
 			pollTimer: null,
-			typeTimer: null,
-			typeIndex: 0,
 			queueCompleted: false,
 			currentPhase: 'queuing',
 			acceleratedCount: 0,
 			maxAccelCount: 3,
 			accelLoading: false,
+			effectiveElapsed: 0,
 			statusText: '系统处理中...'
 		}
 	},
 	computed: {
 		accelBtnText() {
 			if (this.accelLoading) return '加速中...'
-			if (this.acceleratedCount >= this.maxAccelCount) return '已加速完毕'
-			const remaining = this.maxAccelCount - this.acceleratedCount
-			return `看广告加速 (剩余 ${remaining} 次)`
+			return '插个队'
+		},
+		/** 进度暗示：底部文字 */
+		progressHint() {
+			if (this.queueCompleted) return '✓ 入池完成'
+			const totalDuration = this.logLines.reduce((s, l) => s + l.interval, 0)
+			if (totalDuration <= 0) return '处理中...'
+			const pct = Math.min(99, Math.floor(this.effectiveElapsed / totalDuration * 100))
+			// 进度很低时显示自然提示，不暴露百分比
+			if (pct <= 0) return '刚进来，正在排队'
+			if (pct < 10) return '正在审核你的问卷...'
+			if (pct < 30) return '内容审核中...'
+			if (pct < 50) return '质量检测中...'
+			if (pct < 70) return '推送分发中...'
+			if (pct < 90) return '快好了...'
+			return '即将完成...'
 		}
 	},
 	watch: {
@@ -82,21 +94,26 @@ export default {
 	},
 	methods: {
 		async init() {
-			this.allLogs = []
 			this.displayedLogs = []
+			this.logLines = []
 			this.queueCompleted = false
 			this.currentPhase = 'queuing'
 			this.acceleratedCount = 0
-			this.typeIndex = 0
+			this.effectiveElapsed = 0
+			this.scrollCounter = 0
+			this.scrollTop = 0
+			this.accelLoading = false
 			await this.fetchStatus()
 			this.startPoll()
 		},
 		cleanup() {
 			if (this.pollTimer) clearInterval(this.pollTimer)
-			if (this.typeTimer) clearInterval(this.typeTimer)
 			this.pollTimer = null
-			this.typeTimer = null
-			this.isTyping = false
+		},
+		/** 递增 scrollTop 确保 scroll-view 每次感知到值变化 */
+		scrollToEnd() {
+			this.scrollCounter++
+			this.scrollTop = this.scrollCounter * 100000 + 99999
 		},
 		async fetchStatus() {
 			try {
@@ -113,48 +130,44 @@ export default {
 					return
 				}
 				const r = records[0]
+
+				// 入池完成
 				if (r.status === 'completed') {
 					this.queueCompleted = true
 					this.currentPhase = 'ready'
 					this.statusText = '入池完成'
-					this.allLogs = LOG_TEMPLATES.ready || []
-					this.startTyping()
+					// 展示最后几行提示完成
+					this.displayedLogs = (r.poolResult && r.poolResult.pinData)
+						? [{ text: '✓ 入池完成 · 登场光环已生效', interval: 0, prefix: '[系统]' }]
+						: []
 					setTimeout(() => { this.$emit('completed', { poolResult: r.poolResult }) }, 1500)
 					return
 				}
+
+				// 自动入池失败
 				if (r.status === 'auto_pool_failed') {
 					this.statusText = '自动入池失败，下轮重试'
-					this.allLogs = (r.logs || []).concat([r.errMsg || '[系统] 自动入池异常'])
 					this.currentPhase = 'ready'
-					this.startTyping()
+					this.displayedLogs = (r.visibleLines || []).concat([
+						{ text: r.errMsg || '[系统] 自动入池异常', interval: 0, prefix: '[系统]' }
+					])
 					return
 				}
+
+				// 正常候场中
 				this.currentPhase = r.currentPhase || 'queuing'
 				this.acceleratedCount = r.acceleratedCount || 0
 				this.maxAccelCount = r.maxAccelCount || 3
-				this.allLogs = r.logs || []
-				this.statusText = `处理中 · ${this.currentPhase}`
-				this.startTyping()
+				this.effectiveElapsed = r.effectiveElapsed || 0
+				this.logLines = r.logLines || []
+				// 直接渲染后端返回的可见行（无需打字机动画）
+				this.displayedLogs = r.visibleLines || []
+				this.statusText = this.progressHint
+				this.$nextTick(() => this.scrollToEnd())
 			} catch (e) {
 				this.statusText = '网络异常'
 				console.error('[queue-terminal] fetchStatus error:', e)
 			}
-		},
-		startTyping() {
-			if (this.typeTimer) clearInterval(this.typeTimer)
-			this.typeIndex = this.displayedLogs.length
-			this.isTyping = true
-			this.typeTimer = setInterval(() => {
-				if (this.typeIndex < this.allLogs.length) {
-					this.displayedLogs.push(this.allLogs[this.typeIndex])
-					this.typeIndex++
-					this.$nextTick(() => { this.scrollTop = 99999 })
-				} else {
-					this.isTyping = false
-					if (this.typeTimer) clearInterval(this.typeTimer)
-					this.typeTimer = null
-				}
-			}, 800)
 		},
 		startPoll() {
 			if (this.pollTimer) clearInterval(this.pollTimer)
@@ -165,21 +178,17 @@ export default {
 					return
 				}
 				this.fetchStatus()
-			}, 10000)
+			}, 3000) // 3 秒轮询
 		},
 		async onAccel() {
 			if (this.accelLoading || this.queueCompleted) return
-			// 触发激励视频广告
 			try {
 				const ps = uniCloud.importObject('pin-system')
 				if (wx && wx.createRewardedVideoAd) {
-					const videoAd = wx.createRewardedVideoAd({ adUnitId: '' }) // 填入实际广告位 ID
+					const videoAd = wx.createRewardedVideoAd({ adUnitId: '' })
 					const adStartTime = Date.now()
 					videoAd.onLoad(() => {})
-					videoAd.onError(() => {
-						// 广告加载失败，直接调用（降级，adDuration=0）
-						this._doAccel(ps, 0)
-					})
+					videoAd.onError(() => { this._doAccel(ps, 0) })
 					videoAd.onClose((res) => {
 						const adDuration = Date.now() - adStartTime
 						if (res && res.isEnded) {
@@ -188,9 +197,7 @@ export default {
 							uni.showToast({ title: '看完广告才能加速哦', icon: 'none' })
 						}
 					})
-					videoAd.show().catch(() => {
-						this._doAccel(ps, 0)
-					})
+					videoAd.show().catch(() => { this._doAccel(ps, 0) })
 				} else {
 					this._doAccel(ps, 0)
 				}
@@ -204,10 +211,18 @@ export default {
 			try {
 				const res = await ps.handleAdReward({ scene: 'queue_accel', queueId: this.queueId, adDuration })
 				if (res.errCode === 0) {
-					// 加速成功，立即刷新状态
-					await this.fetchStatus()
+					// 加速成功 → 后端返回了最新 visibleLines
+					if (res.data) {
+						if (res.data.visibleLines) {
+							this.displayedLogs = res.data.visibleLines
+							this.$nextTick(() => this.scrollToEnd())
+						}
+						this.acceleratedCount = res.data.acceleratedCount || this.acceleratedCount + 1
+						this.effectiveElapsed = res.data.effectiveElapsed || this.effectiveElapsed
+						this.currentPhase = res.data.currentPhase || this.currentPhase
+					}
+					this.statusText = this.progressHint
 				} else if (res.errCode === 'QUEUE_NOT_FOUND' || (res.pinData && res.pinData._id)) {
-					// 已经入池
 					this.queueCompleted = true
 					this.statusText = '入池完成'
 					this.$emit('completed', { poolResult: res })
@@ -220,15 +235,9 @@ export default {
 			}
 			this.accelLoading = false
 		},
-		onClose() {
-			this.$emit('close')
-		},
-		onOverlayTap() {
-			// 点击背景不关闭
-		},
-		onLogTap() {
-			// 点击日志区域不关闭
-		},
+		onClose() { this.$emit('close') },
+		onOverlayTap() {},
+		onLogTap() {},
 		formatTime(idx) {
 			const now = new Date()
 			const h = String(now.getHours()).padStart(2, '0')
@@ -240,14 +249,6 @@ export default {
 	beforeDestroy() {
 		this.cleanup()
 	}
-}
-
-// 本地日志模板兜底
-const LOG_TEMPLATES = {
-	queuing: ['[系统] 已进入候场区...', '[系统] 正在排队...', '[系统] 等待分配处理节点'],
-	inspecting: ['[系统] 质量检测中...', '[质检] 含梗量检测通过 ✓', '[质检] 趣味指数评估：优秀'],
-	pushing: ['[系统] 推送至推荐系统...', '[推送] 分配初始曝光权重...', '[推送] 加入推荐列表 ✓'],
-	ready: ['[系统] → 入池完成！', '[系统] 即将收到战绩单']
 }
 </script>
 
@@ -276,11 +277,8 @@ const LOG_TEMPLATES = {
 .qt-log-row { display: flex; align-items: flex-start; gap: 8rpx; margin-bottom: 6rpx; line-height: 1.7; }
 .qt-log-time { font-size: 20rpx; color: #4B5563; font-family: monospace; flex-shrink: 0; min-width: 96rpx; }
 .qt-log-arrow { font-size: 20rpx; color: #374151; font-family: monospace; flex-shrink: 0; }
+.qt-log-prefix { font-size: 20rpx; color: #6B7280; font-family: monospace; flex-shrink: 0; margin-right: 2rpx; }
 .qt-log-text { font-size: 22rpx; color: #4ADE80; font-family: monospace; white-space: pre-wrap; word-break: break-all; }
-.qt-blink { animation: blink 1s step-end infinite; }
-@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-.qt-cursor-row { opacity: 0.7; }
-
 .qt-footer {
 	padding: 20rpx 32rpx 40rpx; border-top: 2rpx solid #1A1A2E;
 	display: flex; align-items: center; justify-content: space-between;

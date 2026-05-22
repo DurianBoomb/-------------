@@ -31,6 +31,9 @@
 					<view v-if="card.isMine" class="ptb-badge">
 						<text class="ptb-badge-txt">我</text>
 					</view>
+					<view v-else-if="isPromotedByMe(card)" class="ptb-badge ptb-badge-promote">
+						<text class="ptb-badge-txt">推广</text>
+					</view>
 					<view v-if="card.haloActive" class="ptb-halo"></view>
 				</view>
 				<text class="ptb-card-title">{{ card.surveyTitle }}</text>
@@ -48,20 +51,45 @@ export default {
 			loading: true
 		}
 	},
+	computed: {
+		currentUid() {
+			try {
+				const info = uni.getStorageSync('uni-id-pages-userInfo')
+				return info?.uid || ''
+			} catch (e) { return '' }
+		}
+	},
 	methods: {
+		isPromotedByMe(card) {
+			return !card.isMine && card.pinType === 'promote' && card.pinnerId === this.currentUid
+		},
 		async refresh() {
-			this.loading = true
+			if (!this.currentUid) {
+				this.loading = false
+				return
+			}
+			const hasData = this.cards.length > 0
+			if (!hasData) {
+				this.loading = true
+			}
+			let loadingTimer = null
+			if (hasData) {
+				loadingTimer = setTimeout(() => {
+					this.loading = true
+				}, 300)
+			}
 			try {
 				const ps = uniCloud.importObject('pin-system')
 				const res = await ps.draw({ count: 5 })
+				if (loadingTimer) clearTimeout(loadingTimer)
 				if (res.errCode === 0 && res.data) {
 					this.cards = res.data.items || []
 				} else {
 					console.warn('[pin-topbar] draw failed:', res)
 				}
 			} catch (e) {
+				if (loadingTimer) clearTimeout(loadingTimer)
 				console.error('[pin-topbar] refresh error:', e)
-				// 失败时保留原有数据，不展示错误 UI
 			} finally {
 				this.loading = false
 			}
@@ -101,6 +129,11 @@ export default {
 	width: 32rpx; height: 32rpx;
 	display: flex; align-items: center; justify-content: center;
 	z-index: 2;
+}
+.ptb-badge-promote {
+	background: #3B82F6;
+	width: 44rpx; height: 32rpx;
+	border-radius: 16rpx;
 }
 .ptb-badge-txt { font-size: 18rpx; color: white; font-weight: 700; }
 .ptb-halo {

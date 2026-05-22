@@ -166,6 +166,13 @@
 				}
 			},
 			{
+				"path": "pin-test-stage7/pin-test-stage7",
+				"style": {
+					"navigationStyle": "custom",
+					"navigationBarTitleText": "二期助力测试"
+				}
+			},
+			{
 				"path": "career/career-detail",
 				"style": {
 					"navigationStyle": "custom",

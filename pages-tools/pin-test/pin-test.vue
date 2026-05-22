@@ -249,6 +249,10 @@
 									<text v-if="item.haloActive" class="draw-tag tag-halo">光环</text>
 									<text class="draw-tag tag-weight">权重 {{ item.weight }}</text>
 								</view>
+								<view class="draw-meta">
+									<text class="draw-meta-tag" :class="(item.pinType || 'self') === 'self' ? 'tag-type-self' : 'tag-type-promote'">{{ (item.pinType || 'self') === 'self' ? '自置顶' : '助力' }}</text>
+									<text class="draw-meta-info">pinner: {{ (item.pinnerId || '—').slice(0, 12) }}</text>
+								</view>
 							</view>
 						</view>
 					</view>
@@ -292,6 +296,11 @@
 									<text class="pool-tag tag-weight">权重 {{ pin.weight }}</text>
 									<text v-if="pin.haloActive" class="pool-tag tag-halo">光环</text>
 									<text class="pool-tag" :class="pin.remainingMinutes <= 2 ? 'tag-expiring' : 'tag-time'">剩 {{ pin.remainingMinutes }} 分钟</text>
+								</view>
+								<view class="pool-meta">
+									<text class="pool-meta-tag" :class="(pin.pinType || 'self') === 'self' ? 'tag-type-self' : 'tag-type-promote'">{{ (pin.pinType || 'self') === 'self' ? '自置顶' : '助力' }}</text>
+									<text class="pool-meta-info">pinner: {{ (pin.pinnerId || pin.userId || '—').slice(0, 12) }}</text>
+									<text class="pool-meta-info">creator: {{ (pin.surveyCreatorId || pin.userId || '—').slice(0, 12) }}</text>
 								</view>
 							</view>
 						</view>
@@ -679,6 +688,19 @@
 								<view class="p5-fc-field">
 									<text class="p5-fc-key">expireAt</text>
 									<text class="p5-fc-val p5-fc-val-mono">{{ item.expireAt }}</text>
+								</view>
+								<view class="p5-fc-field p5-fc-field-focus">
+									<text class="p5-fc-key">pinType</text>
+									<text class="p5-fc-val p5-fc-val-mono">{{ item.pinType || 'self' }}</text>
+									<text class="p5-fc-badge" :class="(item.pinType || 'self') === 'promote' ? 'p5-badge-ok' : 'p5-badge-warn'">{{ (item.pinType || 'self') === 'promote' ? '助力' : '自置顶' }}</text>
+								</view>
+								<view class="p5-fc-field">
+									<text class="p5-fc-key">pinnerId</text>
+									<text class="p5-fc-val p5-fc-val-mono">{{ item.pinnerId || '(无)' }}</text>
+								</view>
+								<view class="p5-fc-field">
+									<text class="p5-fc-key">surveyCreatorId</text>
+									<text class="p5-fc-val p5-fc-val-mono">{{ item.surveyCreatorId || '(无)' }}</text>
 								</view>
 							</view>
 						</view>
@@ -2451,6 +2473,9 @@ export default {
 .tag-other { background: #E2E8F0; color: #475569; }
 .tag-halo { background: #FEF9C3; color: #A16207; }
 .tag-weight { background: #EDE9FE; color: #6D28D9; }
+.draw-meta { display: flex; gap: 8rpx; margin-top: 6rpx; align-items: center; }
+.draw-meta-tag { font-size: 18rpx; padding: 2rpx 10rpx; border-radius: 8rpx; font-weight: 700; }
+.draw-meta-info { font-size: 18rpx; color: #94A3B8; font-family: monospace; }
 
 /* ====== 池子列表 ====== */
 .pool-stats { margin-top: 16rpx; padding: 12rpx; background: #F0F9FF; border-radius: 12rpx; text-align: center; }
@@ -2470,6 +2495,11 @@ export default {
 .pool-tag { font-size: 20rpx; padding: 2rpx 12rpx; border-radius: 8rpx; }
 .tag-expiring { background: #FEE2E2; color: #DC2626; }
 .tag-time { background: #E0E7FF; color: #4338CA; }
+.pool-meta { display: flex; gap: 8rpx; margin-top: 8rpx; align-items: center; flex-wrap: wrap; }
+.pool-meta-tag { font-size: 18rpx; padding: 2rpx 10rpx; border-radius: 8rpx; font-weight: 700; }
+.tag-type-self { background: #DCFCE7; color: #166534; }
+.tag-type-promote { background: #DBEAFE; color: #2563EB; }
+.pool-meta-info { font-size: 18rpx; color: #94A3B8; font-family: monospace; }
 
 /* ====== 阶段四：候场区步骤流 ====== */
 .qflow-progress {

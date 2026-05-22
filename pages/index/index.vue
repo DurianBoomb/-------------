@@ -23,7 +23,7 @@
 
 		<scroll-view class="body" scroll-y>
 			<view class="body-inner">
-			<view class="tool-grid" v-if="showGrid">
+			<view class="tool-grid" :key="gridKey">
 					<view
 						v-for="(tool, idx) in tools" :key="tool.id"
 						class="card-wrapper"
@@ -63,6 +63,9 @@
 						</view>
 						<view class="dev-btn dev-btn-sm" hover-class="press-95" @click="goPinTest">
 							<text class="dev-btn-txt">置顶测试</text>
+						</view>
+						<view class="dev-btn dev-btn-sm" hover-class="press-95" @click="goStage7Test">
+							<text class="dev-btn-txt">二期助力</text>
 						</view>
 					</view>
 				</view>
@@ -130,7 +133,7 @@ export default {
 	components: { PinTerminalEntry, PinTopbar, GreenChannelSplash },
 	data() {
 		return {
-			showGrid: true,
+			gridKey: 0,
 			isFirstShow: true,
 			currentSurveyId: '',
 			showGreenChannel: false,
@@ -158,10 +161,7 @@ export default {
 			return
 		}
 		// 后续每次页面显示时重建卡片 DOM，重新触发入场动画
-		this.showGrid = false
-		this.$nextTick(() => {
-			this.showGrid = true
-		})
+		this.gridKey++
 		// 回访时刷新置顶栏
 		this.$nextTick(() => {
 			this.$refs.pinTopbar?.refresh()
@@ -178,6 +178,7 @@ export default {
 	methods: {
 		openTool(tool) { uni.navigateTo({ url: tool.route }) },
 		goPinTest() { uni.navigateTo({ url: '/pages-tools/pin-test/pin-test' }) },
+		goStage7Test() { uni.navigateTo({ url: '/pages-tools/pin-test-stage7/pin-test-stage7' }) },
 		goPage(url) { uni.navigateTo({ url }) },
 
 		// 广告置顶完成回调

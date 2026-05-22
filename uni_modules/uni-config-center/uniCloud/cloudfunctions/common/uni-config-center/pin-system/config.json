@@ -26,44 +26,9 @@
 		}
 	},
 	"queue": {
-		"naturalDurationMinutes": 30,
-		"accelJumpMap": {
-			"0": 4,
-			"1": 3,
-			"2": 2,
-			"3": 1
-		},
 		"maxAccelCount": 3,
-		"queueExpireMinutes": 30,
-		"phases": [
-			{ "phase": "queuing", "endMin": 5 },
-			{ "phase": "inspecting", "endMin": 12 },
-			{ "phase": "pushing", "endMin": 22 },
-			{ "phase": "ready", "endMin": 30 }
-		],
-		"logTemplates": {
-			"queuing": [
-				"[系统] 已进入候场区，正在排队...",
-				"[系统] 你的问卷已进入处理队列",
-				"[系统] 当前队列状态：等待分配处理节点"
-			],
-			"inspecting": [
-				"[系统] 正在对问卷进行质量检测...",
-				"[质检] 含梗量检测：通过 ✓",
-				"[质检] 内容合规性审查：通过 ✓",
-				"[质检] 趣味指数评估：优秀"
-			],
-			"pushing": [
-				"[系统] 正在推送至推荐系统...",
-				"[推送] 分配初始曝光权重...",
-				"[推送] 加入候选推荐列表 ✓"
-			],
-			"ready": [
-				"[系统] → 你的问卷已进入置顶池，开始曝光！",
-				"[系统] 你将收到本次曝光战绩单，敬请查收"
-			]
-		},
-		"vipLog": "[VIP] 检测到加速请求，正在开启绿色通道..."
+		"queueExpireMinutes": 35,
+		"accelAdvanceRatio": 0.4
 	},
 	"career": {
 		"viewFloatMin": 1.5,

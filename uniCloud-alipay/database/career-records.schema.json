@@ -86,6 +86,11 @@
 			"description": "问卷标题，冗余用于展示",
 			"maxLength": 100,
 			"trim": "both"
+		},
+		"pinType": {
+			"bsonType": "string",
+			"enum": ["self", "promote"],
+			"description": "置顶类型：self=自己置顶, promote=助力推广。旧数据无此字段视为 self"
 		}
 	},
 	"index": [

@@ -34,7 +34,7 @@
 						</view>
 						<view class="card-actions">
 							<view class="card-promote" hover-class="press-95" @click="promoteSurvey(item)">
-								<text class="action-txt">推广</text>
+								<text class="action-txt">看广告置顶</text>
 							</view>
 							<view class="card-preview" hover-class="press-95" @click="goPreview(item)">
 								<text class="action-txt">预览</text>

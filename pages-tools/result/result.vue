@@ -52,8 +52,8 @@
 				<view class="btn-retry" hover-class="btn-press" :hover-start-time="0" :hover-stay-time="150" @click="retry">
 					<text>🔄</text><text>再来一次</text>
 				</view>
-				<view class="btn-promote" hover-class="btn-press" :hover-start-time="0" :hover-stay-time="150" @click="promoteSurvey">
-					<text>📢</text><text>推广本问卷</text>
+				<view v-if="creatorId" class="btn-promote" hover-class="btn-press" :hover-start-time="0" :hover-stay-time="150" @click="promoteSurvey">
+					<text>📢</text><text>{{ isCreator ? '看广告置顶' : '助力推广' }}</text>
 				</view>
 				<button class="btn-share" open-type="share" hover-class="btn-press">
 					<text>↗</text><text>分享给朋友</text>
@@ -83,6 +83,8 @@ export default {
 			voteStats: { likes: 0, dislikes: 0 },
 			favorited: false,
 			creatorNickname: '',
+			creatorId: '',  // 问卷创建者 ID，空值表示官方问卷
+			isCreator: false, // 当前用户是否是问卷创建者
 			topPad: 48,
 			shareImagePath: '',
 
@@ -619,8 +621,10 @@ export default {
 			try {
 				const survey = uniCloud.importObject('survey')
 				const res = await survey.getSurveyDetail({ surveyId: this.surveyId })
-				if (res.errCode === 0 && res.data.creatorNickname) {
-					this.creatorNickname = res.data.creatorNickname
+				if (res.errCode === 0) {
+					this.creatorNickname = res.data.creatorNickname || ''
+					this.creatorId = res.data.creatorId || ''
+					this.isCreator = !!res.data.isCreator
 				}
 			} catch (e) { console.error('[result] loadCreatorInfo:', e) }
 		},

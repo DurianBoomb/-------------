@@ -25,7 +25,7 @@ const PIN_CONFIG = {
     poolLifecycleMinutes: 13
   },
   queue: {
-    queueExpireMinutes: 30,
+    queueExpireMinutes: 35,
     maxAccelCount: 3
   },
   career: {
@@ -463,7 +463,8 @@ async function generateCareerRecord(uid, pinDoc) {
       // 冗余字段，便于查阅
       isGreenChannel: pinDoc.isGreenChannel || false,
       haloActive: pinDoc.haloActive || false,
-      senioritySnapshot: pinDoc.senioritySnapshot || 0
+      senioritySnapshot: pinDoc.senioritySnapshot || 0,
+      pinType: pinDoc.pinType || 'self'
     })
 
     // 10. 标记用户未读档案
@@ -636,12 +637,29 @@ async function inlineQueueToPool(uid, surveyId, queueId) {
 
   // 4. 获取问卷标题
   let surveyTitle = surveyId
+  let cover = ''
+  let creatorId = null
   try {
     const surveyRes = await db.collection('surveys').doc(surveyId).get()
     if (surveyRes.data && surveyRes.data.length > 0) {
       surveyTitle = surveyRes.data[0].title || surveyRes.data[0].tagName || surveyId
+      cover = surveyRes.data[0].cover || ''
+      creatorId = surveyRes.data[0].creatorId || null
     }
   } catch (e) { /* 兜底 */ }
+
+  // 4b. 确定置顶类型与 surveyAuthor
+  const pinType = creatorId === uid ? 'self' : 'promote'
+  const pinnerId = uid
+  let surveyAuthor
+  if (pinType === 'promote') {
+    try {
+      const creatorRes = await db.collection('uni-id-users').doc(creatorId).get()
+      surveyAuthor = (creatorRes.data && creatorRes.data.length > 0) ? (creatorRes.data[0].nickname || '') : ''
+    } catch (e) { surveyAuthor = '' }
+  } else {
+    surveyAuthor = user.nickname || ''
+  }
 
   // 5. 写入 pin-pool（含登场光环）
   const suffix = genSuffix()
@@ -658,10 +676,12 @@ async function inlineQueueToPool(uid, surveyId, queueId) {
 
   await db.collection('pin-pool').add({
     _id: docId, surveyId, userId: uid,
-    surveyTitle, surveyCover: '',
+    surveyTitle, surveyCover: cover,
+    surveyAuthor,
     weight, createdAt: now, expireAt,
     senioritySnapshot: exposureCount,
-    haloActive: true, isGreenChannel: false
+    haloActive: true, isGreenChannel: false,
+    pinType, pinnerId, surveyCreatorId: creatorId
   })
 
   // 6. 资历累加
