@@ -49,6 +49,7 @@
 		store,
 		mutations
 	} from '@/uni_modules/uni-id-pages/common/store.js'
+	import { showLoading, hideLoading } from '@/common/loading.js'
 	export default {
 		// #ifdef APP
 		onBackPress({from}) {
@@ -258,9 +259,7 @@
 					title: this.$t('mine.checkScore'),
 					icon: 'none'
 				});
-				uni.showLoading({
-					mask: true
-				})
+				showLoading()
 				db.collection("uni-id-scores")
 					.where('"user_id" == $env.uid')
 					.field('score,balance')
@@ -276,9 +275,9 @@
 							title: msg,
 							icon: 'none'
 						});
-					}).finally(()=>{
-						uni.hideLoading()
-					})
+				}).finally(()=>{
+					hideLoading()
+				})
 			},
 			async share() {
 				let {result} = await db.collection('uni-id-users').where("'_id' == $cloudEnv_uid").field('my_invite_code').get()

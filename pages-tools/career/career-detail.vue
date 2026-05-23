@@ -110,6 +110,7 @@
 </template>
 
 <script>
+import { showLoading, hideLoading } from '@/common/loading.js'
 export default {
 	data() {
 		return {
@@ -171,10 +172,10 @@ export default {
 				uni.showToast({ title: '档案数据尚未加载', icon: 'none' })
 				return
 			}
-			uni.showLoading({ title: '生成分享图...' })
+			showLoading('生成分享图...')
 			try {
 				const tempPath = await this.drawShareImage()
-				uni.hideLoading()
+				hideLoading()
 				if (tempPath) {
 					uni.saveImageToPhotosAlbum({
 						filePath: tempPath,
@@ -190,7 +191,7 @@ export default {
 					})
 				}
 			} catch (e) {
-				uni.hideLoading()
+				hideLoading()
 				console.error('[career-detail] drawShareImage error:', e)
 				uni.showToast({ title: '生成失败: ' + (e.message || ''), icon: 'none' })
 			}

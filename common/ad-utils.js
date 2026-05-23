@@ -1,5 +1,6 @@
 // ========== 广告播放公用工具函数 ==========
 // 从 pin-terminal-entry.vue 提取，供 result.vue / my-surveys.vue 调用
+import { showLoading, hideLoading } from '@/common/loading.js'
 
 let videoAd = null // 模块级缓存微信广告实例
 
@@ -21,7 +22,7 @@ export function playAd(surveyId) {
 	if (typeof wx !== 'undefined' && wx.createRewardedVideoAd) {
 		_playRealAd(surveyId)
 	} else {
-		uni.showLoading({ title: '广告播放中...', mask: true })
+		showLoading('广告播放中...')
 		simulateAd(surveyId)
 	}
 }
@@ -83,11 +84,11 @@ function _playRealAd(sid) {
  * @param {number} adDuration 广告观看时长（毫秒）
  */
 async function callHandleAdReward(sid, adDuration) {
-	uni.showLoading({ title: '处理中...', mask: true })
+	showLoading('处理中...')
 	try {
 		const ps = uniCloud.importObject('pin-system')
 		const res = await ps.handleAdReward({ scene: 'first_pin', surveyId: sid, adDuration })
-		uni.hideLoading()
+		hideLoading()
 
 		if (res.errCode !== 0) {
 			uni.showToast({ title: res.errMsg || '操作失败', icon: 'none' })
@@ -105,7 +106,7 @@ async function callHandleAdReward(sid, adDuration) {
 
 		return res
 	} catch (e) {
-		uni.hideLoading()
+		hideLoading()
 		console.error('[ad-utils] handleAdReward error:', e)
 		uni.showToast({ title: '网络异常，请重试', icon: 'none' })
 		return null

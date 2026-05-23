@@ -157,6 +157,7 @@
 
 <script>
 console.log('[DEBUG] search-page.vue module loaded')
+import { showLoading, hideLoading } from '@/common/loading.js'
 export default {
 		data() {
 			return {
@@ -373,12 +374,12 @@ export default {
 			const desc = this.customTagDesc.trim()
 
 			// 内容安全审核
-			uni.showLoading({ title: '内容审核中...', mask: true })
+			showLoading('内容审核中...')
 			try {
 				const survey = uniCloud.importObject('survey')
 				const content = name + (desc ? '，' + desc : '')
 				const checkRes = await survey.checkTextContent({ content })
-				uni.hideLoading()
+				hideLoading()
 				if (checkRes.errCode === 0 && checkRes.data && !checkRes.data.pass) {
 					uni.showModal({
 						title: '内容违规',
@@ -401,7 +402,7 @@ export default {
 
 		async doGenerate(tagName, tagDesc) {
 			const _t = Date.now()
-			uni.showLoading({ title: 'AI 正在为你生成...', mask: true })
+			showLoading('AI 正在为你生成...')
 
 			try {
 				const survey = uniCloud.importObject('survey')
@@ -410,7 +411,7 @@ export default {
 					tagDesc
 				})
 
-				uni.hideLoading()
+				hideLoading()
 
 				if (res.errCode === 0) {
 					console.log('[generate] 生成耗时: ' + (Date.now() - _t) + 'ms')
@@ -447,7 +448,7 @@ export default {
 					uni.showToast({ title: res.errMsg || '生成失败，请稍后重试', icon: 'none' })
 				}
 			} catch (e) {
-				uni.hideLoading()
+				hideLoading()
 				console.log('[generate] 生成失败耗时: ' + (Date.now() - _t) + 'ms')
 				console.error('[generate] error:', e)
 				uni.showToast({ title: '网络异常，请稍后重试', icon: 'none' })

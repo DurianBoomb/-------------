@@ -13,6 +13,7 @@
 </template>
 
 <script>
+import { showLoading, hideLoading } from '@/common/loading.js'
 export default {
 	props: {
 		// 父组件可传入问卷ID（如从当前页面的问卷列表选择）
@@ -32,7 +33,7 @@ export default {
 				this._playRealAd(sid)
 			} else {
 				// 降级：非微信环境（HBuilder 模拟器 / 开发调试）走模拟广告
-				uni.showLoading({ title: '广告播放中...', mask: true })
+				showLoading('广告播放中...')
 				await this._simulateAdPlay()
 				this._callHandleAdReward(sid, 0)
 			}
@@ -67,11 +68,11 @@ export default {
 
 		// 统一调用云对象 handleAdReward（传 adDuration 用于服务端时长校验兜底）
 		async _callHandleAdReward(sid, adDuration) {
-			uni.showLoading({ title: '处理中...', mask: true })
+			showLoading('处理中...')
 			try {
 				const ps = uniCloud.importObject('pin-system')
 				const res = await ps.handleAdReward({ scene: 'first_pin', surveyId: sid, adDuration })
-				uni.hideLoading()
+				hideLoading()
 
 				if (res.errCode !== 0) {
 					uni.showToast({ title: res.errMsg || '操作失败', icon: 'none' })
@@ -92,7 +93,7 @@ export default {
 					}, 800)
 				}
 			} catch (e) {
-				uni.hideLoading()
+				hideLoading()
 				console.error('[pin-terminal-entry] handleAdReward error:', e)
 				uni.showToast({ title: '网络异常，请重试', icon: 'none' })
 			}

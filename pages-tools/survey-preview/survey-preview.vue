@@ -98,6 +98,7 @@
 </template>
 
 <script>
+import { showLoading, hideLoading } from '@/common/loading.js'
 export default {
 	data() {
 		return {
@@ -134,13 +135,13 @@ export default {
 				return
 			}
 
-			uni.showLoading({ title: 'AI 正在重新生成...', mask: true })
+			showLoading('AI 正在重新生成...')
 
 			try {
 				const survey = uniCloud.importObject('survey')
 				const res = await survey.generateFromCoze({ tagName, tagDesc })
 
-				uni.hideLoading()
+				hideLoading()
 
 				if (res.errCode === 0) {
 					const q = res.data.questionnaire
@@ -168,7 +169,7 @@ export default {
 					uni.showToast({ title: res.errMsg || '生成失败，请稍后重试', icon: 'none' })
 				}
 			} catch (e) {
-				uni.hideLoading()
+				hideLoading()
 				console.error('[survey-preview] regenerate error:', e)
 				uni.showToast({ title: '网络异常，请稍后重试', icon: 'none' })
 			}

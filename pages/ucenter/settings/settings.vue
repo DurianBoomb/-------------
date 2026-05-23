@@ -32,6 +32,7 @@
 		store,
 		mutations
 	} from '@/uni_modules/uni-id-pages/common/store.js'
+	import { showLoading, hideLoading } from '@/common/loading.js'
 	export default {
 		data() {
 			return {
@@ -161,11 +162,8 @@
 					})
 				})
 			},
-			clearTmp() {
-				uni.showLoading({
-					title: this.$t('settings.clearing'),
-					mask: true
-				});
+		clearTmp() {
+			showLoading(this.$t('settings.clearing'))
 				/*
 				任何临时存储或删除不直接影响程序运行逻辑（清除缓存必定造成业务逻辑的变化，如：打开页面的图片不从缓存中读取而从网络请求）的内容都可以视为缓存。主要有storage、和file写入。
 				缓存分为三部分		
@@ -183,16 +181,16 @@
 							uni.removeSavedFile({
 								filePath: res.fileList[0].filePath,
 								complete:res=>{
-									console.log(res);
-									uni.hideLoading()
+							console.log(res);
+								hideLoading()
 									uni.showToast({
 										title: this.$t('settings.clearedSuccessed'),
 										icon: 'none'
 									});
 								}
 							});
-						}else{
-							uni.hideLoading()
+					}else{
+						hideLoading()
 							uni.showToast({
 								title: this.$t('settings.clearedSuccessed'),
 								icon: 'none'

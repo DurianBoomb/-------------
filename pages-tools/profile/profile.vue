@@ -62,6 +62,7 @@
 
 <script>
 import { checkSafeWord } from '@/uni_modules/check-word-safe2/js_sdk/index.js'
+import { showLoading, hideLoading } from '@/common/loading.js'
 export default {
 	data() {
 		return {
@@ -127,12 +128,12 @@ export default {
 				return
 			}
 
-			uni.showLoading({ title: '保存中...', mask: true })
+			showLoading('保存中...')
 			try {
 				const survey = uniCloud.importObject('survey')
 				const res = await survey.updateNickname({ nickname: name })
 
-				uni.hideLoading()
+				hideLoading()
 
 				if (res.errCode === 0) {
 					this.nickname = name
@@ -149,7 +150,7 @@ export default {
 					uni.showToast({ title: res.errMsg || '修改失败', icon: 'none' })
 				}
 			} catch (e) {
-				uni.hideLoading()
+				hideLoading()
 				console.error('[profile] updateNickname error:', e)
 				uni.showToast({ title: '网络异常，请稍后重试', icon: 'none' })
 			}
