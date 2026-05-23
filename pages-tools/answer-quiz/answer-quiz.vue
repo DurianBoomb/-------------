@@ -191,6 +191,8 @@
 				</view>
 			</view>
 			<!-- #endif -->
+			<!-- 临时测试：跳过答题直接出结果（不污染数据库） -->
+			<view class="mock-skip" @click="mockSkip">⚡M</view>
 		</template>
 	</view>
 </template>
@@ -580,7 +582,14 @@ export default {
 				this.loading = false
 				if (e.message && e.message.indexOf('未找到') !== -1) {
 					uni.showToast({ title: '该标签暂无问卷数据', icon: 'none' })
-					setTimeout(() => uni.navigateBack(), 1000)
+					setTimeout(() => {
+						const pages = getCurrentPages()
+						if (pages.length > 1) {
+							uni.navigateBack()
+						} else {
+							uni.redirectTo({ url: '/pages-tools/quiz-home/quiz-home' })
+						}
+					}, 1000)
 				} else {
 					this.loadFailed = true
 				}
@@ -601,7 +610,14 @@ export default {
 		},
 
 		// ====== 返回 ======
-		goBack() { uni.navigateBack() },
+		goBack() {
+			const pages = getCurrentPages()
+			if (pages.length > 1) {
+				uni.navigateBack()
+			} else {
+				uni.redirectTo({ url: '/pages-tools/quiz-home/quiz-home' })
+			}
+		},
 
 		// ====== 雷达图造假工具函数 ======
 
@@ -733,6 +749,29 @@ export default {
 			}
 
 			return fake
+		},
+
+		// ====== Mock 跳过（临时测试，不调用 submitAnswer 避免污染） ======
+		mockSkip() {
+			if (!this.survey) return
+			const dims = this.survey.dims
+			// 随机生成分数
+			const scores = dims.map(() => Math.floor(Math.random() * 60) + 30)
+			// 随机选中一个结果类型
+			const results = this.survey.resultTypes
+			const result = results[Math.floor(Math.random() * results.length)]
+			const colors = results.map(r => r.emojiBg)
+			uni.redirectTo({
+				url: '/pages-tools/result/result?tag=' + encodeURIComponent(this.tag) +
+					'&dims=' + encodeURIComponent(JSON.stringify(dims)) +
+					'&scores=' + encodeURIComponent(JSON.stringify(scores)) +
+					'&emoji=' + encodeURIComponent(result.emoji) +
+					'&image=' + encodeURIComponent(result.image || '') +
+					'&rname=' + encodeURIComponent(result.name) +
+					'&rdesc=' + encodeURIComponent(result.desc) +
+					'&colors=' + encodeURIComponent(JSON.stringify(colors)) +
+					'&surveyId=' + encodeURIComponent(this.survey._id)
+			})
 		},
 
 		// ====== 跳转结果 ======
@@ -1375,6 +1414,17 @@ export default {
 	0%   { opacity: 0.5; }
 	50%  { opacity: 1; }
 	100% { opacity: 0.5; }
+}
+
+/* ===== mock 跳过按钮（临时测试） ===== */
+.mock-skip {
+	position: fixed; top: 16rpx; right: 16rpx; z-index: 999;
+	padding: 4rpx 12rpx;
+	background: rgba(249,115,22,0.12);
+	color: #F97316; font-size: 20rpx; font-weight: 700;
+	border-radius: 16rpx;
+	border: 2rpx solid rgba(249,115,22,0.25);
+	line-height: 1.6;
 }
 
 /* #ifdef H5 */

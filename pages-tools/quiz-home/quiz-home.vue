@@ -271,7 +271,14 @@ export default {
 			return result
 		},
 
-		goBack() { uni.navigateBack() },
+		goBack() {
+			const pages = getCurrentPages()
+			if (pages.length > 1) {
+				uni.navigateBack()
+			} else {
+				uni.navigateTo({ url: '/pages/index/index' })
+			}
+		},
 		goSearch() { uni.navigateTo({ url: '/pages-tools/search/search-page' }) },
 		goProfile() { uni.navigateTo({ url: '/pages-tools/profile/profile' }) },
 		goCareer() { uni.navigateTo({ url: '/pages-tools/career/career-history' }) },

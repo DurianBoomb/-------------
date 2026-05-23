@@ -192,6 +192,13 @@
 					"navigationStyle": "custom",
 					"navigationBarTitleText": "雷达图造假验收"
 				}
+			},
+			{
+				"path": "image-debug/image-debug",
+				"style": {
+					"navigationStyle": "custom",
+					"navigationBarTitleText": "图片Emoji调试"
+				}
 			}]
 		},
 		{

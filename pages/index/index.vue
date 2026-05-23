@@ -70,6 +70,9 @@
 						<view class="dev-btn dev-btn-sm" hover-class="press-95" @click="goRadarFakeTest">
 							<text class="dev-btn-txt">雷达图验收</text>
 						</view>
+						<view class="dev-btn dev-btn-sm" hover-class="press-95" @click="goImageDebug">
+							<text class="dev-btn-txt">图片调试</text>
+						</view>
 					</view>
 				</view>
 
@@ -196,6 +199,7 @@ export default {
 		goPinTest() { uni.navigateTo({ url: '/pages-tools/pin-test/pin-test' }) },
 		goStage7Test() { uni.navigateTo({ url: '/pages-tools/pin-test-stage7/pin-test-stage7' }) },
 		goRadarFakeTest() { uni.navigateTo({ url: '/pages-tools/radar-fake-test/radar-fake-test' }) },
+		goImageDebug() { uni.navigateTo({ url: '/pages-tools/image-debug/image-debug' }) },
 		goDarkgoldQuiz() { uni.navigateTo({ url: '/pages-tools/answer-quiz/answer-quiz?tag=' + encodeURIComponent('群友成分鉴定') }) },
 		goPage(url) { uni.navigateTo({ url }) },
 
@@ -372,7 +376,7 @@ export default {
 
 /* ====== 底部 spacer ====== */
 .dev-section { margin-top: 32rpx; }
-.dev-row { display: flex; gap: 12rpx; }
+.dev-row { display: flex; flex-wrap: wrap; gap: 12rpx; }
 .dev-btn {
 	background: #1E2939; border-radius: 24rpx; padding: 20rpx 32rpx;
 	display: flex; align-items: center; justify-content: center; flex: 1;

@@ -10,9 +10,10 @@
 		<scroll-view class="body" scroll-y>
 			<view class="body-inner">
 				<view class="anim-res-1">
-				<view class="emoji-circle">
-					<image v-if="resultImage" class="emoji-img" :src="resultImage" mode="aspectFit"></image>
-				</view>
+			<view class="emoji-circle">
+				<image v-if="resultImage" class="emoji-img" :src="resultImage" mode="aspectFit"></image>
+				<text v-else class="emoji-txt">{{ emoji }}</text>
+			</view>
 					<text class="title-main">你被确诊为</text>
 					<view class="badge">
 						<text class="badge-txt">{{ rname }}</text>
@@ -78,7 +79,7 @@ export default {
 			colors: [],
 			tag: '',
 			surveyId: '',
-			radarSize: 660,
+			radarSize: 760,
 
 			userVote: null,
 			voteStats: { likes: 0, dislikes: 0 },
@@ -98,6 +99,10 @@ export default {
 		if (o.scores) this.scores = JSON.parse(decodeURIComponent(o.scores))
 		if (o.dims) this.labels = JSON.parse(decodeURIComponent(o.dims))
 		if (o.emoji) this.emoji = decodeURIComponent(o.emoji)
+		if (o.rname) this.rname = decodeURIComponent(o.rname)
+		if (o.rdesc) this.rdesc = decodeURIComponent(o.rdesc)
+		if (o.colors) this.colors = JSON.parse(decodeURIComponent(o.colors))
+		if (o.surveyId) this.surveyId = decodeURIComponent(o.surveyId)
 		if (o.image) {
 			const raw = decodeURIComponent(o.image)
 			if (raw.startsWith('cloud://')) {
@@ -107,10 +112,6 @@ export default {
 				this.resultImage = raw
 			}
 		}
-		if (o.rname) this.rname = decodeURIComponent(o.rname)
-		if (o.rdesc) this.rdesc = decodeURIComponent(o.rdesc)
-		if (o.colors) this.colors = JSON.parse(decodeURIComponent(o.colors))
-		if (o.surveyId) this.surveyId = decodeURIComponent(o.surveyId)
 	},
 	onReady() {
 		this.$nextTick(() => {
@@ -169,7 +170,7 @@ export default {
 		},
 
 		startRadarAnim(canvas, ctx, scores, labels, SIZE) {
-			const CENTER = SIZE / 2, RADIUS = Math.round(SIZE * 0.322)
+			const CENTER = SIZE / 2, RADIUS = Math.round(SIZE * 0.28)
 			const N = labels.length, ANGLE_STEP = (Math.PI * 2) / N, START_ANGLE = -Math.PI / 2
 			const DURATION = 1900, START_DELAY = 450
 
@@ -368,7 +369,7 @@ export default {
 					const [a, b] = win(i, N, 0.82, 0.10, 0.16)
 					const local = sub(t, a, b)
 					if (local <= 0) continue
-					const p = getPoint(123, i)
+					const p = getPoint(115, i)
 					if (p.x < CENTER - 10) ctx.textAlign = 'right'
 					else if (p.x > CENTER + 10) ctx.textAlign = 'left'
 					else ctx.textAlign = 'center'
@@ -627,7 +628,7 @@ export default {
 		},
 
 		goHome() {
-			uni.reLaunch({ url: '/pages-tools/quiz-home/quiz-home' })
+			uni.navigateBack()
 		},
 		retry() {
 			uni.redirectTo({ url: '/pages-tools/answer-quiz/answer-quiz?tag=' + encodeURIComponent(this.tag) })
@@ -701,8 +702,8 @@ export default {
 	100% { opacity: 1; transform: translateY(0); }
 }
 @keyframes resScale {
-	0%   { opacity: 0; transform: scale(0.5); }
-	100% { opacity: 1; transform: scale(1); }
+	0%   { opacity: 0; transform: scale(0.5) translateY(-60rpx); }
+	100% { opacity: 1; transform: scale(1) translateY(-60rpx); }
 }
 @keyframes resSlide {
 	0%   { opacity: 0; transform: translateY(40px); }
@@ -723,22 +724,22 @@ export default {
 	box-shadow: 0 1rpx 2rpx -1rpx rgba(0,0,0,.1), 0 1rpx 3rpx rgba(0,0,0,.1);
 }
 .body { flex: 1; }
-.body-inner { padding: 48rpx 48rpx 0; display: flex; flex-direction: column; align-items: center; }
+.body-inner { padding: 24rpx 48rpx 0; display: flex; flex-direction: column; align-items: center; }
 .emoji-circle {
-	width: 192rpx; height: 192rpx; background: #fff; border-radius: 50%;
+	width: 600rpx; height: 600rpx;
 	display: flex; align-items: center; justify-content: center;
-	box-shadow: 0 1rpx 2rpx -1rpx rgba(0,0,0,.1), 0 1rpx 3rpx rgba(0,0,0,.1);
-	outline: 5rpx solid #FFF7ED; outline-offset: -5rpx;
 }
-.emoji-img { width: 100%; height: 100%; border-radius: 50%; }
-.title-main { font-size: 60rpx; font-weight: 900; color: #101828; text-align: center; margin-top: 24rpx; }
+.emoji-img { width: 600rpx; height: 600rpx; }
+.emoji-txt { font-size: 300rpx; line-height: 1; text-align: center; }
+.title-main { font-size: 60rpx; font-weight: 900; color: #101828; text-align: center; margin-top: 0; width: 100%; display: block; }
 .badge {
-	background: #FFEDD4; border-radius: 60rpx; padding: 12rpx 36rpx; margin-top: 16rpx;
+	background: #FFEDD4; border-radius: 60rpx; padding: 12rpx 36rpx; margin-top: 4rpx;
 	box-shadow: 0 1rpx 2rpx -1rpx rgba(0,0,0,.1), 0 1rpx 3rpx rgba(0,0,0,.1);
 	outline: 3rpx solid #FFD6A8; outline-offset: -3rpx;
 }
 .badge-txt { font-size: 28rpx; color: #CA3500; font-weight: 700; white-space: nowrap; }
-.radar-area { margin-top: 32rpx; }
+.radar-area { align-self: center; display: flex; justify-content: center; }
+
 .desc-card {
 	width: 100%; background: #fff; border-radius: 48rpx; padding: 50rpx;
 	margin-top: 64rpx; position: relative;
