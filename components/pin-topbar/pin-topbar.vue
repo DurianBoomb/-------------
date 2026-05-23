@@ -55,7 +55,7 @@ export default {
 		currentUid() {
 			try {
 				const info = uni.getStorageSync('uni-id-pages-userInfo')
-				return info?.uid || ''
+				return info?._id || ''
 			} catch (e) { return '' }
 		}
 	},
@@ -64,7 +64,9 @@ export default {
 			return !card.isMine && card.pinType === 'promote' && card.pinnerId === this.currentUid
 		},
 		async refresh() {
+			console.log('[pin-topbar] refresh() 开始, uid=%s', this.currentUid || '<空>')
 			if (!this.currentUid) {
+				console.warn('[pin-topbar] refresh 中止: currentUid 为空 (storage key=uni-id-pages-userInfo)')
 				this.loading = false
 				return
 			}
@@ -84,8 +86,9 @@ export default {
 				if (loadingTimer) clearTimeout(loadingTimer)
 				if (res.errCode === 0 && res.data) {
 					this.cards = res.data.items || []
+					console.log('[pin-topbar] draw 成功, items=%d', this.cards.length)
 				} else {
-					console.warn('[pin-topbar] draw failed:', res)
+					console.warn('[pin-topbar] draw failed:', JSON.stringify(res))
 				}
 			} catch (e) {
 				if (loadingTimer) clearTimeout(loadingTimer)

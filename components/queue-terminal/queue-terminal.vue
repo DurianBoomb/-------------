@@ -182,36 +182,54 @@ export default {
 		},
 		async onAccel() {
 			if (this.accelLoading || this.queueCompleted) return
-			try {
-				const ps = uniCloud.importObject('pin-system')
-				if (wx && wx.createRewardedVideoAd) {
-					const videoAd = wx.createRewardedVideoAd({ adUnitId: '' })
-					const adStartTime = Date.now()
-					videoAd.onLoad(() => {})
-					videoAd.onError(() => { this._doAccel(ps, 0) })
-					videoAd.onClose((res) => {
-						const adDuration = Date.now() - adStartTime
-						if (res && res.isEnded) {
-							this._doAccel(ps, adDuration)
-						} else {
-							uni.showToast({ title: '看完广告才能加速哦', icon: 'none' })
-						}
-					})
-					videoAd.show().catch(() => { this._doAccel(ps, 0) })
-				} else {
-					this._doAccel(ps, 0)
-				}
-			} catch (e) {
-				console.error('[queue-terminal] ad error:', e)
-				this._doAccel(uniCloud.importObject('pin-system'), 0)
-			}
+
+			// ====== 暂时无广告接入：跳过广告，直接走业务逻辑 ======
+			uni.showToast({ title: '现在还没有广告，便宜你了', icon: 'none' })
+			const ps = uniCloud.importObject('pin-system')
+			this._doAccel(ps, 20000)
+
+			// ====== 原广告逻辑（后续恢复） ======
+			// try {
+			// 	const ps = uniCloud.importObject('pin-system')
+			// 	if (wx && wx.createRewardedVideoAd) {
+			// 		const videoAd = wx.createRewardedVideoAd({ adUnitId: '' })
+			// 		const adStartTime = Date.now()
+			// 		let videoAdReady = false
+			// 		const _onLoad = () => { videoAdReady = true; videoAd.show() }
+			// 		const _onError = () => { this._doAccel(ps, 0) }
+			// 		const _onClose = (res) => {
+			// 			const adDuration = Date.now() - adStartTime
+			// 			if (res && res.isEnded) {
+			// 				this._doAccel(ps, adDuration)
+			// 			} else {
+			// 				uni.showToast({ title: '看完广告才能加速哦', icon: 'none' })
+			// 			}
+			// 		}
+			// 		videoAd.onLoad(_onLoad)
+			// 		videoAd.onError(_onError)
+			// 		videoAd.onClose(_onClose)
+			// 		// 10 秒超时兜底
+			// 		setTimeout(() => {
+			// 			if (videoAdReady) return
+			// 			videoAd.offLoad(_onLoad)
+			// 			videoAd.offError(_onError)
+			// 			videoAd.offClose(_onClose)
+			// 			this._doAccel(ps, 0)
+			// 		}, 10000)
+			// 		videoAd.show().catch(() => { this._doAccel(ps, 0) })
+			// 	} else {
+			// 		this._doAccel(ps, 0)
+			// 	}
+			// } catch (e) {
+			// 	console.error('[queue-terminal] ad error:', e)
+			// 	this._doAccel(uniCloud.importObject('pin-system'), 0)
+			// }
 		},
-		async _doAccel(ps, adDuration) {
+		async _doAccel(ps, adDuration, retryLeft = 1) {
 			this.accelLoading = true
 			try {
 				const res = await ps.handleAdReward({ scene: 'queue_accel', queueId: this.queueId, adDuration })
 				if (res.errCode === 0) {
-					// 加速成功 → 后端返回了最新 visibleLines
 					if (res.data) {
 						if (res.data.visibleLines) {
 							this.displayedLogs = res.data.visibleLines
@@ -230,6 +248,11 @@ export default {
 					uni.showToast({ title: res.errMsg || '加速失败', icon: 'none' })
 				}
 			} catch (e) {
+				if (retryLeft > 0) {
+					console.warn(`[queue-terminal] _doAccel 调用失败，剩余重试 ${retryLeft} 次`)
+					this.accelLoading = false
+					return await this._doAccel(ps, adDuration, retryLeft - 1)
+				}
 				uni.showToast({ title: '加速调用失败', icon: 'none' })
 				console.error('[queue-terminal] _doAccel error:', e)
 			}

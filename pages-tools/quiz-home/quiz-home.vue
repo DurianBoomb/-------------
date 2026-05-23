@@ -27,23 +27,14 @@
 			</view>
 		</view>
 
-		<!-- 置顶栏（内联 mock） -->
-		<view class="ptb-inline">
-			<view class="ptb-hdr">
-				<text style="font-size:28rpx;font-weight:700;color:#1E2939;">🔥 置顶热门</text>
-				<text style="font-size:22rpx;color:#99A1AF;margin-left:12rpx;">你的问卷正在被推荐</text>
-			</view>
-			<scroll-view class="ptb-scroll" scroll-x enable-flex>
-				<view v-for="c in mockCards" :key="c.emoji" class="ptb-card" hover-class="press-95">
-					<view class="ptb-cover">
-						<text style="font-size:44rpx;">{{ c.emoji }}</text>
-						<view v-if="c.mine" class="ptb-badge">我</view>
-					</view>
-					<text class="ptb-name">{{ c.title }}</text>
-					<text class="ptb-auth">{{ c.author }}</text>
-				</view>
-			</scroll-view>
-		</view>
+		<!-- 看广告置顶入口 -->
+		<pin-terminal-entry
+			:surveyId="currentSurveyId"
+			@pinned="onPinned">
+		</pin-terminal-entry>
+
+		<!-- 置顶栏 -->
+		<pin-topbar ref="pinTopbar"></pin-topbar>
 
 		<scroll-view class="body" scroll-y>
 			<!-- 内部容器：解决 scroll-view padding 不生效的问题 -->
@@ -71,13 +62,16 @@
 
 				<!-- 标签池 -->
 				<view class="tag-pool">
-					<view class="tag-pool-header">
-						<text class="tag-pool-title">🏷️ 随便逛逛</text>
+				<view class="tag-pool-header">
+					<text class="tag-pool-title">🏷️ 随便逛逛</text>
+					<view class="tag-pool-actions">
 						<view class="refresh-btn" @click="handleRefresh">
 							<view class="icon-wrapper" :style="{ transform: 'rotate(' + spinDeg + 'deg)' }">🔄</view>
 							<text>换一换</text>
 						</view>
+						<view class="mock-btn" @click="handleMockRefresh">🎲 Mock</view>
 					</view>
+				</view>
 
 					<view class="tag-grid">
 						<view
@@ -122,23 +116,70 @@
 				<view class="bottom-spacer"></view>
 			</view>
 		</scroll-view>
+
+		<!-- 未读档案弹窗 -->
+		<view v-if="showCareerPopup" class="career-popup-overlay" @click="dismissCareerPopup">
+			<view class="career-popup" @click.stop>
+				<view class="career-popup-hd">
+					<image class="career-popup-stamp" src="/static/给狐狸.png" mode="aspectFit"></image>
+					<text class="career-popup-title">15分钟名气管理局</text>
+					<text class="career-popup-sub">临时名人档案 · 新到</text>
+				</view>
+				<view class="career-popup-body">
+					<text class="career-popup-honor">🏆 {{ (currentCareer && currentCareer.honor && currentCareer.honor.name) || '内容创作者' }}</text>
+					<text class="career-popup-survey">「{{ (currentCareer && currentCareer.surveyTitle) || '' }}」</text>
+					<view class="career-popup-stats">
+						<view class="career-popup-stat">
+							<text class="career-popup-num">{{ formatNum(currentCareer && currentCareer.stats && currentCareer.stats.views) }}</text>
+							<text class="career-popup-label">驻足注视</text>
+						</view>
+						<text class="career-popup-sep">|</text>
+						<view class="career-popup-stat">
+							<text class="career-popup-num">{{ formatNum(currentCareer && currentCareer.stats && currentCareer.stats.clicks) }}</text>
+							<text class="career-popup-label">好奇打开</text>
+						</view>
+						<text class="career-popup-sep">|</text>
+						<view class="career-popup-stat">
+							<text class="career-popup-num">{{ formatNum(currentCareer && currentCareer.stats && currentCareer.stats.favorites) }}</text>
+							<text class="career-popup-label">决定存档</text>
+						</view>
+					</view>
+					<view v-if="currentCareer && currentCareer.bonusTriggered" class="career-popup-bonus">
+						<text>⚡ 暴击触发 ×{{ currentCareer.bonusMultiplier ? currentCareer.bonusMultiplier.toFixed(1) : '1.5' }}</text>
+					</view>
+				</view>
+				<view class="career-popup-ft">
+					<view class="career-popup-btn career-popup-btn-sign" hover-class="press-95" @click="dismissCareerPopup">
+						<text>签收</text>
+					</view>
+					<button class="career-popup-btn career-popup-btn-broadcast" open-type="share" hover-class="press-95" @click="broadcastCareer">
+						<text>广播出去！</text>
+					</button>
+				</view>
+			</view>
+		</view>
 	</view>
 </template>
 
 <script>
+import PinTerminalEntry from '@/components/pin-terminal-entry/pin-terminal-entry.vue'
+import PinTopbar from '@/components/pin-topbar/pin-topbar.vue'
+
 export default {
+	components: { PinTerminalEntry, PinTopbar },
 		data() {
 		return {
 			spinDeg: 0,
-			mockCards: [
-				{ emoji: '📊', title: '今日运势', author: '张三', mine: true },
-				{ emoji: '🧠', title: '智商测试', author: '李四', mine: false },
-				{ emoji: '🎭', title: '人格鉴定', author: '王五', mine: false },
-				{ emoji: '❤️', title: '恋爱分析', author: '赵六', mine: false },
-				{ emoji: '💼', title: '职场人设', author: '钱七', mine: false }
-			],
+			currentSurveyId: '',
+			// 未读档案
+			pendingCareers: [],
+			showCareerPopup: false,
+			currentCareer: null,
+			careerIndex: 0,
 			refreshId: 0,
 			isRefreshing: false,
+			// 分享标志位：广播出去时暂存档案信息，供 onShareAppMessage 读取
+			_sharingCareer: null,
 			animFlip: false,
 			activeTags: [],
 			allTags: [],
@@ -167,6 +208,17 @@ export default {
 	onShow() {
 		this.loadTags()
 		this.loadFavorites()
+		// 刷新置顶栏（pinTopbar.refresh() 内部调用 pinSystem.draw()）
+		this.$nextTick(() => {
+			this.$refs.pinTopbar?.refresh()
+		})
+		// 检查未读战绩档案
+		this.checkUnreadCareer()
+	},
+	onReady() {
+		this.$nextTick(() => {
+			this.$refs.pinTopbar?.refresh()
+		})
 	},
 	onUnload() {
 		if (this._favListener) {
@@ -176,6 +228,15 @@ export default {
 	},
 
 	onShareAppMessage() {
+		if (this._sharingCareer) {
+			const career = this._sharingCareer
+			this._sharingCareer = null
+			return {
+				title: `我在快乐大狐狸获得了「${career.honor?.name || '内容创作者'}」称号`,
+				path: '/pages-tools/quiz-home/quiz-home',
+				imageUrl: '/static/share-banner.png'
+			}
+		}
 		return {
 			title: '快乐大狐狸',
 			path: '/pages-tools/quiz-home/quiz-home',
@@ -228,6 +289,31 @@ export default {
 			this.spinDeg += 360
 			this.animFlip = !this.animFlip
 			this.shuffleTags()
+			this.refreshId++
+			this.$nextTick(() => {
+				setTimeout(() => {
+					this.isRefreshing = false
+				}, 500)
+			})
+		},
+
+		handleMockRefresh() {
+			if (this.isRefreshing) return
+			this.isRefreshing = true
+			this.spinDeg += 360
+			this.animFlip = !this.animFlip
+			// 从 allTags 中找暗金标签
+			const dg = this.allTags.find(t => t.rarity === 'darkgold')
+			const arr = [...this.allTags]
+			if (dg) {
+				// 把暗金标签移到数组前 3 位，确保 calculateTagsForRows 能选到它
+				const dgIdx = arr.indexOf(dg)
+				if (dgIdx > 2) {
+					arr.splice(dgIdx, 1)
+					arr.splice(2, 0, dg)
+				}
+			}
+			this.activeTags = this.calculateTagsForRows(arr, 7)
 			this.refreshId++
 			this.$nextTick(() => {
 				setTimeout(() => {
@@ -313,6 +399,76 @@ export default {
 					this.favorites[tagName] = res.data.favorited
 				}
 			} catch (e) { console.error('[quiz-home] toggleFav:', e) }
+		},
+
+		// ====== 置顶系统回调 ======
+
+		// 广告置顶完成回调
+		onPinned({ action, pinData, queueData }) {
+			if (action === 'direct_entry') {
+				this.$nextTick(() => {
+					this.$refs.pinTopbar?.refresh()
+				})
+			}
+		},
+
+		// ====== 未读档案检测 ======
+
+		async checkUnreadCareer() {
+			if (this.showCareerPopup) return
+			const cached = uni.getStorageSync('_hasUnreadCareer')
+			if (cached === false) return
+			try {
+				const ps = uniCloud.importObject('pin-system')
+				const res = await ps.checkCareerStatus()
+				if (res.errCode === 0 && res.data?.hasUnread && res.data?.careers?.length > 0) {
+					this.pendingCareers = res.data.careers
+					this.careerIndex = 0
+					this.showNextCareer()
+				} else {
+					uni.setStorageSync('_hasUnreadCareer', false)
+				}
+			} catch (e) {
+				console.error('[quiz-home] checkUnreadCareer error:', e)
+			}
+		},
+
+		showNextCareer() {
+			if (this.careerIndex < this.pendingCareers.length) {
+				this.currentCareer = this.pendingCareers[this.careerIndex]
+				this.showCareerPopup = true
+			} else {
+				this.showCareerPopup = false
+				this.currentCareer = null
+				this.pendingCareers = []
+				uni.setStorageSync('_hasUnreadCareer', false)
+			}
+		},
+
+		async dismissCareerPopup() {
+			const careerId = this.currentCareer?.careerId
+			this.showCareerPopup = false
+			if (careerId) {
+				try {
+					const ps = uniCloud.importObject('pin-system')
+					await ps.markCareerAsRead({ careerId })
+				} catch (e) {
+					console.error('[quiz-home] markAsRead error:', e)
+				}
+			}
+			this.careerIndex++
+			this.$nextTick(() => { this.showNextCareer() })
+		},
+
+		async broadcastCareer() {
+			this._sharingCareer = this.currentCareer
+			this.dismissCareerPopup()
+		},
+
+		formatNum(val) {
+			if (typeof val !== 'number') return '--'
+			if (val >= 10000) return (val / 10000).toFixed(1) + '万'
+			return val.toLocaleString()
 		}
 	}
 }
@@ -405,6 +561,15 @@ export default {
 	gap: 6rpx; font-size: 28rpx; color: #6A7282;
 	box-shadow: 0 1rpx 2rpx -1rpx rgba(0,0,0,0.1);
 }
+.tag-pool-actions {
+	display: flex; align-items: center; gap: 12rpx;
+}
+.mock-btn {
+	padding: 8rpx 18rpx; border-radius: 40rpx;
+	background: #1A1A1A; color: #C9A84C;
+	font-size: 24rpx; font-weight: 700;
+	box-shadow: 0 0 6rpx rgba(201,168,76,0.4);
+}
 .icon-wrapper {
 	display: inline-flex;
 	transform-origin: center center;
@@ -441,7 +606,14 @@ export default {
 	color: #C9A84C;
 	border: 2rpx solid #C9A84C;
 	text-shadow: 0 0 8rpx rgba(201, 168, 76, 0.5), 0 0 16rpx rgba(201, 168, 76, 0.3);
-	animation: glowBreath 3s ease-in-out infinite;
+}
+.tag-darkgold.anim-a {
+	animation: dropElasticA 0.6s cubic-bezier(0.34,1.56,0.64,1) both,
+	           glowBreath 3s ease-in-out 0.6s infinite;
+}
+.tag-darkgold.anim-b {
+	animation: dropElasticB 0.6s cubic-bezier(0.34,1.56,0.64,1) both,
+	           glowBreath 3s ease-in-out 0.6s infinite;
 }
 .sparkle-tail {
 	font-size: 32rpx;
@@ -474,29 +646,56 @@ export default {
 /* ====== 底部 spacer ====== */
 .bottom-spacer { height: 60rpx; width: 100%; }
 
-/* ====== 置顶栏内联 ====== */
-.ptb-inline { padding: 0 40rpx 24rpx; background: linear-gradient(180deg,#FFF 0%,#F7F8FA 100%); }
-.ptb-hdr { display: flex; align-items: baseline; margin-bottom: 16rpx; }
-.ptb-scroll { display: flex; flex-direction: row; }
-.ptb-card {
-	flex-shrink: 0; width: 180rpx; background: white;
-	border-radius: 24rpx; padding: 16rpx 12rpx; margin-right: 16rpx;
-	box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.08); text-align: center;
-}
-.ptb-cover {
-	width: 100rpx; height: 100rpx; margin: 0 auto 10rpx;
-	background: #FFF7ED; border-radius: 20rpx;
-	display: flex; align-items: center; justify-content: center; position: relative;
-}
-.ptb-badge {
-	position: absolute; top: -4rpx; right: -4rpx; background: #F97316;
-	border-radius: 50%; width: 32rpx; height: 32rpx;
-	display: flex; align-items: center; justify-content: center;
-	font-size: 18rpx; color: white; font-weight: 700;
-}
-.ptb-name { font-size: 22rpx; font-weight: 600; color: #1E2939; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ptb-auth { font-size: 18rpx; color: #99A1AF; display: block; margin-top: 4rpx; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .press-95 { transform: scale(0.95); transition: transform 0.1s; }
+
+/* ====== 未读档案弹窗 ====== */
+.career-popup-overlay {
+	position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+	background: rgba(0,0,0,.5); z-index: 999;
+	display: flex; align-items: center; justify-content: center;
+	padding: 60rpx;
+	animation: fadeIn .25s ease-out;
+}
+.career-popup {
+	background: white; border-radius: 32rpx; width: 100%; max-width: 560rpx;
+	overflow: hidden; box-shadow: 0 16rpx 48rpx rgba(0,0,0,.2);
+	animation: slideUp .3s cubic-bezier(.34,1.56,.64,1);
+}
+.career-popup-hd {
+	background: linear-gradient(135deg, #B91C1C, #DC2626);
+	padding: 40rpx 36rpx 28rpx; text-align: center;
+}
+.career-popup-stamp { width: 56rpx; height: 56rpx; margin-bottom: 12rpx; }
+.career-popup-title { font-size: 32rpx; font-weight: 800; color: white; display: block; letter-spacing: 2rpx; }
+.career-popup-sub { font-size: 22rpx; color: rgba(255,255,255,.7); display: block; margin-top: 6rpx; }
+
+.career-popup-body { padding: 32rpx 36rpx; text-align: center; }
+.career-popup-honor { font-size: 30rpx; font-weight: 800; color: #B91C1C; display: block; margin-bottom: 8rpx; }
+.career-popup-survey { font-size: 24rpx; color: #6B7280; display: block; margin-bottom: 24rpx; }
+.career-popup-stats { display: flex; align-items: center; justify-content: center; gap: 16rpx; margin-bottom: 16rpx; }
+.career-popup-stat { text-align: center; }
+.career-popup-num { font-size: 36rpx; font-weight: 800; color: #EA580C; display: block; font-family: monospace; }
+.career-popup-label { font-size: 20rpx; color: #9CA3AF; display: block; margin-top: 4rpx; }
+.career-popup-sep { font-size: 24rpx; color: #D1D5DC; }
+.career-popup-bonus text {
+	display: inline-block; background: linear-gradient(135deg, #7C3AED, #A855F7);
+	color: white; font-size: 20rpx; font-weight: 700;
+	padding: 4rpx 16rpx; border-radius: 16rpx;
+}
+
+.career-popup-ft { padding: 0 36rpx 36rpx; display: flex; gap: 16rpx; }
+.career-popup-btn {
+	flex: 1; padding: 20rpx; border-radius: 24rpx; text-align: center; font-size: 26rpx; font-weight: 700;
+}
+.career-popup-btn-sign { background: #F3F4F6; color: #374151; }
+.career-popup-btn-broadcast {
+	background: #1E2939; color: white;
+	padding: 0; border: none; line-height: inherit; font-size: inherit;
+}
+.career-popup-btn-broadcast::after { border: none; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(60rpx); } to { opacity: 1; transform: translateY(0); } }
 
 /* ====== 动画 ====== */
 @keyframes dropElasticA {

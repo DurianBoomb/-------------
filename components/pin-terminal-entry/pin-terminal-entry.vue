@@ -28,46 +28,75 @@ export default {
 				if (!sid) return
 			}
 
-			// 尝试接入微信激励视频广告 SDK
-			if (wx && wx.createRewardedVideoAd) {
-				this._playRealAd(sid)
-			} else {
-				// 降级：非微信环境（HBuilder 模拟器 / 开发调试）走模拟广告
-				showLoading('广告播放中...')
-				await this._simulateAdPlay()
-				this._callHandleAdReward(sid, 0)
+			// ====== 前置资格检查（去重 + 槽位 + 每日上限，广告之前） ======
+			try {
+				const ps = uniCloud.importObject('pin-system')
+				const checkRes = await ps.checkPinEligibility({ surveyId: sid })
+				if (checkRes.errCode !== 0) {
+					uni.showToast({ title: checkRes.errMsg || '操作失败', icon: 'none' })
+					return
+				}
+			} catch (e) {
+				console.error('[pin-terminal-entry] checkPinEligibility error:', e)
+				uni.showToast({ title: '网络异常，请重试', icon: 'none' })
+				return
 			}
+
+			// ====== 暂时无广告接入：跳过广告，直接走业务逻辑 ======
+			uni.showToast({ title: '现在还没有广告，便宜你了', icon: 'none' })
+			this._callHandleAdReward(sid, 20000)
+
+			// ====== 原广告逻辑（后续恢复） ======
+			// if (wx && wx.createRewardedVideoAd) {
+			// 	this._playRealAd(sid)
+			// } else {
+			// 	showLoading('广告播放中...')
+			// 	await this._simulateAdPlay()
+			// 	this._callHandleAdReward(sid, 0)
+			// }
 		},
 
 		// 真实激励视频广告播放 + isEnded 校验（阶段七防刷）
+		/*
 		_playRealAd(sid) {
 			const videoAd = wx.createRewardedVideoAd({ adUnitId: '' }) // 上线前填入真实广告位 ID
 			const adStartTime = Date.now()
+			let videoAdReady = false
 
-			videoAd.onLoad(() => {
+			const _onLoad = () => {
+				videoAdReady = true
 				videoAd.show()
-			})
-
-			videoAd.onError((err) => {
-				// 广告加载失败，降级：直接调云对象（不阻塞用户）
+			}
+			const _onError = (err) => {
 				console.warn('[pin-terminal-entry] 广告加载失败，降级处理:', err)
 				uni.showToast({ title: '广告加载失败，请稍后重试', icon: 'none' })
-			})
-
-			videoAd.onClose((res) => {
+			}
+			const _onClose = (res) => {
 				const adDuration = Date.now() - adStartTime
 				if (res && res.isEnded) {
-					// 完整看完广告 → 调用云对象
 					this._callHandleAdReward(sid, adDuration)
 				} else {
-					// 提前关闭 → 不给奖励
 					uni.showToast({ title: '看完广告才能获得奖励哦', icon: 'none' })
 				}
-			})
-		},
+			}
 
-		// 统一调用云对象 handleAdReward（传 adDuration 用于服务端时长校验兜底）
-		async _callHandleAdReward(sid, adDuration) {
+			videoAd.onLoad(_onLoad)
+			videoAd.onError(_onError)
+			videoAd.onClose(_onClose)
+
+			// 10 秒超时兜底
+			setTimeout(() => {
+				if (videoAdReady) return
+				videoAd.offLoad(_onLoad)
+				videoAd.offError(_onError)
+				videoAd.offClose(_onClose)
+				uni.showToast({ title: '广告加载超时', icon: 'none' })
+			}, 10000)
+		},
+		*/
+
+		// 统一调用云对象 handleAdReward（带重试，传 adDuration 用于服务端时长校验兜底）
+		async _callHandleAdReward(sid, adDuration, retryLeft = 1) {
 			showLoading('处理中...')
 			try {
 				const ps = uniCloud.importObject('pin-system')
@@ -95,7 +124,13 @@ export default {
 			} catch (e) {
 				hideLoading()
 				console.error('[pin-terminal-entry] handleAdReward error:', e)
-				uni.showToast({ title: '网络异常，请重试', icon: 'none' })
+
+				if (retryLeft > 0) {
+					console.warn(`[pin-terminal-entry] 调用失败，剩余重试 ${retryLeft} 次`)
+					return await this._callHandleAdReward(sid, adDuration, retryLeft - 1)
+				}
+
+				uni.showToast({ title: '网络异常，请稍后重试', icon: 'none' })
 			}
 		},
 
@@ -119,11 +154,13 @@ export default {
 		},
 
 		// 模拟广告播放延迟（生产环境替换为真实激励视频广告）
+		/*
 		_simulateAdPlay() {
 			return new Promise((resolve) => {
 				setTimeout(resolve, 1500)
 			})
 		}
+		*/
 	}
 }
 </script>

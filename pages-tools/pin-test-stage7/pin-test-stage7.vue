@@ -291,7 +291,7 @@ export default {
 		loadCurrentUid() {
 			try {
 				const info = uni.getStorageSync('uni-id-pages-userInfo')
-				this.myUid = info?.uid || ''
+				this.myUid = info?._id || ''
 			} catch (e) { this.myUid = '' }
 		},
 		goBack() { uni.navigateBack({ delta: 1 }) },

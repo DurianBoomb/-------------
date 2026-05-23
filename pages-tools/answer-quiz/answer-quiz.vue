@@ -123,8 +123,6 @@
 				<view class="edge-glow" v-if="edgeGlowVisible"></view>
 				<!-- 连击徽章 -->
 				<view class="streak-badge" v-if="streakPopVisible">{{ streak }}连击🔥</view>
-				<!-- 长按彩蛋气泡 -->
-				<view class="tease-bubble" v-if="teaseVisible">别急，仔细想想🤔</view>
 				<!-- 纸屑层（仅最后一题） -->
 				<view class="confetti-layer" v-if="confettiVisible">
 					<view v-for="(p, pi) in confettiPieces" :key="pi"
@@ -248,7 +246,6 @@ export default {
 			streak: 0,
 			streakPopVisible: false,
 			lastPickTime: 0,
-			teaseVisible: false,
 			pressFill: null,
 			confettiVisible: false,
 			confettiPieces: [],
@@ -484,23 +481,19 @@ export default {
 			this.chargeTimer = setTimeout(() => {
 				this.pressFill = i
 			}, 270)
-			// 充能环动画 0.6s 充能完毕后触发彩蛋气泡 + 标记就绪（270 + 600 = 870ms）
+			// 充能环动画 0.6s 充能完毕后标记就绪（270 + 600 = 870ms）
 			this.pressTimer = setTimeout(() => {
 				this.chargeReady = true
-				this.teaseVisible = true
-				setTimeout(() => { this.teaseVisible = false }, 2200)
 			}, 870)
 		},
 		onTouchEnd(slot, i) {
 			this.pressFill = null
-			this.teaseVisible = false
 			clearTimeout(this.pressTimer)
 			clearTimeout(this.chargeTimer)
 			// chargeReady 不清，留给后面 pick() 消费
 		},
 		onTouchCancel(slot, i) {
 			this.pressFill = null
-			this.teaseVisible = false
 			this.chargeReady = false
 			clearTimeout(this.pressTimer)
 			clearTimeout(this.chargeTimer)
@@ -1014,7 +1007,7 @@ export default {
 	overflow: visible;
 	border-radius: 48rpx;
 	-webkit-tap-highlight-color: transparent;
-	transition: transform 0.18s cubic-bezier(0.34, 1.25, 0.64, 1);
+	transition: transform 0.18s cubic-bezier(0.34, 1.0, 0.64, 1);
 }
 .o-press {
 	transform: scale(0.95);
@@ -1142,6 +1135,12 @@ export default {
 	pointer-events: none;
 }
 
+/* ===== 闲置呼吸 ===== */
+.idle-breathe .o-inner {
+	animation: idleBreathe 1.8s ease-in-out infinite;
+	animation-delay: calc(var(--idx) * 0.18s);
+}
+
 /* ===== 粒子迸溅 ===== */
 .burst-dot {
 	position: absolute;
@@ -1153,12 +1152,6 @@ export default {
 	animation: burstDot 0.55s cubic-bezier(0.22,1,0.36,1) both;
 	transform: rotate(var(--angle)) translateY(0) scale(1);
 	pointer-events: none;
-}
-
-/* ===== 闲置呼吸 ===== */
-.idle-breathe .o-inner {
-	animation: idleBreathe 1.8s ease-in-out infinite;
-	animation-delay: calc(var(--idx) * 0.18s);
 }
 
 /* ===== 长按充能环 ===== */
@@ -1217,18 +1210,6 @@ export default {
 	box-shadow: 0 20rpx 60rpx -12rpx rgba(249,115,22,0.55);
 	z-index: 50;
 	animation: streakPop 1.2s cubic-bezier(0.34,1.45,0.64,1) both;
-}
-
-/* 长按彩蛋气泡 */
-.tease-bubble {
-	position: fixed; bottom: 256rpx; left: 50%;
-	transform: translateX(-50%);
-	padding: 24rpx 40rpx; border-radius: 999rpx;
-	background: rgba(17,24,39,0.92);
-	color: #fff; font-size: 28rpx; font-weight: 500;
-	box-shadow: 0 20rpx 60rpx -16rpx rgba(0,0,0,0.35);
-	z-index: 50;
-	animation: teaseBubble 1.8s cubic-bezier(0.34,1.4,0.64,1) both;
 }
 
 /* 纸屑层 */
@@ -1368,12 +1349,6 @@ export default {
 	50% { box-shadow: 0 0 0 12rpx rgba(249,115,22,0.18); }
 }
 
-/* 闲置呼吸 */
-@keyframes idleBreathe {
-	0%, 100% { transform: translateY(0); }
-	50% { transform: translateY(-6rpx); }
-}
-
 /* 全屏 flash */
 @keyframes flashOverlay {
 	0%   { opacity: 0.35; }
@@ -1395,12 +1370,13 @@ export default {
 	100% { opacity: 0; transform: translateX(-50%) scale(0) rotate(0deg); }
 }
 
-/* 长按彩蛋 */
-@keyframes teaseBubble {
-	0%   { opacity: 0; transform: translateX(-50%) translateY(20rpx) scale(0.85); }
-	30%  { opacity: 1; transform: translateX(-50%) translateY(0) scale(1.04); }
-	50%  { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
-	100% { opacity: 0; transform: translateX(-50%) translateY(-8rpx) scale(1); }
+
+
+
+/* 闲置呼吸 */
+@keyframes idleBreathe {
+	0%, 100% { transform: translateY(0); }
+	50% { transform: translateY(-6rpx); }
 }
 
 /* 纸屑下落（每片通过内联 style 设置 rot 硬编码值） */

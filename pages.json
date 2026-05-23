@@ -173,6 +173,20 @@
 				}
 			},
 			{
+				"path": "pin-migration-test/pin-migration-test",
+				"style": {
+					"navigationStyle": "custom",
+					"navigationBarTitleText": "迁移验证"
+				}
+			},
+			{
+				"path": "pin-dashboard/pin-dashboard",
+				"style": {
+					"navigationStyle": "custom",
+					"navigationBarTitleText": "置顶监控"
+				}
+			},
+			{
 				"path": "career/career-detail",
 				"style": {
 					"navigationStyle": "custom",

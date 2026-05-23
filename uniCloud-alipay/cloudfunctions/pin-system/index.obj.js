@@ -277,6 +277,23 @@ async function enterPoolImpl(uid, surveyId) {
     const exposureCount = user.career?.exposureCount ?? 0
     let slots = user.career?.slots || []
 
+    // 1b. 去重检查（兜底——防止 checkPinEligibility 通过后，广告播放期间被其他设备抢占）
+    {
+      const now = Date.now()
+      const poolCheck = await db.collection('pin-pool').where({
+        surveyId,
+        expireAt: { $gt: now }
+      }).get()
+      if (poolCheck.data && poolCheck.data.length > 0) {
+        return { errCode: 'ALREADY_IN_POOL', errMsg: '该问卷已在置顶池中，无法重复置顶' }
+      }
+
+      const queueCheck = await db.collection('survey-queue').where({ surveyId }).get()
+      if (queueCheck.data && queueCheck.data.length > 0) {
+        return { errCode: 'ALREADY_IN_QUEUE', errMsg: '该问卷已在候场区排队中，无法重复置顶' }
+      }
+    }
+
     // 2. 兜底初始化（新用户可能没有 career.slots）
     if (!slots || slots.length === 0) {
       slots = [
@@ -1200,6 +1217,73 @@ module.exports = {
   // ==================== 阶段一：入池核心逻辑 ====================
 
   /**
+   * 前置资格检查（广告播放之前调用）
+   * 检查去重 + 槽位可用性，不消耗任何资源
+   * 前端确认通过后才播放广告 → 广告完成后调用 handleAdReward
+   */
+  async checkPinEligibility({ surveyId } = {}) {
+    if (!this.uid) return { errCode: 'NOT_AUTH', errMsg: '用户未登录' }
+    if (!surveyId) return { errCode: 'INVALID_PARAM', errMsg: '缺少 surveyId' }
+
+    try {
+      // 0. 去重检查：同一问卷是否已在置顶流程中
+      const now = Date.now()
+      const poolRes = await db.collection('pin-pool').where({
+        surveyId,
+        expireAt: { $gt: now }
+      }).get()
+      if (poolRes.data && poolRes.data.length > 0) {
+        return { errCode: 'ALREADY_IN_POOL', errMsg: '该问卷已在置顶池中，无法重复置顶' }
+      }
+
+      const queueRes = await db.collection('survey-queue').where({ surveyId }).get()
+      if (queueRes.data && queueRes.data.length > 0) {
+        return { errCode: 'ALREADY_IN_QUEUE', errMsg: '该问卷已在候场区排队中，无法重复置顶' }
+      }
+
+      // 1. 读用户信息
+      const userRes = await db.collection('uni-id-users').doc(this.uid).get()
+      if (!userRes.data || userRes.data.length === 0) {
+        return { errCode: 'USER_NOT_FOUND', errMsg: '用户不存在' }
+      }
+      const user = userRes.data[0]
+      let slots = user.career?.slots || []
+
+      // 2. 兜底初始化
+      if (!slots || slots.length === 0) {
+        slots = [
+          { status: 'idle', surveyId: null, pinId: null, queueId: null },
+          { status: 'idle', surveyId: null, pinId: null, queueId: null },
+          { status: 'idle', surveyId: null, pinId: null, queueId: null }
+        ]
+      }
+
+      // 3. 槽位检查（idle 或可回收的 claimable）
+      const hasIdle = slots.some(s => s.status === 'idle')
+      const hasClaimable = slots.some(s => s.status === 'claimable')
+      if (!hasIdle && !hasClaimable) {
+        return { errCode: 'SLOTS_FULL', errMsg: '已达到 3 条上限，请等待其中一条完成' }
+      }
+
+      // 4. 每日置顶次数软帽检查
+      const todayStart = new Date(new Date().toLocaleDateString()).getTime()
+      const todayCountRes = await db.collection('pin-pool').where({
+        userId: this.uid,
+        createdAt: { $gt: todayStart }
+      }).count()
+      const todayCount = todayCountRes.total || 0
+      if (todayCount >= PIN_CONFIG.security.dailyPinSoftCap) {
+        return { errCode: 'DAILY_CAP_SOFT', errMsg: `今日置顶已达${PIN_CONFIG.security.dailyPinSoftCap}次软帽限制，明日起恢复` }
+      }
+
+      return { errCode: 0, errMsg: '检查通过，可以展示广告' }
+    } catch (e) {
+      console.error('[pin-system] checkPinEligibility error:', e)
+      return { errCode: 'SYSTEM_ERROR', errMsg: '资格检查失败: ' + (e.message || '') }
+    }
+  },
+
+  /**
    * 处理广告奖励（前端 onRewarded 后调用的统一入口）
    * scene: 'first_pin' → enterPool | 'queue_accel' → executeAccel
    */
@@ -1670,6 +1754,134 @@ module.exports = {
       return { errCode: 0, data: { deleted: res.deleted || 0 } }
     } catch (e) {
       console.error('[pin-system] testCleanMockPins error:', e)
+      return { errCode: 'SYSTEM_ERROR', errMsg: '清理失败: ' + (e.message || '') }
+    }
+  },
+
+  /**
+   * 安全测试专用：批量直接写入 pin-pool + survey-queue 构造测试状态
+   * 绕过完整的 handleAdReward 流程，精确定位每种拦截路径
+   * @param {string[]} poolSurveyIds - 要写入 pin-pool 的 surveyId
+   * @param {string[]} queueSurveyIds - 要写入 survey-queue 的 surveyId
+   * @param {string[]} fillSlotIds - 要用完所有槽位的 surveyId（最多 3 个）
+   */
+  async testSeedSafetyState({ poolSurveyIds = [], queueSurveyIds = [], fillSlotIds = [] } = {}) {
+    if (!this.uid) return { errCode: 'NOT_AUTH', errMsg: '用户未登录' }
+    try {
+      const now = Date.now()
+      const expireAt = now + 13 * 60 * 1000
+
+      // 1. 写入 pin-pool
+      for (const sid of poolSurveyIds) {
+        const suffix = genSuffix()
+        await db.collection('pin-pool').add({
+          _id: `pin_safety${suffix}`,
+          surveyId: sid,
+          userId: this.uid,
+          surveyTitle: '[安全测试] ' + sid,
+          surveyCover: '',
+          surveyAuthor: '',
+          weight: 100,
+          createdAt: now,
+          expireAt,
+          senioritySnapshot: 0,
+          haloActive: false,
+          isGreenChannel: false,
+          pinType: 'self',
+          pinnerId: this.uid,
+          surveyCreatorId: this.uid
+        })
+      }
+
+      // 2. 写入 survey-queue
+      for (const sid of queueSurveyIds) {
+        const suffix = genSuffix()
+        await db.collection('survey-queue').add({
+          _id: `queue_safety${suffix}`,
+          userId: this.uid,
+          surveyId: sid,
+          enterAt: now,
+          acceleratedCount: 0,
+          seniorityLevel: 0,
+          currentPhase: 'queuing',
+          logLines: [],
+          effectiveOffset: 0
+        })
+      }
+
+      // 3. 占满槽位
+      if (fillSlotIds.length > 0) {
+        const slots = []
+        for (let i = 0; i < 3; i++) {
+          if (i < fillSlotIds.length) {
+            slots.push({
+              status: 'active',
+              surveyId: fillSlotIds[i],
+              pinId: `pin_safety_slot_${i}`,
+              queueId: null
+            })
+          } else {
+            slots.push({ status: 'idle', surveyId: null, pinId: null, queueId: null })
+          }
+        }
+        await db.collection('uni-id-users').doc(this.uid).update({ 'career.slots': slots })
+      }
+
+      return { errCode: 0, data: { poolCount: poolSurveyIds.length, queueCount: queueSurveyIds.length, slotCount: fillSlotIds.length } }
+    } catch (e) {
+      console.error('[pin-system] testSeedSafetyState error:', e)
+      return { errCode: 'SYSTEM_ERROR', errMsg: '构造测试状态失败: ' + (e.message || '') }
+    }
+  },
+  async testEnsureSurveys({ surveyIds } = {}) {
+    if (!this.uid) return { errCode: 'NOT_AUTH', errMsg: '用户未登录' }
+    if (!Array.isArray(surveyIds) || surveyIds.length === 0) {
+      return { errCode: 'INVALID_PARAM', errMsg: 'surveyIds 必须是非空数组' }
+    }
+    try {
+      const created = []
+      for (const sid of surveyIds) {
+        const existRes = await db.collection('surveys').doc(sid).get()
+        if (existRes.data && existRes.data.length > 0) {
+          created.push(sid)
+          continue
+        }
+        await db.collection('surveys').add({
+          _id: sid,
+          creatorId: this.uid,
+          title: '[测试问卷] ' + sid,
+          tagName: '测试标签',
+          cover: '',
+          surveyCover: '',
+          // schema 强制要求的最小字段
+          dims: ['维度A', '维度B', '维度C'],
+          qs: [{ title: '测试题目', dim: '维度A' }],
+          resultTypes: [{ name: '测试结果', emoji: '🧪', desc: '测试用' }]
+        })
+        created.push(sid)
+      }
+      return { errCode: 0, data: { created } }
+    } catch (e) {
+      console.error('[pin-system] testEnsureSurveys error:', e)
+      return { errCode: 'SYSTEM_ERROR', errMsg: '创建测试问卷失败: ' + (e.message || '') }
+    }
+  },
+
+  /**
+   * 清理测试用问卷
+   */
+  async testCleanTestSurveys() {
+    if (!this.uid) return { errCode: 'NOT_AUTH', errMsg: '用户未登录' }
+    try {
+      const res = await db.collection('surveys').where({ creatorId: this.uid }).get()
+      const testIds = (res.data || []).filter(d => (d.title || '').startsWith('[测试问卷]')).map(d => d._id)
+      let deleted = 0
+      for (const id of testIds) {
+        try { await db.collection('surveys').doc(id).remove(); deleted++ } catch (_) {}
+      }
+      return { errCode: 0, data: { deleted } }
+    } catch (e) {
+      console.error('[pin-system] testCleanTestSurveys error:', e)
       return { errCode: 'SYSTEM_ERROR', errMsg: '清理失败: ' + (e.message || '') }
     }
   },
