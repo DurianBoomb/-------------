@@ -16,9 +16,9 @@
 			$t: {}
 		},
 		onLaunch: function() {
-			// 全局拦截：任何地方调用 showLoading 后立刻自动关闭
+			// 全局拦截：阻止所有 showLoading 调用
 			uni.addInterceptor('showLoading', {
-				complete() { uni.hideLoading() }
+				invoke() { return false }
 			})
 			console.log('App Launch')
 			this.globalData.$i18n = this.$i18n
@@ -60,21 +60,14 @@
 		},
 
 		// ★ 微信静默注册（无感登录）
+		// loginByWeixin 是幂等的——已注册用户调用只刷新 token，不会重复注册
 		methods: {
 			// #ifdef MP-WEIXIN
 			async silentLogin() {
-				// token 存在且未过期才跳过；过期了就重新登录
-				const token = uni.getStorageSync('uni_id_token')
-				const tokenExpired = uni.getStorageSync('uni_id_token_expired') || 0
-				if (token && tokenExpired > Date.now()) return
-				if (token) {
-					uni.removeStorageSync('uni_id_token')
-					uni.setStorageSync('uni_id_token_expired', 0)
-				}
-
+				// ★ 不再信任本地 storage 的旧 token（副本工程继承了原工程的 token 会导致校验失败）
+				// 每次启动都走一次完整的微信登录流程，loginByWeixin 会自动刷新 token
 				try {
 					const loginResult = await uni.login({ provider: 'weixin' })
-					// 兼容 uni.login 返回 [err, res] 数组或直接返回 res 的情况
 					const loginRes = Array.isArray(loginResult) ? loginResult[1] : loginResult
 					if (!loginRes || !loginRes.code) {
 						console.warn('[静默注册] uni.login 未返回 code')
@@ -87,8 +80,10 @@
 					const res = await uniIdCo.loginByWeixin({ code: loginRes.code })
 
 					if (res.errCode === 0 || res.errCode === 'uni-id-account-exists') {
-						mutations.setUserInfo(res.userInfo || {}, { cover: true })
-						uni.$emit('uni-id-pages-login-success')
+						// 使用标准 loginSuccess 流程：从数据库拉取完整用户信息
+						// showToast:false 避免静默登录弹出 toast
+						// autoBack:false  避免静默登录触发页面跳转
+						mutations.loginSuccess({ showToast: false, autoBack: false })
 						console.log('[静默注册] 成功', res.type)
 					} else {
 						console.warn('[静默注册] 登录失败', res.errCode, res.errMsg)

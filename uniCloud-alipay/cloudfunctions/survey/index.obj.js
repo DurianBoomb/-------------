@@ -112,7 +112,7 @@ module.exports = {
 				this.uid = payload.uid
 			}
 		} catch (e) {
-			// token 校验失败，uid 保持 null
+			console.error('[survey] token 校验失败', e.errCode || '', e.message || e)
 		}
 	},
 

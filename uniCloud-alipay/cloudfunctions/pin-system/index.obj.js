@@ -1124,7 +1124,7 @@ module.exports = {
         this.uid = payload.uid
       }
     } catch (e) {
-      // token 校验失败，uid 保持 null
+      console.error('[pin-system] token 校验失败', e.errCode || '', e.message || e)
     }
 
     // 阶段七：请求频率限制（基于 uid，云函数实例生命周期内有效）

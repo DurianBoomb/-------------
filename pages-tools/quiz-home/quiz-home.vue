@@ -56,7 +56,7 @@
 				</view>
 
 				<!-- 随便测测 -->
-				<view class="random-card" @click="goRandom" hover-class="card-press">
+				<view class="random-card" @click="goRandom" hover-class="card-press" :hover-start-time="0" :hover-stay-time="0">
 					<view class="random-left">
 						<view class="random-title-row">
 							<text class="dice-icon">🎲</text>
