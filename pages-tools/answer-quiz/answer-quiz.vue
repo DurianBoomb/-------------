@@ -68,11 +68,11 @@
 							<view class="opts" :class="{ 'idle-breathe': idleActive }">
 								<view v-for="(o, i) in slots[slot].q.opts" :key="i"
 									class="o-wrap" hover-class="o-press"
-									:hover-start-time="0" :hover-stay-time="150"
+									:hover-start-time="0" :hover-stay-time="50"
 									@touchstart="onTouchStart(slot, i, $event)"
 									@touchend="onTouchEnd(slot, i)"
 									@touchcancel="onTouchCancel(slot, i)"
-									@click="pick(slot, i, $event)"
+									@tap="pick(slot, i, $event)"
 								>
 									<view class="o-inner"
 										:class="{
