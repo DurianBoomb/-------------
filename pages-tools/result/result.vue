@@ -10,9 +10,9 @@
 		<scroll-view class="body" scroll-y>
 			<view class="body-inner">
 				<view class="anim-res-1">
-					<view class="emoji-circle">
-						<text class="emoji-txt">{{ emoji }}</text>
-					</view>
+				<view class="emoji-circle">
+					<image v-if="resultImage" class="emoji-img" :src="resultImage" mode="aspectFit"></image>
+				</view>
 					<text class="title-main">你被确诊为</text>
 					<view class="badge">
 						<text class="badge-txt">{{ rname }}</text>
@@ -71,8 +71,9 @@ export default {
 		return {
 			scores: [85, 90, 40, 75, 80],
 			labels: ['淀粉肠指数', '加肉程度', '社交油腻度', '性价比', '抗造性'],
-			emoji: '🌭',
-			rname: '纯正淀粉肠',
+		emoji: '🌭',
+		resultImage: '',
+		rname: '纯正淀粉肠',
 			rdesc: '别挣扎了，你骨子里就是根5块钱的淀粉肠。',
 			colors: [],
 			tag: '',
@@ -91,12 +92,21 @@ export default {
 	
 		}
 	},
-	onLoad(o) {
+	async onLoad(o) {
 		try { const menu = uni.getMenuButtonBoundingClientRect(); this.topPad = menu.top } catch (e) {}
 		if (o.tag) this.tag = decodeURIComponent(o.tag)
 		if (o.scores) this.scores = JSON.parse(decodeURIComponent(o.scores))
 		if (o.dims) this.labels = JSON.parse(decodeURIComponent(o.dims))
 		if (o.emoji) this.emoji = decodeURIComponent(o.emoji)
+		if (o.image) {
+			const raw = decodeURIComponent(o.image)
+			if (raw.startsWith('cloud://')) {
+				const res = await uniCloud.getTempFileURL({ fileList: [raw] })
+				this.resultImage = res.fileList[0].tempFileURL || raw
+			} else {
+				this.resultImage = raw
+			}
+		}
 		if (o.rname) this.rname = decodeURIComponent(o.rname)
 		if (o.rdesc) this.rdesc = decodeURIComponent(o.rdesc)
 		if (o.colors) this.colors = JSON.parse(decodeURIComponent(o.colors))
@@ -323,6 +333,27 @@ export default {
 				ctx.globalAlpha = 1
 			}
 
+			// Layer 9: 分数数字滚动
+			const drawScores = (t) => {
+				for (let i = 0; i < N; i++) {
+					const [a, b] = win(i, N, 0.52, 0.18, 0.35)
+					const local = sub(t, a, b)
+					if (local <= 0) continue
+					const display = Math.round(scores[i] * easeOutCubic(local))
+					const r = Math.max((scores[i] / 100) * RADIUS - 16, 22)
+					const angle = i * ANGLE_STEP + START_ANGLE
+					const x = CENTER + r * Math.cos(angle)
+					const y = CENTER + r * Math.sin(angle) + 4
+					ctx.fillStyle = '#F97316'
+					ctx.font = '900 11px sans-serif'
+					ctx.textAlign = 'center'
+					ctx.textBaseline = 'alphabetic'
+					ctx.globalAlpha = Math.min(1, local * 2)
+					ctx.fillText(display + '', Math.round(x), Math.round(y))
+				}
+				ctx.globalAlpha = 1
+			}
+
 			// Layer 10: 维度标签淡入（每4字自动换行）
 			const drawLabel = (text, x, y) => {
 				const lines = text.match(/.{1,4}/g) || [text]
@@ -363,6 +394,7 @@ export default {
 				drawStroke(t, points)
 				drawFlash(t, points)
 				drawDots(t, points)
+				drawScores(t)
 				drawLabels(t)
 			}
 
@@ -483,8 +515,8 @@ export default {
 			ctx.font = '700 13px sans-serif'
 			ctx.fillText('今日确诊', 80, 133)
 
-			// ====== 6. 主标题：emoji + 结果名 ======
-			const mainTitle = (this.emoji || '') + ' ' + (this.rname || '')
+		// ====== 6. 主标题：结果名 ======
+		const mainTitle = this.rname || ''
 			ctx.textAlign = 'left'
 			ctx.textBaseline = 'top'
 			ctx.fillStyle = '#1F2937'
@@ -698,7 +730,7 @@ export default {
 	box-shadow: 0 1rpx 2rpx -1rpx rgba(0,0,0,.1), 0 1rpx 3rpx rgba(0,0,0,.1);
 	outline: 5rpx solid #FFF7ED; outline-offset: -5rpx;
 }
-.emoji-txt { font-size: 112rpx; }
+.emoji-img { width: 100%; height: 100%; border-radius: 50%; }
 .title-main { font-size: 60rpx; font-weight: 900; color: #101828; text-align: center; margin-top: 24rpx; }
 .badge {
 	background: #FFEDD4; border-radius: 60rpx; padding: 12rpx 36rpx; margin-top: 16rpx;

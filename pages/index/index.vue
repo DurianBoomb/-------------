@@ -67,6 +67,22 @@
 						<view class="dev-btn dev-btn-sm" hover-class="press-95" @click="goStage7Test">
 							<text class="dev-btn-txt">二期助力</text>
 						</view>
+						<view class="dev-btn dev-btn-sm" hover-class="press-95" @click="goRadarFakeTest">
+							<text class="dev-btn-txt">雷达图验收</text>
+						</view>
+					</view>
+				</view>
+
+				<!-- 暗金标签验收 -->
+				<view class="dev-section">
+					<text class="mock-label">🔬 暗金标签验收</text>
+					<view class="tag-accept-row">
+						<view class="tag-wrapper-accept" hover-class="tag-press-accept" @click="goDarkgoldQuiz">
+							<view class="tag-inner tag-darkgold">
+								<text>群友成分鉴定</text>
+								<text class="sparkle-tail">✨</text>
+							</view>
+						</view>
 					</view>
 				</view>
 
@@ -179,6 +195,8 @@ export default {
 		openTool(tool) { uni.navigateTo({ url: tool.route }) },
 		goPinTest() { uni.navigateTo({ url: '/pages-tools/pin-test/pin-test' }) },
 		goStage7Test() { uni.navigateTo({ url: '/pages-tools/pin-test-stage7/pin-test-stage7' }) },
+		goRadarFakeTest() { uni.navigateTo({ url: '/pages-tools/radar-fake-test/radar-fake-test' }) },
+		goDarkgoldQuiz() { uni.navigateTo({ url: '/pages-tools/answer-quiz/answer-quiz?tag=' + encodeURIComponent('群友成分鉴定') }) },
 		goPage(url) { uni.navigateTo({ url }) },
 
 		// 广告置顶完成回调
@@ -416,5 +434,47 @@ export default {
 @keyframes slideUpElastic {
 	0% { opacity: 0; transform: translateY(120rpx); }
 	100% { opacity: 1; transform: translateY(0); }
+}
+
+/* ====== 暗金标签验收样式 ====== */
+.tag-accept-row {
+	display: flex; flex-wrap: wrap; gap: 20rpx;
+}
+.tag-wrapper-accept { transition: transform 0.1s ease-out; }
+.tag-press-accept { transform: scale(0.9); }
+.tag-inner {
+	border-radius: 40rpx;
+	box-shadow: 0 1rpx 2rpx -1rpx rgba(0,0,0,0.1);
+	max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.tag-darkgold {
+	padding: 26rpx 44rpx;
+	font-size: 46rpx;
+	font-weight: 900;
+	background: #1A1A1A;
+	color: #C9A84C;
+	border: 2rpx solid #C9A84C;
+	text-shadow: 0 0 8rpx rgba(201, 168, 76, 0.5), 0 0 16rpx rgba(201, 168, 76, 0.3);
+	animation: glowBreath 3s ease-in-out infinite;
+}
+.sparkle-tail {
+	font-size: 32rpx;
+	animation: sparkle 2s ease-in-out infinite;
+}
+
+@keyframes glowBreath {
+	0%, 100% {
+		box-shadow: 0 0 12rpx rgba(201, 168, 76, 0.3), 0 0 24rpx rgba(201, 168, 76, 0.1);
+		border-color: #C9A84C;
+	}
+	50% {
+		box-shadow: 0 0 28rpx rgba(201, 168, 76, 0.6), 0 0 56rpx rgba(201, 168, 76, 0.25);
+		border-color: #E6C85C;
+	}
+}
+
+@keyframes sparkle {
+	0%, 100% { opacity: 0.4; transform: scale(0.8); }
+	50% { opacity: 1; transform: scale(1.1); }
 }
 </style>

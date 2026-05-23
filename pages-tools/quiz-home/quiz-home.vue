@@ -89,6 +89,7 @@
 						>
 							<view :class="['tag-inner', tag.classStr, animFlip ? 'anim-a' : 'anim-b']" :style="tag.animStyle">
 								<text>{{ tag.name }}</text>
+								<text v-if="tag.rarity === 'darkgold'" class="sparkle-tail">✨</text>
 							</view>
 						</view>
 					</view>
@@ -425,7 +426,20 @@ export default {
 .tag-common { padding: 10rpx 18rpx; font-size: 22rpx; font-weight: 400; background: #F7F8FA; color: #101828; border: 1rpx solid #D1D5DC; box-shadow: none; }
 .tag-rare { padding: 14rpx 24rpx; font-size: 26rpx; font-weight: 500; background: white; color: #4FC3F7; border: 1rpx solid #4FC3F7; }
 .tag-epic { padding: 22rpx 38rpx; font-size: 36rpx; font-weight: 600; background: white; color: #A855F7; border: 1rpx solid #A855F7; }
-.tag-darkgold { /* 暗金 — 设计中 */ }
+.tag-darkgold {
+	padding: 26rpx 44rpx;
+	font-size: 46rpx;
+	font-weight: 900;
+	background: #1A1A1A;
+	color: #C9A84C;
+	border: 2rpx solid #C9A84C;
+	text-shadow: 0 0 8rpx rgba(201, 168, 76, 0.5), 0 0 16rpx rgba(201, 168, 76, 0.3);
+	animation: glowBreath 3s ease-in-out infinite;
+}
+.sparkle-tail {
+	font-size: 32rpx;
+	animation: sparkle 2s ease-in-out infinite;
+}
 
 /* ====== 精选发疯 ====== */
 .recommend { margin-bottom: 40rpx; }
@@ -485,6 +499,22 @@ export default {
 @keyframes dropElasticB {
 	0% { opacity: 0; transform: translateY(-80rpx); }
 	100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes glowBreath {
+	0%, 100% {
+		box-shadow: 0 0 12rpx rgba(201, 168, 76, 0.3), 0 0 24rpx rgba(201, 168, 76, 0.1);
+		border-color: #C9A84C;
+	}
+	50% {
+		box-shadow: 0 0 28rpx rgba(201, 168, 76, 0.6), 0 0 56rpx rgba(201, 168, 76, 0.25);
+		border-color: #E6C85C;
+	}
+}
+
+@keyframes sparkle {
+	0%, 100% { opacity: 0.4; transform: scale(0.8); }
+	50% { opacity: 1; transform: scale(1.1); }
 }
 
 </style>

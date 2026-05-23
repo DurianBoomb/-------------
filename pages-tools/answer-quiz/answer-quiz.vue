@@ -603,6 +603,138 @@ export default {
 		// ====== 返回 ======
 		goBack() { uni.navigateBack() },
 
+		// ====== 雷达图造假工具函数 ======
+
+		// djb2 字符串哈希
+		hashString(str) {
+			let hash = 5381
+			for (let i = 0; i < str.length; i++) {
+				hash = ((hash << 5) + hash + str.charCodeAt(i)) | 0
+			}
+			return hash >>> 0
+		},
+
+		// mulberry32 PRNG
+		createSeededRNG(seed) {
+			let s = seed | 0
+			return function() {
+				s |= 0
+				s = s + 0x6D2B79F5 | 0
+				let t = Math.imul(s ^ s >>> 15, 1 | s)
+				t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t
+				return ((t ^ t >>> 14) >>> 0) / 4294967296
+			}
+		},
+
+		// Box-Muller 正态分布
+		boxMuller(rng, mean, stddev) {
+			let u1, u2
+			do { u1 = rng() } while (u1 === 0)
+			u2 = rng()
+			const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2)
+			return mean + z * stddev
+		},
+
+		// 主函数：生成假雷达图数据（普通问卷）
+		generateFakeScores(raw, resultType, dims) {
+			const rawSum = raw.reduce((a, b) => a + b, 0)
+			const bucket = Math.floor(rawSum / 20)
+			const seedStr = resultType.name + '_' + bucket
+			const seed = this.hashString(seedStr)
+
+			const mainIdx = dims.indexOf(resultType.match)
+			// 兜底：match 不在 dims 中
+			if (mainIdx === -1) return dims.map(() => 50)
+
+			const rng = this.createSeededRNG(seed)
+			const fake = dims.map(() => {
+				const val = this.boxMuller(rng, 55, 12)
+				return Math.max(20, Math.min(70, Math.round(val)))
+			})
+
+			const mainRng = this.createSeededRNG(seed ^ 0x5A77)
+			const mainVal = 75 + Math.floor(mainRng() * 11)
+
+			fake[mainIdx] = mainVal
+
+			const threshold = mainVal - 20
+			for (let i = 0; i < fake.length; i++) {
+				if (i !== mainIdx && fake[i] >= threshold) {
+					fake[i] = threshold - 1
+				}
+			}
+
+			const maxOther = Math.max(...fake.filter((_, i) => i !== mainIdx))
+			if (fake[mainIdx] <= maxOther) {
+				fake[mainIdx] = maxOther + 21
+			}
+
+			return fake
+		},
+
+		// 特殊问卷：按 profile 比例缩放生成假雷达图数据
+		generateFakeScoresByProfile(raw, resultType, dims) {
+			const profile = resultType.profile
+			const rawSum = raw.reduce((a, b) => a + b, 0)
+			const bucket = Math.floor(rawSum / 20)
+			const seedStr = resultType.name + '_' + bucket
+			const seed = this.hashString(seedStr)
+
+			// 确定主维度：profile 最大值索引
+			const mainIdx = profile.indexOf(Math.max(...profile))
+
+			// 步骤 2: profile 线性映射到 [30, 70]
+			const pMin = Math.min(...profile)
+			const pMax = Math.max(...profile)
+			let fake
+			if (pMax === pMin) {
+				// profile 全相等 → fallback 到随机分布
+				const rng = this.createSeededRNG(seed)
+				fake = dims.map(() => {
+					const val = this.boxMuller(rng, 55, 12)
+					return Math.max(20, Math.min(70, Math.round(val)))
+				})
+			} else {
+				fake = profile.map(p => Math.round(30 + (p - pMin) / (pMax - pMin) * 40))
+			}
+
+			// 步骤 3: 主维度 boost 到 75-85
+			const mainRng = this.createSeededRNG(seed ^ 0x5A77)
+			const mainVal = 75 + Math.floor(mainRng() * 11)
+			fake[mainIdx] = mainVal
+
+			// 步骤 4: 非主维度加种子噪声 ±3
+			const noiseRng = this.createSeededRNG(seed ^ 0x3CAD)
+			for (let i = 0; i < fake.length; i++) {
+				if (i !== mainIdx) {
+					fake[i] += Math.round((noiseRng() - 0.5) * 6)
+				}
+			}
+
+			// 步骤 5: clamp 非主维度 [20, 70]
+			for (let i = 0; i < fake.length; i++) {
+				if (i !== mainIdx) {
+					fake[i] = Math.max(20, Math.min(70, fake[i]))
+				}
+			}
+
+			// 步骤 6: gap ≥ 20 修正
+			const threshold = mainVal - 20
+			for (let i = 0; i < fake.length; i++) {
+				if (i !== mainIdx && fake[i] >= threshold) {
+					fake[i] = threshold - 1
+				}
+			}
+
+			// 步骤 7: 兜底检查 mainIdx 是否最高
+			const maxOther = Math.max(...fake.filter((_, i) => i !== mainIdx))
+			if (fake[mainIdx] <= maxOther) {
+				fake[mainIdx] = maxOther + 21
+			}
+
+			return fake
+		},
+
 		// ====== 跳转结果 ======
 		async goResult() {
 			if (!this.survey) return
@@ -612,16 +744,27 @@ export default {
 			this.ans.forEach(a => { sums[a.dim] += a.score; cnts[a.dim]++ })
 			const raw = dims.map(d => cnts[d] ? ((sums[d] / cnts[d] - 1) / 2) * 100 : 50)
 
-			const topDim = dims.reduce((a, b) => raw[dims.indexOf(a)] >= raw[dims.indexOf(b)] ? a : b)
-			const result = this.survey.resultTypes.find(r => r.match === topDim) || this.survey.resultTypes[0]
+			let result
+			let scores
 
-			const scores = raw.map(s => {
-				const n = Math.round((Math.random() - 0.5) * 16)
-				return Math.max(0, Math.min(100, Math.round(s + n)))
-			})
+			if (this.survey.resultTypes[0]?.profile) {
+				// 特殊问卷：五维向量欧几里得距离匹配
+				const distances = this.survey.resultTypes.map(rt => {
+					const sumSq = rt.profile.reduce((acc, p, i) => acc + Math.pow(p - raw[i], 2), 0)
+					return Math.sqrt(sumSq)
+				})
+				const minIdx = distances.indexOf(Math.min(...distances))
+				result = this.survey.resultTypes[minIdx]
+				scores = this.generateFakeScoresByProfile(raw, result, dims)
+			} else {
+				// 普通问卷：取最高维度匹配
+				const topDim = dims.reduce((a, b) => raw[dims.indexOf(a)] >= raw[dims.indexOf(b)] ? a : b)
+				result = this.survey.resultTypes.find(r => r.match === topDim) || this.survey.resultTypes[0]
+				scores = this.generateFakeScores(raw, result, dims)
+			}
 
 			const dimensionScores = {}
-			dims.forEach((d, i) => { dimensionScores[d] = scores[i] })
+			dims.forEach((d, i) => { dimensionScores[d] = raw[i] })
 
 			try {
 				const survey = uniCloud.importObject('survey')
@@ -639,16 +782,17 @@ export default {
 
 			const colors = this.survey.resultTypes.map(r => r.emojiBg)
 
-			uni.redirectTo({
-				url: '/pages-tools/result/result?tag=' + encodeURIComponent(this.tag) +
-					'&dims=' + encodeURIComponent(JSON.stringify(dims)) +
-					'&scores=' + encodeURIComponent(JSON.stringify(scores)) +
-					'&emoji=' + encodeURIComponent(result.emoji) +
-					'&rname=' + encodeURIComponent(result.name) +
-					'&rdesc=' + encodeURIComponent(result.desc) +
-					'&colors=' + encodeURIComponent(JSON.stringify(colors)) +
-					'&surveyId=' + encodeURIComponent(this.survey._id)
-			})
+		uni.redirectTo({
+			url: '/pages-tools/result/result?tag=' + encodeURIComponent(this.tag) +
+				'&dims=' + encodeURIComponent(JSON.stringify(dims)) +
+				'&scores=' + encodeURIComponent(JSON.stringify(scores)) +
+				'&emoji=' + encodeURIComponent(result.emoji) +
+				'&image=' + encodeURIComponent(result.image || '') +
+				'&rname=' + encodeURIComponent(result.name) +
+				'&rdesc=' + encodeURIComponent(result.desc) +
+				'&colors=' + encodeURIComponent(JSON.stringify(colors)) +
+				'&surveyId=' + encodeURIComponent(this.survey._id)
+		})
 		}
 	}
 }

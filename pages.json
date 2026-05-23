@@ -185,6 +185,13 @@
 					"navigationStyle": "custom",
 					"navigationBarTitleText": "历史档案"
 				}
+			},
+			{
+				"path": "radar-fake-test/radar-fake-test",
+				"style": {
+					"navigationStyle": "custom",
+					"navigationBarTitleText": "雷达图造假验收"
+				}
 			}]
 		},
 		{

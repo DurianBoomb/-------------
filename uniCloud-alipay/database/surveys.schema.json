@@ -54,10 +54,10 @@
 			"bsonType": "array",
 			"description": "结果类型数组",
 			"minItems": 1,
-			"maxItems": 10,
+			"maxItems": 35,
 			"items": {
 				"bsonType": "object",
-				"required": ["name", "emoji", "desc", "match"],
+				"required": ["name", "emoji", "desc"],
 				"properties": {
 					"name": {
 						"bsonType": "string",
@@ -85,15 +85,20 @@
 					},
 					"image": {
 						"bsonType": "string",
-						"description": "结果配图 URL（预留字段，当前暂不使用，默认空字符串）",
+						"description": "结果配图 URL，支持 cloud:// 云存储 fileID 或普通 HTTPS URL。cloud:// 格式前端自动转为临时链接",
 						"trim": "both",
 						"maxLength": 500
 					},
 					"match": {
 						"bsonType": "string",
-						"description": "关联的维度名，得分最高的维度匹配此结果类型",
+						"description": "关联的维度名（普通问卷使用），得分最高的维度匹配此结果类型",
 						"trim": "both",
 						"maxLength": 50
+					},
+					"profile": {
+						"bsonType": "array",
+						"description": "五维特征向量（特殊问卷使用），每个分量 [0, 100]，与 raw 同量纲。有此字段则走向量匹配（欧几里得最近邻），无则走 match 单维度匹配",
+						"items": { "bsonType": "number" }
 					}
 				}
 			}
