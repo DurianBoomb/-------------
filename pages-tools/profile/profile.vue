@@ -248,16 +248,18 @@ export default {
 .empty-txt { font-size: 28rpx; color: #99A1AF; text-align: center; }
 .empty-sub { font-size: 24rpx; color: #D1D5DC; margin-top: 8rpx; }
 .profile-list { width: 100%; }
-.profile-card { display: flex; align-items: center; background: white; border-radius: 32rpx; padding: 24rpx; gap: 16rpx; margin-bottom: 16rpx; box-shadow: 0 1rpx 2rpx -1rpx rgba(0,0,0,.1), 0 1rpx 3rpx rgba(0,0,0,.1); }
+.profile-card { display: flex; background: white; border-radius: 32rpx; padding: 24rpx; gap: 16rpx; margin-bottom: 16rpx; box-shadow: 0 1rpx 2rpx -1rpx rgba(0,0,0,.1), 0 1rpx 3rpx rgba(0,0,0,.1); }
 .pc-emoji { width: 72rpx; height: 72rpx; background: #FFF7ED; border-radius: 24rpx; display: flex; align-items: center; justify-content: center; font-size: 40rpx; flex-shrink: 0; }
-.pc-info { flex: 1; min-width: 0; }
+.pc-info { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
 .pc-tag { font-size: 30rpx; font-weight: 700; color: #1E2939; display: block; }
 .pc-result { font-size: 24rpx; color: #F97316; font-weight: 600; display: block; margin-top: 4rpx; }
 .pc-time { font-size: 22rpx; color: #99A1AF; display: block; margin-top: 4rpx; }
 .pc-del {
 	display: flex; align-items: center; justify-content: center;
 	padding: 0 24rpx; background: #DC2626; color: #fff;
-	font-size: 24rpx; font-weight: 600; align-self: stretch; flex-shrink: 0;
+	font-size: 24rpx; font-weight: 600; flex-shrink: 0;
+	margin: -24rpx -24rpx -24rpx 0;
+	border-radius: 0 32rpx 32rpx 0;
 }
 .bottom-spacer { height: 60rpx; }
 </style>

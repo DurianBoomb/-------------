@@ -103,11 +103,11 @@ export default {
 .empty-state { display: flex; flex-direction: column; align-items: center; padding: 120rpx 0; }
 .empty-icon { font-size: 80rpx; margin-bottom: 20rpx; }
 .empty-txt { font-size: 28rpx; color: #99A1AF; text-align: center; }
-.fav-card { display: flex; align-items: center; background: white; border-radius: 32rpx; margin-bottom: 16rpx; box-shadow: 0 1rpx 2rpx -1rpx rgba(0,0,0,.1), 0 1rpx 3rpx rgba(0,0,0,.1); overflow: hidden; }
+.fav-card { display: flex; background: white; border-radius: 32rpx; margin-bottom: 16rpx; box-shadow: 0 1rpx 2rpx -1rpx rgba(0,0,0,.1), 0 1rpx 3rpx rgba(0,0,0,.1); overflow: hidden; }
 .fav-main { display: flex; align-items: center; flex: 1; padding: 24rpx; gap: 16rpx; }
 .fav-info { flex: 1; min-width: 0; }
 .fav-name { font-size: 30rpx; font-weight: 700; color: #1E2939; display: block; }
 .fav-time { font-size: 22rpx; color: #99A1AF; display: block; margin-top: 4rpx; }
-.fav-del { display: flex; align-items: center; justify-content: center; padding: 24rpx 24rpx; background: #DC2626; color: #fff; font-size: 24rpx; font-weight: 600; align-self: stretch; flex-shrink: 0; }
+.fav-del { display: flex; align-items: center; justify-content: center; padding: 0 24rpx; background: #DC2626; color: #fff; font-size: 24rpx; font-weight: 600; flex-shrink: 0; }
 .bottom-spacer { height: 60rpx; }
 </style>
