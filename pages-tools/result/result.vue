@@ -19,6 +19,9 @@
 						<text class="badge-txt">{{ rname }}</text>
 					</view>
 				</view>
+				<view class="scroll-hint">
+					<image class="scroll-arrow" src="/static/down——double.svg" mode="aspectFit"></image>
+				</view>
 			<view class="radar-area anim-res-2" :style="{ width: _px(radarSize) + 'px', height: _px(radarSize) + 'px' }">
 				<canvas type="2d" id="radarCanvas" class="radar-canvas" :style="{ width: _px(radarSize) + 'px', height: _px(radarSize) + 'px' }"></canvas>
 			</view>
@@ -774,6 +777,21 @@ export default {
 .vote-active.dislike { background: #FFF0F0; outline-color: #EF4444; color: #991B1B; }
 .vote-count { font-size: 24rpx; font-weight: 600; }
 
+.scroll-hint {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin-top: 32rpx;
+}
+.scroll-arrow {
+	width: 44rpx;
+	height: 44rpx;
+	animation: bounceDown 1.8s ease-in-out infinite;
+}
+@keyframes bounceDown {
+	0%, 100% { transform: translateY(0); opacity: 0.6; }
+	50% { transform: translateY(14rpx); opacity: 1; }
+}
 .bottom-spacer { height: 200rpx; }
 .footer {
 	position: fixed; bottom: 0; left: 0; right: 0; padding: 0 24rpx 30rpx;
