@@ -172,6 +172,12 @@ export default {
 					showCancel: false,
 					confirmText: '知道了'
 				})
+			} else if (res.errCode === 'TAG_ALREADY_EXISTS') {
+				uni.showModal({
+					title: '标签已存在',
+					content: '该标签已有其他人生成的问卷，请换个标签名试试',
+					showCancel: false
+				})
 			} else {
 				uni.showToast({ title: res.errMsg || '生成失败，请稍后重试', icon: 'none' })
 			}

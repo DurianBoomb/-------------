@@ -133,6 +133,16 @@
 					"direction": "asc"
 				}
 			]
+		},
+		{
+			"name": "tagName_unique",
+			"unique": true,
+			"fields": [
+				{
+					"name": "tagName",
+					"direction": "asc"
+				}
+			]
 		}
 	]
 }

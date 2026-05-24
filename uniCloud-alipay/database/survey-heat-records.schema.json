@@ -1,0 +1,50 @@
+{
+	"bsonType": "object",
+	"required": ["userId", "surveyId", "type"],
+	"permission": {
+		"read": true,
+		"create": "auth.uid != null",
+		"update": "auth.uid != null",
+		"delete": "auth.uid != null"
+	},
+	"properties": {
+		"_id": {
+			"description": "记录ID，系统自动生成"
+		},
+		"userId": {
+			"bsonType": "string",
+			"description": "用户ID",
+			"trim": "both"
+		},
+		"surveyId": {
+			"bsonType": "string",
+			"description": "问卷ID",
+			"trim": "both"
+		},
+		"type": {
+			"bsonType": "string",
+			"description": "操作类型：like / dislike",
+			"enum": [
+				{ "value": "like", "text": "点赞" },
+				{ "value": "dislike", "text": "点踩" }
+			]
+		},
+		"createdAt": {
+			"bsonType": "timestamp",
+			"description": "创建时间",
+			"defaultValue": {
+				"$env": "now"
+			}
+		}
+	},
+	"indexes": [
+		{
+			"name": "userId_surveyId",
+			"unique": true,
+			"fields": [
+				{ "name": "userId", "direction": "asc" },
+				{ "name": "surveyId", "direction": "asc" }
+			]
+		}
+	]
+}

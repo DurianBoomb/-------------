@@ -1,0 +1,42 @@
+{
+	"bsonType": "object",
+	"required": ["userId", "surveyId"],
+	"permission": {
+		"read": true,
+		"create": "auth.uid != null",
+		"update": "auth.uid != null",
+		"delete": "auth.uid != null"
+	},
+	"properties": {
+		"_id": {
+			"description": "记录ID，系统自动生成"
+		},
+		"userId": {
+			"bsonType": "string",
+			"description": "用户ID",
+			"trim": "both"
+		},
+		"surveyId": {
+			"bsonType": "string",
+			"description": "问卷ID",
+			"trim": "both"
+		},
+		"createdAt": {
+			"bsonType": "timestamp",
+			"description": "收藏时间",
+			"defaultValue": {
+				"$env": "now"
+			}
+		}
+	},
+	"indexes": [
+		{
+			"name": "userId_surveyId",
+			"unique": true,
+			"fields": [
+				{ "name": "userId", "direction": "asc" },
+				{ "name": "surveyId", "direction": "asc" }
+			]
+		}
+	]
+}
