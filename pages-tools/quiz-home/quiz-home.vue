@@ -75,7 +75,7 @@
 					<text class="recommend-title">✨ 精选发疯</text>
 					<view
 						v-for="(item, idx) in recommendList" :key="idx"
-						class="recommend-card"
+						:class="['recommend-card', { 'darkgold-card': item.rarity === 'darkgold' }]"
 						hover-class="card-press"
 						@click="goQuiz(item.tag)"
 					>
@@ -154,16 +154,25 @@ export default {
 					}
 				}
 				if (!res) return
-				if (res.errCode === 0 && res.data) {
-					const list = res.data.list || []
-					this.allTags = list
-					// 每次进入从全部标签中随机取 10 条作为精选发疯
-					const shuffled = [...list].sort(() => Math.random() - 0.5)
-					this.recommendList = shuffled.slice(0, 10).map(t => ({
+			if (res.errCode === 0 && res.data) {
+				const list = res.data.list || []
+				// 精选发疯：从全部标签中随机取 10 条，并置顶指定问卷
+				const PINNED_TAG_ID = '6a1143bfeeda6dfc4ae5709c'
+				const pinned = list.find(t => t._id === PINNED_TAG_ID)
+				this.allTags = list
+				const shuffled = [...list].sort(() => Math.random() - 0.5)
+				let recommends = shuffled.slice(0, 10)
+				if (pinned) {
+					recommends = recommends.filter(t => t._id !== PINNED_TAG_ID)
+					recommends.unshift(pinned)
+					if (recommends.length > 10) recommends = recommends.slice(0, 10)
+				}
+				this.recommendList = recommends.map(t => ({
 						emoji: t.emoji,
 						tag: t.name,
 						description: t.description,
-						bgColor: this.tagBgColor(t.name)
+						bgColor: this.tagBgColor(t.name),
+						rarity: t.rarity || 'common'
 					}))
 					this.shuffleTags()
 				}
@@ -411,6 +420,15 @@ export default {
 .rec-info { flex: 1; min-width: 0; }
 .rec-name { font-size: 30rpx; font-weight: 700; color: #1E2939; display: block; }
 .rec-desc { font-size: 24rpx; color: #6A7282; display: block; margin-top: 4rpx; }
+.darkgold-card {
+	background: #1A1A1A;
+	border: 2rpx solid #C9A84C;
+	box-shadow: 0 0 16rpx rgba(201,168,76,0.3), 0 0 32rpx rgba(201,168,76,0.1);
+	outline: 3rpx solid #C9A84C; outline-offset: -3rpx;
+	animation: darkgoldPulse 3s ease-in-out infinite;
+}
+.darkgold-card .rec-name { color: #C9A84C; }
+.darkgold-card .rec-desc { color: #D4B76A; }
 
 /* ====== 底部 spacer ====== */
 .bottom-spacer { height: 60rpx; width: 100%; }
@@ -442,6 +460,10 @@ export default {
 @keyframes sparkle {
 	0%, 100% { opacity: 0.4; transform: scale(0.8); }
 	50% { opacity: 1; transform: scale(1.1); }
+}
+@keyframes darkgoldPulse {
+	0%, 100% { box-shadow: 0 0 16rpx rgba(201,168,76,0.3), 0 0 32rpx rgba(201,168,76,0.1); border-color: #C9A84C; }
+	50% { box-shadow: 0 0 28rpx rgba(201,168,76,0.55), 0 0 56rpx rgba(201,168,76,0.2); border-color: #E6C85C; }
 }
 
 </style>
