@@ -29,7 +29,7 @@
 							</view>
 						</view>
 						<view class="fav-del" hover-class="press-95" :hover-start-time="0" :hover-stay-time="150" @click="removeFav(item, idx)">
-							<text class="del-icon">🗑️</text>
+							<text>删除</text>
 						</view>
 					</view>
 				</view>
@@ -108,6 +108,6 @@ export default {
 .fav-info { flex: 1; min-width: 0; }
 .fav-name { font-size: 30rpx; font-weight: 700; color: #1E2939; display: block; }
 .fav-time { font-size: 22rpx; color: #99A1AF; display: block; margin-top: 4rpx; }
-.fav-del { display: flex; align-items: center; justify-content: center; padding: 12rpx 24rpx; background: #FEF2F2; height: 100%; flex-shrink: 0; }
+.fav-del { display: flex; align-items: center; justify-content: center; padding: 0 24rpx; background: #DC2626; color: #fff; font-size: 24rpx; font-weight: 600; height: 100%; flex-shrink: 0; }
 .bottom-spacer { height: 60rpx; }
 </style>
