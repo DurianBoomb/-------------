@@ -146,13 +146,6 @@
 				}
 			},
 			{
-				"path": "my-surveys/my-surveys",
-				"style": {
-					"navigationStyle": "custom",
-					"navigationBarTitleText": "已生成问卷"
-				}
-			},
-			{
 				"path": "survey-preview/survey-preview",
 				"style": {
 					"navigationStyle": "custom"
