@@ -49,7 +49,7 @@
 							<text class="pc-result">{{ item.resultName }}</text>
 							<text class="pc-time">{{ fmtTime(item.createdAt) }}</text>
 						</view>
-						<view class="pc-del" hover-class="press-95" @click.stop="confirmDelete(item, idx)">
+						<view class="pc-del" hover-class="press-95" @click.stop="confirmDelete(idx)">
 							<text>删除</text>
 						</view>
 					</view>
@@ -168,29 +168,38 @@ export default {
 			const m = String(d.getMinutes()).padStart(2, '0')
 			return Y + '-' + M + '-' + D + ' ' + h + ':' + m
 		},
-		confirmDelete(item, idx) {
+		confirmDelete(idx) {
+			const item = this.list[idx]
+			if (!item || !item._id) {
+				uni.showToast({ title: '记录已失效，请刷新', icon: 'none' })
+				return
+			}
+			const answerId = item._id
 			uni.showModal({
 				title: '删除记录',
 				content: '确定删除此条答题记录吗？此操作不可恢复。',
-				success: async (r) => {
+				success: (r) => {
 					if (r.confirm) {
-						try {
-							const survey = uniCloud.importObject('survey')
-							const res = await survey.removeAnswer({ answerId: item._id })
-							if (res.errCode === 0) {
-								this.list.splice(idx, 1)
-								this.total--
-								uni.showToast({ title: '已删除', icon: 'success' })
-							} else {
-								uni.showToast({ title: res.errMsg || '删除失败', icon: 'none' })
-							}
-						} catch (e) {
-							console.error('[profile] removeAnswer error:', e)
-							uni.showToast({ title: '网络异常', icon: 'none' })
-						}
+						this.doRemoveAnswer(answerId, idx)
 					}
 				}
 			})
+		},
+		async doRemoveAnswer(answerId, idx) {
+			try {
+				const survey = uniCloud.importObject('survey')
+				const res = await survey.removeAnswer({ answerId })
+				if (res.errCode === 0) {
+					this.list.splice(idx, 1)
+					this.total--
+					uni.showToast({ title: '已删除', icon: 'success' })
+				} else {
+					uni.showToast({ title: res.errMsg || '删除失败', icon: 'none' })
+				}
+			} catch (e) {
+				console.error('[profile] removeAnswer error:', e)
+				uni.showToast({ title: '网络异常', icon: 'none' })
+			}
 		},
 		goBack() { uni.navigateBack() }
 	}
