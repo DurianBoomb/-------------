@@ -396,11 +396,6 @@ export default {
 			// 先关弹窗
 			this.hideCustomPopup()
 
-			// 走广告流程（广告未实装时弹 Modal 确认）
-			const { playAd } = await import('@/common/ad-utils.js')
-			const adResult = await playAd() // 无 surveyId，跳过 pin 检查
-			if (!adResult) return // 用户取消
-
 			// 进入生成流程
 			this.doGenerate(name, desc)
 		},
@@ -455,6 +450,12 @@ export default {
 					content: '当前 AI 生成额度已耗尽，您可以：\n1. 等待每日额度重置\n2. 联系开发者获取更多额度',
 					showCancel: false,
 					confirmText: '知道了'
+				})
+			} else if (res.errCode === 'TAG_ALREADY_EXISTS') {
+				uni.showModal({
+					title: '标签已存在',
+					content: '该标签已有其他人生成的问卷，请换一个标签名',
+					showCancel: false
 				})
 			} else {
 				uni.showToast({ title: res.errMsg || '生成失败，请稍后重试', icon: 'none' })

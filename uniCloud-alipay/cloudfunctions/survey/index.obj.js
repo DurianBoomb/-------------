@@ -410,6 +410,86 @@ module.exports = {
 		}
 	},
 
+	/**
+	 * 查重：列出 surveys 中所有重复的 tagName
+	 */
+	async checkDuplicates() {
+		try {
+			const res = await surveysCol.aggregate()
+				.group({
+					_id: '$tagName',
+					count: { $sum: 1 },
+					ids: { $addToSet: '$_id' },
+					creatorIds: { $addToSet: '$creatorId' },
+					earliestDate: { $min: '$create_date' }
+				})
+				.match({ count: { $gt: 1 } })
+				.sort({ count: -1 })
+				.end()
+
+			const duplicates = (res.data || []).map(d => ({
+				tagName: d._id,
+				count: d.count,
+				ids: d.ids || [],
+				creatorIds: (d.creatorIds || []).filter(Boolean),
+				earliestDate: d.earliestDate
+			}))
+
+			return {
+				errCode: 0,
+				data: {
+					total: duplicates.length,
+					duplicates
+				}
+			}
+		} catch (e) {
+			return { errCode: 'DB_ERROR', errMsg: '查重失败: ' + e.message }
+		}
+	},
+
+	/**
+	 * 去重：对指定 tagName，保留最早的一条，删除其余
+	 */
+	async deduplicate(params = {}) {
+		const tagName = (params.tagName || '').trim()
+		if (!tagName) return { errCode: 'PARAM_ERROR', errMsg: 'tagName 不能为空' }
+
+		try {
+			// 查出所有同名记录，按创建时间升序
+			const res = await surveysCol.where({ tagName })
+				.orderBy('create_date', 'asc')
+				.get()
+
+			const list = res.data || []
+			if (list.length <= 1) {
+				return { errCode: 0, data: { kept: list[0] ? list[0]._id : null, deleted: [], count: 0 } }
+			}
+
+			// 保留第一条（最早），删除其余
+			const kept = list[0]
+			const toDelete = list.slice(1)
+
+			const deletedIds = []
+			for (const doc of toDelete) {
+				await surveysCol.doc(doc._id).remove()
+				deletedIds.push(doc._id)
+			}
+
+			return {
+				errCode: 0,
+				data: {
+					tagName,
+					kept: kept._id,
+					keptDate: kept.create_date,
+					deleted: deletedIds,
+					count: deletedIds.length
+				}
+			}
+		} catch (e) {
+			return { errCode: 'DB_ERROR', errMsg: '去重失败: ' + e.message }
+		}
+	},
+
 	async getSurveyByTag(params) {
 		if (!params || !params.tagName) {
 			return { errCode: 'PARAM_ERROR', errMsg: '标签名不能为空' }
@@ -417,15 +497,15 @@ module.exports = {
 		try {
 			const res = await surveysCol.where({
 				tagName: params.tagName
-			}).get()
+			}).limit(1).get()
 
 			const list = res.data || []
 			if (list.length === 0) {
 				return { errCode: 'NOT_FOUND', errMsg: '未找到该标签的问卷' }
 			}
 
-			const survey = list[Math.floor(Math.random() * list.length)]
-			return { errCode: 0, data: survey }
+			// 标签唯一性约束下，至多一条记录，直接取第一条
+			return { errCode: 0, data: list[0] }
 		} catch (e) {
 			return { errCode: 'DB_ERROR', errMsg: '问卷查询失败' }
 		}
@@ -497,6 +577,20 @@ module.exports = {
 				console.error('[generateFromCoze] 校验失败, errors:', JSON.stringify(validation.errors))
 				console.error('[generateFromCoze] cleaned:', JSON.stringify(cleaned).slice(0, 1500))
 				return { errCode: 'VALIDATE_ERROR', errMsg: 'AI 生成的内容格式有误，请修改标签名后重试', data: { errors: validation.errors } }
+			}
+
+			// 检查标签名是否已被占用
+			const existing = await surveysCol.where({ tagName }).limit(1).get()
+			if (existing.data && existing.data.length > 0) {
+				const existingSurvey = existing.data[0]
+				// 同用户重新生成 → 先删旧再建新（放行）
+				if (existingSurvey.creatorId === uid) {
+					await surveysCol.doc(existingSurvey._id).remove()
+					console.log('[generateFromCoze] 重新生成，已删除旧问卷:', existingSurvey._id)
+				} else {
+					// 已被其他用户占用 → 拒绝
+					return { errCode: 'TAG_ALREADY_EXISTS', errMsg: '该标签已存在问卷，请换一个标签名' }
+				}
 			}
 
 			const surveyRes = await surveysCol.add({

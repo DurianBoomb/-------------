@@ -157,6 +157,13 @@
 				"style": {
 					"navigationStyle": "custom"
 				}
+			},
+			{
+				"path": "phase1-test/phase1-test",
+				"style": {
+					"navigationStyle": "custom",
+					"navigationBarTitleText": "阶段一验证"
+				}
 			}]
 		},
 		{
