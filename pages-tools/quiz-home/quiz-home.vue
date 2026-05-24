@@ -17,9 +17,6 @@
 					<view class="icon-btn" @click="goFav">
 						<text>⭐</text>
 					</view>
-					<view class="icon-btn" @click="goGenerated">
-						<text>🪄</text>
-					</view>
 				</view>
 			</view>
 		</view>
@@ -257,7 +254,6 @@ export default {
 		goSearch() { uni.navigateTo({ url: '/pages-tools/search/search-page' }) },
 		goProfile() { uni.navigateTo({ url: '/pages-tools/profile/profile' }) },
 		goFav() { uni.navigateTo({ url: '/pages-tools/favorites/favorites' }) },
-		goGenerated() { uni.navigateTo({ url: '/pages-tools/my-surveys/my-surveys' }) },
 		goRandom() {
 			if (this.allTags.length === 0) return
 			const tag = this.allTags[Math.floor(Math.random() * this.allTags.length)].name
