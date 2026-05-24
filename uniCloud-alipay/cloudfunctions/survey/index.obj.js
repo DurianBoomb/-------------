@@ -196,7 +196,7 @@ module.exports = {
 
 			const [countRes, listRes] = await Promise.all([
 				answersCol.where(where).count(),
-				answersCol.where(where).orderBy('createdAt', 'desc').skip(skip).limit(pageSize).get()
+				answersCol.where(where).orderBy('createdAt', 'desc').orderBy('_id', 'desc').skip(skip).limit(pageSize).get()
 			])
 
 			const list = (listRes.data || []).map(item => ({
