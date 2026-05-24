@@ -53,9 +53,6 @@
 				<view class="btn-retry" hover-class="btn-press" :hover-start-time="0" :hover-stay-time="150" @click="retry">
 					<text>🔄</text><text>再来一次</text>
 				</view>
-			<view v-if="isCreator" class="btn-promote" hover-class="btn-press" :hover-start-time="0" :hover-stay-time="150" @click="promoteSurvey">
-				<text>📢</text><text>看广告置顶</text>
-			</view>
 				<button class="btn-share" open-type="share" hover-class="btn-press">
 					<text>↗</text><text>分享给朋友</text>
 				</button>
@@ -66,7 +63,6 @@
 </template>
 
 <script>
-import { playAd } from '@/common/ad-utils.js'
 export default {
 		data() {
 		return {
@@ -663,34 +659,31 @@ export default {
 		},
 
 		async toggleFav() {
-			if (!this.tag) return
+			if (!this.surveyId) return
 			try {
 				const survey = uniCloud.importObject('survey')
-				const res = await survey.toggleFavorite({ tagName: this.tag })
-				if (res.errCode === 0) this.favorited = res.data.favorited
+				const res = await survey.toggleFavoriteSurvey({ surveyId: this.surveyId })
+				if (res.errCode === 0) {
+					this.hasFavorited = res.data.favorited
+					this.favCount = res.data.favCount
+				}
 			} catch (e) { console.error('[result] toggleFav:', e) }
 		},
 
 		async doVote(type) {
-			if (!this.tag) return
+			if (!this.surveyId) return
 			try {
 				const survey = uniCloud.importObject('survey')
-				const res = await survey.voteTag({ tagName: this.tag, type })
+				const method = type === 'like' ? 'likeSurvey' : 'dislikeSurvey'
+				const res = await survey[method]({ surveyId: this.surveyId })
 				if (res.errCode === 0) {
-					this.userVote = res.data.voted
-					// 刷新统计
-					const statRes = await survey.getVoteStats({ tagName: this.tag })
-					if (statRes.errCode === 0) this.voteStats = statRes.data
+					this.hasLiked = res.data.liked
+					this.hasDisliked = res.data.disliked
+					this.likeCount = res.data.likeCount
+					this.dislikeCount = res.data.dislikeCount
 				}
 			} catch (e) { console.error('[result] doVote:', e) }
 		},
-		promoteSurvey() {
-			if (!this.surveyId) {
-				uni.showToast({ title: '问卷ID不可用', icon: 'none' })
-				return
-			}
-			playAd(this.surveyId)
-		}
 	}
 }
 </script>

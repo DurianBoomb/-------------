@@ -33,9 +33,6 @@
 							</view>
 						</view>
 						<view class="card-actions">
-							<view class="card-promote" hover-class="press-95" @click="promoteSurvey(item)">
-								<text class="action-txt">看广告置顶</text>
-							</view>
 							<view class="card-preview" hover-class="press-95" @click="goPreview(item)">
 								<text class="action-txt">预览</text>
 							</view>
@@ -52,7 +49,6 @@
 </template>
 
 <script>
-import { playAd } from '@/common/ad-utils.js'
 export default {
 	data() {
 		return { loading: true, needLogin: false, list: [] }
@@ -123,9 +119,6 @@ export default {
 					'&rts=' + encodeURIComponent(JSON.stringify(rts))
 			})
 		},
-		promoteSurvey(item) {
-			playAd(item.id)
-		},
 		goBack() { uni.navigateBack() }
 	}
 }
@@ -157,11 +150,6 @@ export default {
 	flex-shrink: 0;
 }
 .action-txt { font-size: 22rpx; font-weight: 600; }
-.card-promote {
-	display: flex; align-items: center; justify-content: center;
-	padding: 12rpx 24rpx; flex: 1;
-	background: #FFFBEB; color: #B45309;
-}
 .card-preview {
 	display: flex; align-items: center; justify-content: center;
 	padding: 12rpx 24rpx; flex: 1;
