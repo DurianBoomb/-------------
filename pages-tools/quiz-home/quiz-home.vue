@@ -173,7 +173,9 @@ export default {
 				if (res.errCode === 0 && res.data) {
 					const list = res.data.list || []
 					this.allTags = list
-					this.recommendList = list.slice(0, 3).map(t => ({
+					// 每次进入从全部标签中随机取 10 条作为精选发疯
+					const shuffled = [...list].sort(() => Math.random() - 0.5)
+					this.recommendList = shuffled.slice(0, 10).map(t => ({
 						emoji: t.emoji,
 						tag: t.name,
 						description: t.description,
