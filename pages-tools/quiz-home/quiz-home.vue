@@ -14,9 +14,6 @@
 					<view class="icon-btn" @click="goProfile">
 						<text>🥸</text>
 					</view>
-					<view class="icon-btn" @click="goFav">
-						<text>⭐</text>
-					</view>
 				</view>
 			</view>
 		</view>
@@ -89,9 +86,6 @@
 							<text class="rec-name">{{ item.tag }}</text>
 							<text class="rec-desc">{{ item.description }}</text>
 						</view>
-						<view class="rec-star" hover-class="star-press" :hover-start-time="0" :hover-stay-time="100" @click.stop="toggleFav(item.tag)">
-							<text>{{ favorites[item.tag] ? '⭐' : '☆' }}</text>
-						</view>
 					</view>
 				</view>
 
@@ -115,8 +109,6 @@ export default {
 			activeTags: [],
 			allTags: [],
 			recommendList: [],
-			favorites: {},
-			_favListener: null,
 		}
 	},
 
@@ -138,15 +130,7 @@ export default {
 
 	onShow() {
 		this.loadTags()
-		this.loadFavorites()
 	},
-	onUnload() {
-		if (this._favListener) {
-			uni.$off('uni-id-pages-login-success', this._favListener)
-			this._favListener = null
-		}
-	},
-
 	onShareAppMessage() {
 		return {
 			title: '快乐大狐狸',
@@ -182,7 +166,6 @@ export default {
 						bgColor: this.tagBgColor(t.name)
 					}))
 					this.shuffleTags()
-					this.loadFavorites()
 				}
 			} catch (e) {
 				console.error('[quiz-home] loadTags error:', e)
@@ -255,7 +238,6 @@ export default {
 		},
 		goSearch() { uni.navigateTo({ url: '/pages-tools/search/search-page' }) },
 		goProfile() { uni.navigateTo({ url: '/pages-tools/profile/profile' }) },
-		goFav() { uni.navigateTo({ url: '/pages-tools/favorites/favorites' }) },
 		goRandom() {
 			if (this.allTags.length === 0) return
 			const tag = this.allTags[Math.floor(Math.random() * this.allTags.length)].name
@@ -263,28 +245,6 @@ export default {
 		},
 		goQuiz(tag) {
 			uni.navigateTo({ url: '/pages-tools/answer-quiz/answer-quiz?tag=' + encodeURIComponent(tag) })
-		},
-		async loadFavorites() {
-			if (!uni.getStorageSync('uni_id_token')) return
-			try {
-				const survey = uniCloud.importObject('survey')
-				const res = await survey.getFavorites()
-				if (res.errCode === 0 && res.data) {
-					res.data.forEach(f => { this.favorites[f.tagName] = true })
-				}
-			} catch (e) {
-				uni.removeStorageSync('uni_id_token')
-				uni.removeStorageSync('uni-id-pages-userInfo')
-			}
-		},
-		async toggleFav(tagName) {
-			try {
-				const survey = uniCloud.importObject('survey')
-				const res = await survey.toggleFavorite({ tagName })
-				if (res.errCode === 0) {
-					this.favorites[tagName] = res.data.favorited
-				}
-			} catch (e) { console.error('[quiz-home] toggleFav:', e) }
 		},
 
 	}
@@ -443,8 +403,6 @@ export default {
 	box-shadow: 0 1rpx 2rpx -1rpx rgba(0,0,0,0.1), 0 1rpx 3rpx rgba(0,0,0,0.1);
 	margin-bottom: 12rpx; transition: transform 0.15s;
 }
-.star-press { transform: scale(.85); }
-.rec-star { font-size: 36rpx; padding: 10rpx; flex-shrink: 0; }
 .rec-emoji {
 	width: 96rpx; height: 96rpx; border-radius: 32rpx;
 	display: flex; align-items: center; justify-content: center;

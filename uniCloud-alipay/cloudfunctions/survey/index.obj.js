@@ -8,7 +8,6 @@ const categoriesCol = db.collection('survey-categories')
 const tagsCol = db.collection('survey-tags')
 const surveysCol = db.collection('surveys')
 const answersCol = db.collection('survey-answers')
-const favoritesCol = db.collection('survey-favorites')
 const likesCol = db.collection('survey-likes')
 const uniID = require('uni-id-common')
 
@@ -149,49 +148,6 @@ module.exports = {
 			return { errCode: 0 }
 		} catch (e) {
 			return { errCode: 'DB_ERROR', errMsg: '删除失败' }
-		}
-	},
-
-	async toggleFavorite(params) {
-		if (!params || !params.tagName) return { errCode: 'PARAM_ERROR', errMsg: '标签名不能为空' }
-		const uid = this.uid
-		if (!uid) return { errCode: 'AUTH_ERROR', errMsg: '未登录' }
-		try {
-			const existing = await favoritesCol.where({ userId: uid, tagName: params.tagName }).get()
-			if (existing.data && existing.data.length > 0) {
-				await favoritesCol.doc(existing.data[0]._id).remove()
-				return { errCode: 0, data: { favorited: false } }
-			} else {
-				await favoritesCol.add({ userId: uid, tagName: params.tagName })
-				return { errCode: 0, data: { favorited: true } }
-			}
-		} catch (e) {
-			return { errCode: 'DB_ERROR', errMsg: '操作失败' }
-		}
-	},
-
-	async getFavorites() {
-		const uid = this.uid
-		if (!uid) return { errCode: 'AUTH_ERROR', errMsg: '未登录' }
-		try {
-			const res = await favoritesCol.where({ userId: uid }).orderBy('createdAt', 'desc').get()
-			return { errCode: 0, data: (res.data || []).map(f => ({ tagName: f.tagName, createdAt: f.createdAt })) }
-		} catch (e) {
-			return { errCode: 'DB_ERROR', errMsg: '查询失败' }
-		}
-	},
-
-	async checkFavorites(params) {
-		if (!params || !params.tagNames) return { errCode: 'PARAM_ERROR', errMsg: '参数错误' }
-		const uid = this.uid
-		if (!uid) return { errCode: 0, data: {} }
-		try {
-			const res = await favoritesCol.where({ userId: uid, tagName: db.command.in(params.tagNames) }).get()
-			const map = {}
-			;(res.data || []).forEach(f => { map[f.tagName] = true })
-			return { errCode: 0, data: map }
-		} catch (e) {
-			return { errCode: 'DB_ERROR', errMsg: '查询失败' }
 		}
 	},
 

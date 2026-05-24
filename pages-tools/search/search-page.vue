@@ -47,9 +47,6 @@
 					<view class="result-info">
 						<text class="result-title">{{ item.tag }}</text>
 					</view>
-					<view class="result-star" hover-class="press-9" :hover-start-time="0" :hover-stay-time="100" @click.stop="toggleFav(item.tag)">
-						<text>{{ favorites[item.tag] ? '⭐' : '☆' }}</text>
-					</view>
 				</view>
 
 			</view>
@@ -123,7 +120,6 @@ export default {
 				allTags: [],
 				categories: [],
 				_categoryMap: {},
-				favorites: {},
 				// 导航定位
 				statusBarHeight: 44,
 				capsuleH: 32,
@@ -173,7 +169,6 @@ export default {
 				}
 
 				this.allTags = tags
-				this.loadFavorites()
 
 				const catMap = {}
 				catList.forEach(c => { catMap[c._id] = c })
@@ -237,7 +232,6 @@ export default {
 						emoji: t.emoji,
 						bg: this.tagBgColor(t.name)
 					}))
-			this.loadFavorites()
 			}, 300)
 		},
 
@@ -288,26 +282,6 @@ export default {
 		handleTagClick(e) {
 			const tag = e.currentTarget.dataset.tag
 			if (tag) this.goQuiz(tag)
-		},
-		async loadFavorites() {
-			if (!uni.getStorageSync('uni_id_token')) return
-			try {
-				const survey = uniCloud.importObject('survey')
-				const res = await survey.getFavorites()
-				if (res.errCode === 0 && res.data) {
-					res.data.forEach(f => { this.favorites[f.tagName] = true })
-				}
-			} catch (e) {
-				uni.removeStorageSync('uni_id_token')
-				uni.removeStorageSync('uni-id-pages-userInfo')
-			}
-		},
-		async toggleFav(tagName) {
-			try {
-				const survey = uniCloud.importObject('survey')
-				const res = await survey.toggleFavorite({ tagName })
-				if (res.errCode === 0) this.favorites[tagName] = res.data.favorited
-			} catch (e) { console.error('[search] toggleFav:', e) }
 		}
 	}
 }
@@ -357,7 +331,6 @@ view { box-sizing: border-box; }
 .result-emoji { width: 80rpx; height: 80rpx; border-radius: 32rpx; display: flex; align-items: center; justify-content: center; font-size: 44rpx; }
 .result-info { flex: 1; min-width: 0; }
 .result-title { font-size: 28rpx; font-weight: 600; color: #1E2939; display: block; }
-.result-star { font-size: 36rpx; padding: 10rpx; flex-shrink: 0; }
 
 
 

@@ -132,13 +132,6 @@
 				}
 			},
 			{
-				"path": "favorites/favorites",
-				"style": {
-					"navigationStyle": "custom",
-					"navigationBarTitleText": "我的收藏"
-				}
-			},
-			{
 				"path": "profile/profile",
 				"style": {
 					"navigationStyle": "custom",
