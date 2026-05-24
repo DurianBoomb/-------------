@@ -256,8 +256,8 @@ export default {
 .pc-time { font-size: 22rpx; color: #99A1AF; display: block; margin-top: 4rpx; }
 .pc-del {
 	display: flex; align-items: center; justify-content: center;
-	width: 72rpx; height: 72rpx; background: #FEF2F2; border-radius: 20rpx;
-	color: #991B1B; font-size: 22rpx; font-weight: 600; flex-shrink: 0; margin-left: 8rpx;
+	padding: 0 24rpx; background: #DC2626; color: #fff;
+	font-size: 24rpx; font-weight: 600; align-self: stretch; flex-shrink: 0;
 }
 .bottom-spacer { height: 60rpx; }
 </style>
