@@ -2,7 +2,7 @@
 <template>
 	<view class="page">
 		<view class="back-btn" :style="{ top: topPad + 'px' }" hover-class="btn-press" :hover-start-time="0" :hover-stay-time="100" @click="goHome">
-			<text>←</text>
+			<image class="back-icon" src="/static/left.svg" mode="aspectFit"></image>
 		</view>
 		<!-- 隐藏 Canvas：用于生成分享图 -->
 		<canvas type="2d" id="shareCanvas" class="share-canvas"></canvas>
@@ -57,7 +57,7 @@
 				<text>📢</text><text>看广告置顶</text>
 			</view>
 				<button class="btn-share" open-type="share" hover-class="btn-press">
-					<text>↗</text><text>分享给朋友</text>
+					<image class="share-icon" src="/static/share.svg" mode="aspectFit"></image><text>分享给朋友</text>
 				</button>
 			</view>
 			<text class="footer-tag">测着玩的，别当真 😅</text>
@@ -723,6 +723,8 @@ export default {
 	font-size: 28rpx; transition: transform 0.15s;
 	box-shadow: 0 1rpx 2rpx -1rpx rgba(0,0,0,.1), 0 1rpx 3rpx rgba(0,0,0,.1);
 }
+.back-icon { width: 32rpx; height: 32rpx; }
+.share-icon { width: 36rpx; height: 36rpx; }
 .body { flex: 1; }
 .body-inner { padding: 24rpx 48rpx 0; display: flex; flex-direction: column; align-items: center; }
 .emoji-circle {
