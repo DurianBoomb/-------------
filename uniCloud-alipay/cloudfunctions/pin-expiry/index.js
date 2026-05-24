@@ -22,7 +22,7 @@ const db = uniCloud.database()
 // TODO: 迁移至 uni-config-center（与 pin-system 保持一致的配置源）
 const PIN_CONFIG = {
   pool: {
-    poolLifecycleMinutes: 13
+    poolLifecycleMinutes: 1
   },
   queue: {
     queueExpireMinutes: 35,
@@ -525,6 +525,7 @@ async function processExpiredPins() {
                 status: 'claimable',
                 surveyId: pinDoc.surveyId,
                 pinId: pinDoc._id,
+                careerId: careerId,
                 queueId: null
               }
             })

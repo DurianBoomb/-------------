@@ -19,9 +19,22 @@ let _onCloseRef = null
  *   { action: 'enter_queue' }      → toast + 800ms 后跳 career-history
  */
 export async function playAd(surveyId) {
+	// ====== 无 surveyId 场景（如生成问卷）：跳过 pin 检查，直接弹 Modal ======
 	if (!surveyId) {
-		uni.showToast({ title: '问卷ID不能为空', icon: 'none' })
-		return null
+		return new Promise((resolve) => {
+			uni.showModal({
+				title: '广告功能尚未实装',
+				content: '本次生成免费，请耐心等待 AI 为您创作问卷~',
+				confirmText: '确认生成',
+				success: (res) => {
+					if (res.confirm) {
+						resolve({ adPassed: true })
+					} else {
+						resolve(null)
+					}
+				}
+			})
+		})
 	}
 
 	// ====== 前置资格检查：去重 + 槽位 + 每日上限（广告之前） ======
@@ -38,9 +51,22 @@ export async function playAd(surveyId) {
 		return null
 	}
 
-	// ====== 暂时无广告接入：跳过广告，直接走业务逻辑 ======
-	uni.showToast({ title: '现在还没有广告，便宜你了', icon: 'none' })
-	return await callHandleAdRewardWithRetry(surveyId, 20000)
+	// ====== 暂时无广告接入：弹 Modal 提示后走业务逻辑 ======
+	return new Promise((resolve) => {
+		uni.showModal({
+			title: '广告功能尚未实装',
+			content: '本次生成免费，请耐心等待 AI 为您创作问卷~',
+			confirmText: '确认生成',
+			success: async (res) => {
+				if (res.confirm) {
+					const result = await callHandleAdRewardWithRetry(surveyId, 0)
+					resolve(result)
+				} else {
+					resolve(null)
+				}
+			}
+		})
+	})
 
 	// ====== 原广告逻辑（后续恢复） ======
 	// if (typeof wx !== 'undefined' && wx.createRewardedVideoAd) {

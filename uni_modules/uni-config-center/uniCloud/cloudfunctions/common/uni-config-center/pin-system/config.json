@@ -44,7 +44,7 @@
 		"simulatedActiveUsers": 1000
 	},
 	"security": {
-		"dailyPinSoftCap": 10,
+		"dailyPinSoftCap": 100,
 		"adMinDurationSeconds": 15,
 		"rateLimitPerMinute": 5
 	}

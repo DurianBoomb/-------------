@@ -460,17 +460,23 @@ module.exports = {
 				dataType: 'json'
 			})
 
-			// 3. 解析响应
+			// 3. 检测 HTTP 429 额度耗尽
+			if (res.statusCode === 429) {
+				console.error('[generateFromCoze] Coze 额度耗尽，HTTP 429')
+				return { errCode: 'COZE_QUOTA_EXHAUSTED', errMsg: 'AI 额度已用完，请稍后再试' }
+			}
+
+			// 4. 解析响应
 			const raw = res.data
 			console.log('[generateFromCoze] Coze raw response:', JSON.stringify(raw).slice(0, 1000))
 
-			// 3a. 检查 Coze API 自身错误（如参数校验失败）
+			// 4a. 检查 Coze API 自身错误（如参数校验失败）
 			if (raw.detail && raw.detail.error_code) {
 				console.error('[generateFromCoze] Coze API error:', raw.detail.error_message)
 				return { errCode: 'COZE_ERROR', errMsg: 'Coze 生成异常: ' + (raw.detail.error_message || '未知错误') }
 			}
 
-			// 3b. 新版同步 API 返回格式：工作流输出参数名作为顶层 key
+			// 4b. 新版同步 API 返回格式：工作流输出参数名作为顶层 key
 			// 如 { questionnaire: {...}, run_id: "xxx" }
 			const questionnaire = raw && (raw.questionnaire || raw.result)
 			if (!questionnaire || typeof questionnaire !== 'object') {
@@ -480,7 +486,7 @@ module.exports = {
 
 			console.log('[generateFromCoze] parsed questionnaire:', JSON.stringify(questionnaire).slice(0, 1000))
 
-			// 4. 补充 + 校验 + 入库
+			// 5. 补充 + 校验 + 入库
 			questionnaire.title = questionnaire.title || tagName
 			questionnaire.tag = questionnaire.tag || tagName
 			questionnaire.tagDesc = questionnaire.tagDesc || tagDesc || ''

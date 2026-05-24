@@ -290,6 +290,23 @@ export default {
 		this.detectLowPerf()
 		this.loadSurvey()
 		try { const menu = uni.getMenuButtonBoundingClientRect(); this.capsuleBottom = menu.bottom } catch (e) {}
+		// fire-and-forget: recordClick
+		if (o.surveyId) {
+			const survey = uniCloud.importObject('survey')
+			survey.recordClick({ surveyId: decodeURIComponent(o.surveyId) }).catch(() => {})
+		}
+	},
+
+	onShareAppMessage() {
+		// fire-and-forget：记录分享计数
+		if (this.survey && this.survey._id) {
+			const survey = uniCloud.importObject('survey')
+			survey.recordShare({ surveyId: this.survey._id }).catch(() => {})
+		}
+		return {
+			title: '来看看「' + (this.title || '这份问卷') + '」',
+			path: '/pages-tools/answer-quiz/answer-quiz?tag=' + encodeURIComponent(this.tag) + '&surveyId=' + encodeURIComponent(this.survey._id)
+		}
 	},
 	methods: {
 		// ====== 核心时序 pick() ======

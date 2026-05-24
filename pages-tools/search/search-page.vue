@@ -396,7 +396,12 @@ export default {
 			// 先关弹窗
 			this.hideCustomPopup()
 
-			// 直接进入生成流程
+			// 走广告流程（广告未实装时弹 Modal 确认）
+			const { playAd } = await import('@/common/ad-utils.js')
+			const adResult = await playAd() // 无 surveyId，跳过 pin 检查
+			if (!adResult) return // 用户取消
+
+			// 进入生成流程
 			this.doGenerate(name, desc)
 		},
 
@@ -437,16 +442,23 @@ export default {
 							}
 						}
 					})
-				} else if (res.errCode === 'VALIDATE_ERROR') {
-					uni.showModal({
-						title: '生成格式异常',
-						content: 'AI 生成的内容格式有误，请修改标签名后重试',
-						showCancel: false
-					})
-					console.error('[generate] validate errors:', res.data && res.data.errors)
-				} else {
-					uni.showToast({ title: res.errMsg || '生成失败，请稍后重试', icon: 'none' })
-				}
+			} else if (res.errCode === 'VALIDATE_ERROR') {
+				uni.showModal({
+					title: '生成格式异常',
+					content: 'AI 生成的内容格式有误，请修改标签名后重试',
+					showCancel: false
+				})
+				console.error('[generate] validate errors:', res.data && res.data.errors)
+			} else if (res.errCode === 'COZE_QUOTA_EXHAUSTED') {
+				uni.showModal({
+					title: 'AI 额度已用完',
+					content: '当前 AI 生成额度已耗尽，您可以：\n1. 等待每日额度重置\n2. 联系开发者获取更多额度',
+					showCancel: false,
+					confirmText: '知道了'
+				})
+			} else {
+				uni.showToast({ title: res.errMsg || '生成失败，请稍后重试', icon: 'none' })
+			}
 			} catch (e) {
 				hideLoading()
 				console.log('[generate] 生成失败耗时: ' + (Date.now() - _t) + 'ms')

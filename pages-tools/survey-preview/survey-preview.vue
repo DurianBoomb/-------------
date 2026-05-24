@@ -155,19 +155,26 @@ export default {
 							'&qs=' + encodeURIComponent(JSON.stringify(q.qs || [])) +
 							'&rts=' + encodeURIComponent(JSON.stringify(q.resultTypes || []))
 					})
-				} else if (res.errCode === 'AUTH_ERROR') {
-					uni.showModal({
-						title: '请先登录',
-						content: '重新生成需要登录账号',
-						success: (r) => {
-							if (r.confirm) {
-								uni.navigateTo({ url: '/pages/ucenter/login/login' })
-							}
+			} else if (res.errCode === 'AUTH_ERROR') {
+				uni.showModal({
+					title: '请先登录',
+					content: '重新生成需要登录账号',
+					success: (r) => {
+						if (r.confirm) {
+							uni.navigateTo({ url: '/pages/ucenter/login/login' })
 						}
-					})
-				} else {
-					uni.showToast({ title: res.errMsg || '生成失败，请稍后重试', icon: 'none' })
-				}
+					}
+				})
+			} else if (res.errCode === 'COZE_QUOTA_EXHAUSTED') {
+				uni.showModal({
+					title: 'AI 额度已用完',
+					content: '当前 AI 生成额度已耗尽，您可以：\n1. 等待每日额度重置\n2. 联系开发者获取更多额度',
+					showCancel: false,
+					confirmText: '知道了'
+				})
+			} else {
+				uni.showToast({ title: res.errMsg || '生成失败，请稍后重试', icon: 'none' })
+			}
 			} catch (e) {
 				hideLoading()
 				console.error('[survey-preview] regenerate error:', e)
@@ -269,4 +276,40 @@ export default {
 }
 
 .bottom-spacer { height: 60rpx; }
+
+/* ====== 分享进度 Banner ====== */
+.share-banner {
+	background: linear-gradient(135deg, #FFF7ED, #FFEDD5);
+	border-radius: 32rpx; padding: 32rpx;
+	margin-bottom: 32rpx;
+	border: 2rpx solid #FED7AA;
+	display: flex; flex-direction: column; align-items: center; gap: 16rpx;
+}
+.share-banner-top {
+	display: flex; align-items: center; gap: 8rpx;
+}
+.share-banner-icon { font-size: 36rpx; }
+.share-banner-title { font-size: 32rpx; font-weight: 700; color: #C2410C; }
+.share-banner-desc { font-size: 24rpx; color: #9A3412; text-align: center; }
+.share-progress-wrap {
+	display: flex; align-items: center; gap: 16rpx; width: 100%;
+}
+.share-progress-bar {
+	flex: 1; height: 16rpx; background: #FED7AA; border-radius: 999rpx; overflow: hidden;
+}
+.share-progress-fill {
+	height: 100%; border-radius: 999rpx;
+	background: linear-gradient(90deg, #FB923C, #F97316);
+	transition: width 0.4s ease-out;
+}
+.share-progress-num { font-size: 24rpx; color: #EA580C; font-weight: 700; white-space: nowrap; }
+.share-banner-btn {
+	width: 100%; height: 72rpx; border-radius: 48rpx;
+	background: linear-gradient(90deg, #FFB900, #FF6900);
+	color: #fff; font-size: 28rpx; font-weight: 700;
+	display: flex; align-items: center; justify-content: center;
+	margin: 0; padding: 0; border: none; line-height: 1;
+}
+.share-banner-btn::after { border: none; }
+.share-banner-done { font-size: 28rpx; color: #16A34A; font-weight: 700; }
 </style>

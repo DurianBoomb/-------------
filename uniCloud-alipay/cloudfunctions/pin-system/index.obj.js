@@ -23,8 +23,8 @@ const PIN_CONFIG = {
   },
   pool: {
     poolSizeThreshold: 1000,
-    poolLifecycleMinutes: 13,
-    poolLifecycleDisplayMinutes: 15
+    poolLifecycleMinutes: 1,
+    poolLifecycleDisplayMinutes: 3
   },
   weight: {
     haloWeight: 10000,
@@ -47,7 +47,7 @@ const PIN_CONFIG = {
     simulatedActiveUsers: 1000
   },
   security: {
-    dailyPinSoftCap: 10,
+    dailyPinSoftCap: 100,
     adMinDurationSeconds: 15,
     rateLimitPerMinute: 5
   }
@@ -372,23 +372,12 @@ async function enterPoolImpl(uid, surveyId) {
       return { errCode: 'OFFICIAL_SURVEY', errMsg: '官方问卷不可置顶' }
     }
 
-    // 7c. 确定置顶类型
-    const pinType = creatorId === uid ? 'self' : 'promote'
+    // 7c. 置顶类型固定为 self（入口校验已拦截非创建者）
+    const pinType = 'self'
     const pinnerId = uid
 
-    // 7d. 修复 surveyAuthor：助力场景取问卷真实创建者昵称
-    let surveyAuthor
-    if (pinType === 'promote') {
-      try {
-        const creatorRes = await db.collection('uni-id-users').doc(creatorId).get()
-        const { data: creatorUser } = creatorRes
-        surveyAuthor = (creatorUser && creatorUser.length > 0) ? (creatorUser[0].nickname || '') : ''
-      } catch (e) {
-        surveyAuthor = ''
-      }
-    } else {
-      surveyAuthor = user.nickname || ''
-    }
+    // 7d. surveyAuthor 取当前用户昵称
+    const surveyAuthor = user.nickname || ''
 
     if (!poolFull || isGreenChannel) {
       // === 直接入池 ===
@@ -527,18 +516,10 @@ async function queueToPoolImpl(uid, surveyId, queueId) {
       }
     } catch (e) {}
 
-    // 5b. 确定置顶类型与 surveyAuthor
-    const pinType = creatorId === uid ? 'self' : 'promote'
+    // 5b. 置顶类型固定为 self（入口校验已拦截非创建者）
+    const pinType = 'self'
     const pinnerId = uid
-    let surveyAuthor
-    if (pinType === 'promote') {
-      try {
-        const creatorRes = await db.collection('uni-id-users').doc(creatorId).get()
-        surveyAuthor = (creatorRes.data && creatorRes.data.length > 0) ? (creatorRes.data[0].nickname || '') : ''
-      } catch (e) { surveyAuthor = '' }
-    } else {
-      surveyAuthor = user.nickname || ''
-    }
+    const surveyAuthor = user.nickname || ''
 
     // 6. 写入 pin-pool
     const suffix = genSuffix()
@@ -734,7 +715,7 @@ async function getPoolContentsImpl() {
       userId: p.userId,
       createdAt: p.createdAt,
       expireAt: p.expireAt,
-      remainingMinutes: Math.floor((p.expireAt - now) / 60000),
+      remainingMinutes: Math.floor((p.expireAt - now) / 60000) + (PIN_CONFIG.pool.poolLifecycleDisplayMinutes - PIN_CONFIG.pool.poolLifecycleMinutes),
       pinType: p.pinType || 'self',
       pinnerId: p.pinnerId || '',
       surveyCreatorId: p.surveyCreatorId || '',
@@ -1226,7 +1207,19 @@ module.exports = {
     if (!surveyId) return { errCode: 'INVALID_PARAM', errMsg: '缺少 surveyId' }
 
     try {
-      // 0. 去重检查：同一问卷是否已在置顶流程中
+      // 0. 创建者身份校验：仅问卷创建者本人可置顶
+      const surveyRes = await db.collection('surveys').doc(surveyId).get()
+      const surveyCreatorId = (surveyRes.data && surveyRes.data.length > 0)
+        ? (surveyRes.data[0].creatorId || null)
+        : null
+      if (!surveyCreatorId) {
+        return { errCode: 'OFFICIAL_SURVEY', errMsg: '官方问卷不可置顶' }
+      }
+      if (surveyCreatorId !== this.uid) {
+        return { errCode: 'NOT_CREATOR', errMsg: '仅问卷创建者可置顶' }
+      }
+
+      // 1. 去重检查：同一问卷是否已在置顶流程中
       const now = Date.now()
       const poolRes = await db.collection('pin-pool').where({
         surveyId,
@@ -1323,7 +1316,7 @@ module.exports = {
   },
 
   /**
-   * 查询用户三槽位状态
+   * 查询用户三槽位状态（含实时过期核验，兜底 pin-expiry 延迟）
    */
   async getSlotStatus() {
     if (!this.uid) return { errCode: 'NOT_AUTH', errMsg: '用户未登录' }
@@ -1332,7 +1325,62 @@ module.exports = {
       if (!userRes.data || userRes.data.length === 0) {
         return { errCode: 0, data: { slots: [] } }
       }
-      const slots = userRes.data[0].career?.slots || []
+      let slots = userRes.data[0].career?.slots || []
+
+      // 实时校验 active 槽位：检查对应 pin 是否已过期
+      const now = Date.now()
+      let slotsChanged = false
+
+      for (let i = 0; i < slots.length; i++) {
+        const slot = slots[i]
+        if (slot.status !== 'active') continue
+
+        let pinDoc = null
+        if (slot.pinId) {
+          try {
+            const pinRes = await db.collection('pin-pool').doc(slot.pinId).get()
+            if (pinRes.data && pinRes.data.length > 0) {
+              pinDoc = pinRes.data[0]
+            }
+          } catch (e) { /* pin 已被 pin-expiry 删除 */ }
+        }
+
+        const pinExpired = !pinDoc || (pinDoc.expireAt && pinDoc.expireAt <= now)
+        if (!pinExpired) continue // pin 仍有效，跳过
+
+        // pin 已过期或不存在，检查生涯记录
+        const careerRes = await db.collection('career-records').where({
+          userId: this.uid,
+          pinId: slot.pinId
+        }).get()
+
+        if (careerRes.data && careerRes.data.length > 0) {
+          // pin-expiry 已生成生涯记录 → 设为 claimable
+          const foundCareerId = careerRes.data[0]._id
+          slots[i] = { status: 'claimable', surveyId: slot.surveyId, pinId: slot.pinId, careerId: foundCareerId, queueId: null }
+          slotsChanged = true
+        } else if (pinDoc) {
+          // pin 已过期但生涯记录未生成，兜底生成
+          const careerId = await generateCareerRecordImpl(this.uid, pinDoc)
+          if (careerId) {
+            slots[i] = { status: 'claimable', surveyId: slot.surveyId, pinId: slot.pinId, careerId: careerId, queueId: null }
+            slotsChanged = true
+          } else {
+            // 生成失败 → 清空槽位释放资源
+            slots[i] = { status: 'idle', surveyId: null, pinId: null, queueId: null }
+            slotsChanged = true
+          }
+        } else {
+          // pin 已删除且无生涯记录（极端异常）→ 清空槽位
+          slots[i] = { status: 'idle', surveyId: null, pinId: null, queueId: null }
+          slotsChanged = true
+        }
+      }
+
+      if (slotsChanged) {
+        await db.collection('uni-id-users').doc(this.uid).update({ 'career.slots': slots })
+      }
+
       return { errCode: 0, data: { slots } }
     } catch (e) {
       console.error('[pin-system] getSlotStatus error:', e)
@@ -1479,6 +1527,27 @@ module.exports = {
     } catch (e) {
       console.error('[pin-system] markCareerAsRead error:', e)
       return { errCode: 'SYSTEM_ERROR', errMsg: '标记已读失败: ' + (e.message || '') }
+    }
+  },
+
+  /**
+   * 按 pinId 查询对应的 careerId（供前端兜底，避免客户端直查 DB）
+   */
+  async getCareerByPinId({ pinId } = {}) {
+    if (!this.uid) return { errCode: 'NOT_AUTH', errMsg: '用户未登录' }
+    if (!pinId) return { errCode: 'INVALID_PARAM', errMsg: '缺少 pinId' }
+    try {
+      const careerRes = await db.collection('career-records').where({
+        userId: this.uid,
+        pinId: pinId
+      }).get()
+      if (careerRes.data && careerRes.data.length > 0) {
+        return { errCode: 0, data: { careerId: careerRes.data[0]._id } }
+      }
+      return { errCode: 'NOT_FOUND', errMsg: '未找到对应生涯记录' }
+    } catch (e) {
+      console.error('[pin-system] getCareerByPinId error:', e)
+      return { errCode: 'SYSTEM_ERROR', errMsg: '查询失败' }
     }
   },
 
@@ -1638,6 +1707,126 @@ module.exports = {
     } catch (e) {
       console.error('[pin-system] testSeedExpiryData error:', e)
       return { errCode: 'SYSTEM_ERROR', errMsg: '造数据失败: ' + (e.message || '') }
+    }
+  },
+
+  /**
+   * 播种 slot-fix-test 测试场景（仅供 mock 页测试用）
+   * 创建 3 个 pin-pool 记录 + 1 个 career-record，设置 3 个槽位为 active
+   */
+  async testSeedSlotFixScenarios() {
+    if (!this.uid) return { errCode: 'NOT_AUTH', errMsg: '用户未登录' }
+    try {
+      const uid = this.uid
+      const now = Date.now()
+      const suffix = '_' + now
+
+      // 1. A1: pin 未过期（10分钟后过期）
+      const pinA1 = 'pin_a1' + suffix
+      await db.collection('pin-pool').add({
+        _id: pinA1, userId: uid,
+        surveyId: 's_a1', surveyTitle: 'A1-未过期测试',
+        surveyCover: '',
+        weight: 100, createdAt: now,
+        expireAt: now + 10 * 60 * 1000,
+        senioritySnapshot: 1,
+        haloActive: false, isGreenChannel: false,
+        pinType: 'self', pinnerId: uid, surveyCreatorId: uid
+      })
+
+      // 2. A2: pin 已过期 + 有 career-record
+      const pinA2 = 'pin_a2' + suffix
+      await db.collection('pin-pool').add({
+        _id: pinA2, userId: uid,
+        surveyId: 's_a2', surveyTitle: 'A2-过期有记录',
+        surveyCover: '',
+        weight: 100, createdAt: now - 20 * 60 * 1000,
+        expireAt: now - 2 * 60 * 1000,
+        senioritySnapshot: 2,
+        haloActive: false, isGreenChannel: false,
+        pinType: 'self', pinnerId: uid, surveyCreatorId: uid
+      })
+      const careerA2 = 'career_a2' + suffix
+      await db.collection('career-records').add({
+        _id: careerA2, userId: uid,
+        pinId: pinA2, surveyId: 's_a2',
+        careerNumber: 3, archiveNumber: 'ZW-2026-00003',
+        createdAt: now - 2 * 60 * 1000,
+        stats: { views: 500, clicks: 80, favorites: 12 },
+        bonusTriggered: false, bonusMultiplier: 1,
+        honor: { id: 'center', name: '万众瞩目者', desc: '' },
+        comment: '', surveyTitle: 'A2-过期有记录',
+        isGreenChannel: false, haloActive: false,
+        senioritySnapshot: 2, pinType: 'self'
+      })
+
+      // 3. A3: pin 已过期 + 无 career-record（靠兜底生成）
+      const pinA3 = 'pin_a3' + suffix
+      await db.collection('pin-pool').add({
+        _id: pinA3, userId: uid,
+        surveyId: 's_a3', surveyTitle: 'A3-过期无记录',
+        surveyCover: '',
+        weight: 100, createdAt: now - 20 * 60 * 1000,
+        expireAt: now - 2 * 60 * 1000,
+        senioritySnapshot: 3,
+        haloActive: false, isGreenChannel: false,
+        pinType: 'self', pinnerId: uid, surveyCreatorId: uid
+      })
+
+      // 4. 三个槽位都设 active
+      await db.collection('uni-id-users').doc(uid).update({
+        'career.slots': [
+          { status: 'active', surveyId: 's_a1', pinId: pinA1, queueId: null },
+          { status: 'active', surveyId: 's_a2', pinId: pinA2, queueId: null },
+          { status: 'active', surveyId: 's_a3', pinId: pinA3, queueId: null }
+        ]
+      })
+
+      return {
+        errCode: 0,
+        data: { pinA1, pinA2, pinA3, careerA2 }
+      }
+    } catch (e) {
+      console.error('[pin-system] testSeedSlotFixScenarios error:', e)
+      return { errCode: 'SYSTEM_ERROR', errMsg: '播种失败: ' + (e.message || '') }
+    }
+  },
+
+  /**
+   * 更新单个槽位（仅供 slot-fix-test 页测试用）
+   * @param {number} idx - 槽位索引 0/1/2
+   * @param {object} slotData - { status, surveyId, pinId, queueId }
+   */
+  async testUpdateSlot({ idx, slotData } = {}) {
+    if (!this.uid) return { errCode: 'NOT_AUTH', errMsg: '用户未登录' }
+    if (typeof idx !== 'number' || idx < 0 || idx > 2) return { errCode: 'INVALID_PARAM', errMsg: 'idx 必须为 0/1/2' }
+    if (!slotData || !slotData.status) return { errCode: 'INVALID_PARAM', errMsg: 'slotData 缺少 status' }
+    try {
+      const userRes = await db.collection('uni-id-users').doc(this.uid).get()
+      const slots = (userRes.data && userRes.data.length > 0 && userRes.data[0].career?.slots) || []
+      while (slots.length <= idx) slots.push({ status: 'idle', surveyId: null, pinId: null, queueId: null })
+      slots[idx] = slotData
+      await db.collection('uni-id-users').doc(this.uid).update({ 'career.slots': slots })
+      return { errCode: 0, errMsg: `槽位 ${idx} 已更新为 ${slotData.status}` }
+    } catch (e) {
+      console.error('[pin-system] testUpdateSlot error:', e)
+      return { errCode: 'SYSTEM_ERROR', errMsg: '更新槽位失败: ' + (e.message || '') }
+    }
+  },
+
+  /**
+   * 加载当前用户的 career-records（仅供 slot-fix-test 页测试用）
+   */
+  async testLoadCareers() {
+    if (!this.uid) return { errCode: 'NOT_AUTH', errMsg: '用户未登录' }
+    try {
+      const res = await db.collection('career-records').where({
+        userId: this.uid
+      }).orderBy('createdAt', 'desc').get()
+      return { errCode: 0, data: res.data || [] }
+    } catch (e) {
+      console.error('[pin-system] testLoadCareers error:', e)
+      return { errCode: 'SYSTEM_ERROR', errMsg: '查询失败: ' + (e.message || '') }
     }
   },
 

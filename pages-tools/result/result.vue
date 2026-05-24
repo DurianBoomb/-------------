@@ -53,9 +53,9 @@
 				<view class="btn-retry" hover-class="btn-press" :hover-start-time="0" :hover-stay-time="150" @click="retry">
 					<text>🔄</text><text>再来一次</text>
 				</view>
-				<view v-if="creatorId" class="btn-promote" hover-class="btn-press" :hover-start-time="0" :hover-stay-time="150" @click="promoteSurvey">
-					<text>📢</text><text>{{ isCreator ? '看广告置顶' : '助力推广' }}</text>
-				</view>
+			<view v-if="isCreator" class="btn-promote" hover-class="btn-press" :hover-start-time="0" :hover-stay-time="150" @click="promoteSurvey">
+				<text>📢</text><text>看广告置顶</text>
+			</view>
 				<button class="btn-share" open-type="share" hover-class="btn-press">
 					<text>↗</text><text>分享给朋友</text>
 				</button>

@@ -23,7 +23,15 @@
 							<text>{{ slotIcons[slot.status] || '⚪' }}</text>
 						</view>
 						<text class="slot-status">{{ slotLabels[slot.status] || slot.status }}</text>
-						<text class="slot-desc">{{ slot.desc || '' }}</text>
+						<u-count-down
+							v-if="slot.status === 'active' && slot.countdownTime > 0"
+							:time="slot.countdownTime"
+							format="mm:ss"
+							:auto-start="true"
+							@finish="onCountdownFinish"
+							class="slot-countdown"
+						/>
+						<text v-else class="slot-desc">{{ slot.desc || '' }}</text>
 					</view>
 				</view>
 
@@ -130,6 +138,7 @@ export default {
 	components: { QueueTerminal },
 	data() {
 		return {
+			_pollTimer: null,
 			slots: [],
 			pinPool: [],
 			queueRecords: [],
@@ -156,7 +165,16 @@ export default {
 					item.desc = q ? `处理中 · ${q.currentPhase || 'queuing'}` : '候场中'
 				} else if (s.status === 'active') {
 					const pin = this.pinPool.find(p => p._id === s.pinId)
-					item.desc = pin ? (pin.remainingMinutes > 0 ? `还剩 ${pin.remainingMinutes} 分钟` : '即将结束') : '置顶中'
+					if (pin && pin.expireAt) {
+						const remainMs = pin.expireAt - Date.now()
+						// countdownTime 传给 u-count-down，组件内部基于绝对时间戳，
+						// 每 ~30ms 算一次 endTime - Date.now()，实现平滑递减
+						item.countdownTime = Math.max(0, remainMs)
+						item.desc = remainMs > 0 ? this.formatMMSS(Math.floor(remainMs / 1000)) : '即将结束'
+					} else {
+						item.countdownTime = 0
+						item.desc = '置顶中'
+					}
 				} else if (s.status === 'claimable') {
 					item.desc = '点击查看战绩'
 				} else {
@@ -201,8 +219,10 @@ export default {
 			return { totalViews, totalClicks, totalFavs, oneLiner }
 		}
 	},
-	onLoad() { this.refresh() },
+	onLoad() { this.refresh(); this.startPolling() },
 	onShow() { this.refresh() },
+	onHide() { this.stopPolling() },
+	onUnload() { this.stopPolling() },
 	methods: {
 		async refresh() {
 			try {
@@ -265,15 +285,31 @@ export default {
 			// idle 不响应
 		},
 
-		// claimable 槽位点击 → 查找对应的 careerId 跳转
-		goSlotDetail(slot) {
-			// 通过 pinId 匹配最近生成、相同 surveyId 的 career-records
-			const match = this.careerRecords.find(r => r.pinId === slot.pinId)
+		// claimable 槽位点击 → 优先用 slot 自带的 careerId
+		async goSlotDetail(slot) {
+			// 1. slot 自带 careerId（pin-expiry / getSlotStatus 写入）
+			if (slot.careerId) {
+				uni.navigateTo({ url: '/pages-tools/career/career-detail?careerId=' + slot.careerId })
+				return
+			}
+			// 2. 内存匹配
+			let match = this.careerRecords.find(r => r.pinId === slot.pinId)
 			if (match && match._id) {
 				uni.navigateTo({ url: '/pages-tools/career/career-detail?careerId=' + match._id })
-			} else {
-				uni.showToast({ title: '档案数据暂不可用', icon: 'none' })
+				return
 			}
+			// 3. 云对象兜底：按 pinId 查询 careerId
+			try {
+				const ps = uniCloud.importObject('pin-system')
+				const res = await ps.getCareerByPinId({ pinId: slot.pinId })
+				if (res.errCode === 0 && res.data && res.data.careerId) {
+					uni.navigateTo({ url: '/pages-tools/career/career-detail?careerId=' + res.data.careerId })
+					return
+				}
+			} catch (e) {
+				console.error('[career-history] goSlotDetail cloud query error:', e)
+			}
+			uni.showToast({ title: '战绩单生成中，请稍后重试', icon: 'none' })
 		},
 
 		// 从档案列表跳转详情
@@ -289,10 +325,49 @@ export default {
 			this.refresh()
 		},
 
+		startPolling() {
+			if (this._pollTimer) return
+			this._pollTimer = setInterval(() => {
+				this.pollSlots()
+			}, 15000) // 每 15 秒轮询一次
+		},
+
+		stopPolling() {
+			if (this._pollTimer) {
+				clearInterval(this._pollTimer)
+				this._pollTimer = null
+			}
+		},
+
+		async pollSlots() {
+			try {
+				const ps = uniCloud.importObject('pin-system')
+				const slotRes = await ps.getSlotStatus()
+				const poolRes = await ps.getPoolContents()
+				const newSlots = (slotRes.data && slotRes.data.slots) || this.slots
+				const newPool = (poolRes.data && poolRes.data.pins) || []
+				// 仅更新变化的数据，不触发全量 refresh 避免 flicker
+				this.slots = newSlots
+				this.pinPool = newPool
+			} catch (e) {
+				// 静默失败，下次轮询会重试
+			}
+		},
+
+		onCountdownFinish() {
+			this.pollSlots()
+		},
+
 		formatNum(val) {
 			if (typeof val !== 'number') return '--'
 			if (val >= 10000) return (val / 10000).toFixed(1) + '万'
 			return val.toLocaleString()
+		},
+
+		formatMMSS(totalSeconds) {
+			const m = Math.floor(totalSeconds / 60)
+			const s = totalSeconds % 60
+			return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0')
 		},
 
 		formatDate(ts) {
@@ -340,6 +415,13 @@ export default {
 .slot-icon { font-size: 40rpx; margin-bottom: 8rpx; }
 .slot-status { font-size: 24rpx; font-weight: 700; color: #1E2939; display: block; }
 .slot-desc { font-size: 20rpx; color: #6B7280; display: block; margin-top: 4rpx; }
+
+.slot-countdown {
+	display: flex; justify-content: center; margin-top: 4rpx;
+}
+.slot-countdown .u-count-down__text {
+	font-size: 22rpx; font-weight: 700; color: #059669; font-family: monospace;
+}
 
 /* 综述卡 */
 .overview-card {

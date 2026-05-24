@@ -139,6 +139,11 @@ export default {
 				const res = await db.collection('career-records').doc(this.careerId).get()
 				if (res.data && res.data.length > 0) {
 					this.record = res.data[0]
+					// 进入详情页即签收
+					try {
+						const ps = uniCloud.importObject('pin-system')
+						await ps.markCareerAsRead({ careerId: this.careerId })
+					} catch (e) { /* 静默 */ }
 				} else {
 					this.error = '未找到该档案'
 				}

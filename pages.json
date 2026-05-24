@@ -213,6 +213,27 @@
 					"navigationStyle": "custom",
 					"navigationBarTitleText": "图片Emoji调试"
 				}
+			},
+			{
+				"path": "slot-fix-test/slot-fix-test",
+				"style": {
+					"navigationStyle": "custom",
+					"navigationBarTitleText": "槽位过期修复测试"
+				}
+			},
+			{
+				"path": "pin-e2e-test/pin-e2e-test",
+				"style": {
+					"navigationStyle": "custom",
+					"navigationBarTitleText": "置顶系统一键测试"
+				}
+			},
+			{
+				"path": "phase1-test/phase1-test",
+				"style": {
+					"navigationStyle": "custom",
+					"navigationBarTitleText": "阶段一验收测试"
+				}
 			}]
 		},
 		{

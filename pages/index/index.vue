@@ -64,6 +64,15 @@
 					<view class="dev-btn dev-btn-sm" hover-class="press-95" @click="goPage('/pages-tools/pin-dashboard/pin-dashboard')">
 						<text class="dev-btn-txt">置顶监控</text>
 					</view>
+					<view class="dev-btn dev-btn-sm" hover-class="press-95" @click="goPage('/pages-tools/slot-fix-test/slot-fix-test')">
+						<text class="dev-btn-txt">槽位修复测试</text>
+					</view>
+					<view class="dev-btn dev-btn-sm dev-btn-accent" hover-class="press-95" @click="goPage('/pages-tools/pin-e2e-test/pin-e2e-test')">
+						<text class="dev-btn-txt">一键全测</text>
+					</view>
+					<view class="dev-btn dev-btn-sm dev-btn-accent" hover-class="press-95" @click="goPage('/pages-tools/phase1-test/phase1-test')">
+						<text class="dev-btn-txt">阶段一测试</text>
+					</view>
 					</view>
 				</view>
 
@@ -201,6 +210,7 @@ export default {
 	display: flex; align-items: center; justify-content: center; flex: 1;
 }
 .dev-btn-sm { padding: 14rpx 20rpx; }
+.dev-btn-accent { background: linear-gradient(135deg, #4a90d9, #357abd); }
 .dev-btn-txt { font-size: 24rpx; color: white; font-weight: 600; white-space: nowrap; }
 .press-95 { transform: scale(0.95); }
 
@@ -256,4 +266,6 @@ export default {
 	0%, 100% { opacity: 0.4; transform: scale(0.8); }
 	50% { opacity: 1; transform: scale(1.1); }
 }
+
+
 </style>
