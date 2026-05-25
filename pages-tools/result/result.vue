@@ -31,7 +31,7 @@
 					<text class="creator-line" v-if="creatorNickname">—— 来自 <text class="creator-name">{{ creatorNickname }}</text> 的创作</text>
 				</view>
 				<view class="mini-tags anim-res-4" v-if="miniTags.length">
-					<text class="mini-tags-title">🎲 继续发疯</text>
+					<text class="mini-tags-title">👋大家都在测，你也试一试</text>
 					<view class="mini-tags-grid">
 						<view v-for="t in miniTags" :key="t._id"
 							:class="['mini-tag', 'mini-' + (t.rarity || 'common')]"
@@ -65,7 +65,7 @@ export default {
 		return {
 			scores: [85, 90, 40, 75, 80],
 			labels: ['淀粉肠指数', '加肉程度', '社交油腻度', '性价比', '抗造性'],
-		emoji: '🌭',
+		emoji: '',
 		resultImage: '',
 		rname: '纯正淀粉肠',
 			rdesc: '别挣扎了，你骨子里就是根5块钱的淀粉肠。',
@@ -89,19 +89,28 @@ export default {
 		if (o.tag) this.tag = decodeURIComponent(o.tag)
 		if (o.scores) this.scores = JSON.parse(decodeURIComponent(o.scores))
 		if (o.dims) this.labels = JSON.parse(decodeURIComponent(o.dims))
-		if (o.emoji) this.emoji = decodeURIComponent(o.emoji)
 		if (o.rname) this.rname = decodeURIComponent(o.rname)
 		if (o.rdesc) this.rdesc = decodeURIComponent(o.rdesc)
 		if (o.colors) this.colors = JSON.parse(decodeURIComponent(o.colors))
 		if (o.surveyId) this.surveyId = decodeURIComponent(o.surveyId)
 		if (o.image) {
 			const raw = decodeURIComponent(o.image)
+			let url = raw
 			if (raw.startsWith('cloud://')) {
 				const res = await uniCloud.getTempFileURL({ fileList: [raw] })
-				this.resultImage = res.fileList[0].tempFileURL || raw
-			} else {
-				this.resultImage = raw
+				url = res.fileList[0].tempFileURL || raw
 			}
+			try {
+				await new Promise((resolve, reject) => {
+					uni.getImageInfo({ src: url, success: resolve, fail: reject })
+				})
+				this.resultImage = url
+			} catch (e) {
+				console.warn('[result] 配图预加载失败，使用 emoji 兜底:', e)
+				if (o.emoji) this.emoji = decodeURIComponent(o.emoji)
+			}
+		} else if (o.emoji) {
+			this.emoji = decodeURIComponent(o.emoji)
 		}
 	},
 	onReady() {
