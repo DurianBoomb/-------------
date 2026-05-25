@@ -558,5 +558,187 @@ module.exports = {
 			console.error('[updateNickname] error:', e)
 			return { errCode: 'DB_ERROR', errMsg: '昵称修改失败' }
 		}
+	},
+
+	/**
+	 * 查询当前各稀有度标签数量
+	 */
+	async getRarityDistribution() {
+		try {
+			const counts = {}
+			const rarities = ['common', 'rare', 'mythic', 'epic', 'legendary', 'darkgold']
+			for (const r of rarities) {
+				const c = await tagsCol.where({ rarity: r }).count()
+				counts[r] = c.total
+			}
+			const total = Object.values(counts).reduce((a, b) => a + b, 0)
+			return { errCode: 0, data: { distribution: counts, total } }
+		} catch (e) {
+			return { errCode: 'DB_ERROR', errMsg: e.message || '查询失败' }
+		}
+	},
+
+	/**
+	 * 将全部史诗标签的稀有度改为传奇
+	 */
+	async mockEpicToLegendary() {
+		try {
+			const res = await tagsCol.where({ rarity: 'epic' }).field({ _id: true, name: true }).get()
+			const epicList = res.data || []
+			if (epicList.length === 0) {
+				return { errCode: 0, data: { count: 0, msg: '没有史诗标签需要转换' } }
+			}
+
+			const ids = epicList.map(d => d._id)
+			for (let i = 0; i < ids.length; i += 50) {
+				const chunk = ids.slice(i, i + 50)
+				await tagsCol.where({ _id: db.command.in(chunk) }).update({ rarity: 'legendary' })
+			}
+
+			const counts = {}
+			const rarities = ['common', 'rare', 'mythic', 'epic', 'legendary', 'darkgold']
+			for (const r of rarities) {
+				const c = await tagsCol.where({ rarity: r }).count()
+				counts[r] = c.total
+			}
+
+			return {
+				errCode: 0,
+				data: {
+					count: ids.length,
+					names: epicList.map(d => d.name),
+					distribution: counts
+				}
+			}
+		} catch (e) {
+			console.error('[mockEpicToLegendary]', e)
+			return { errCode: 'DB_ERROR', errMsg: e.message || '转换失败' }
+		}
+	},
+
+	/**
+	 * Mock：随机升级 common 标签为 mythic/legendary
+	 * mythic 90 个 + legendary 40 个
+	 */
+	async mockUpgradeRarity() {
+		try {
+			// 1. 查询所有 common 标签的 _id
+			const res = await tagsCol.where({ rarity: 'common' }).field({ _id: true }).limit(1000).get()
+			const commonIds = (res.data || []).map(d => d._id)
+			if (commonIds.length < 130) {
+				return { errCode: 'NOT_ENOUGH', errMsg: `common 标签不足 130（当前 ${commonIds.length}）` }
+			}
+
+			// 2. Fisher-Yates 洗牌
+			const arr = [...commonIds]
+			for (let i = arr.length - 1; i > 0; i--) {
+				const j = Math.floor(Math.random() * (i + 1));
+				[arr[i], arr[j]] = [arr[j], arr[i]]
+			}
+
+			const mythicIds = arr.slice(0, 90)
+			const legendaryIds = arr.slice(90, 130)
+
+			// 3. 批量更新（分批 50 条，避免单次过大）
+			const batch = async (ids, rarity) => {
+				for (let i = 0; i < ids.length; i += 50) {
+					const chunk = ids.slice(i, i + 50)
+					await tagsCol.where({ _id: db.command.in(chunk) }).update({ rarity })
+				}
+			}
+
+			await Promise.all([
+				batch(mythicIds, 'mythic'),
+				batch(legendaryIds, 'legendary')
+			])
+
+			// 4. 统计当前分布
+			const counts = {}
+			const rarities = ['common', 'rare', 'mythic', 'epic', 'legendary', 'darkgold']
+			for (const r of rarities) {
+				const c = await tagsCol.where({ rarity: r }).count()
+				counts[r] = c.total
+			}
+
+			return { errCode: 0, data: { mythic: mythicIds.length, legendary: legendaryIds.length, distribution: counts } }
+		} catch (e) {
+			console.error('[mockUpgradeRarity]', e)
+			return { errCode: 'DB_ERROR', errMsg: e.message || '升级失败' }
+		}
+	},
+
+	/**
+	 * 方案 A：按优先级重新分配稀有度
+	 * 稀有 → 史诗 50 个 → 神话 60 个 → 普通 → 稀有 74 个
+	 * 目标：普通125 稀有87 神话60 史诗50 传奇41 暗金1
+	 */
+	async mockRedistribute() {
+		try {
+			const batchUpdate = async (ids, rarity) => {
+				for (let i = 0; i < ids.length; i += 50) {
+					const chunk = ids.slice(i, i + 50)
+					await tagsCol.where({ _id: db.command.in(chunk) }).update({ rarity })
+				}
+			}
+
+			const shuffle = (arr) => {
+				const a = [...arr]
+				for (let i = a.length - 1; i > 0; i--) {
+					const j = Math.floor(Math.random() * (i + 1));
+					[a[i], a[j]] = [a[j], a[i]]
+				}
+				return a
+			}
+
+			// Step 1: 稀有 → 史诗（50 个）
+			const rareRes = await tagsCol.where({ rarity: 'rare' }).field({ _id: true, name: true }).limit(1000).get()
+			const rareList = (rareRes.data || [])
+			if (rareList.length < 110) {
+				return { errCode: 'NOT_ENOUGH', errMsg: `稀有标签不足 110（当前 ${rareList.length}），无法分给史诗50+神话60` }
+			}
+
+			const shuffledRare = shuffle(rareList)
+			const toEpic = shuffledRare.slice(0, 50)
+			const toMythic = shuffledRare.slice(50, 110)
+			// 剩余 13 个保持稀有
+
+			await batchUpdate(toEpic.map(d => d._id), 'epic')
+			await batchUpdate(toMythic.map(d => d._id), 'mythic')
+
+			// Step 2: 普通 → 稀有（74 个）
+			const commonRes = await tagsCol.where({ rarity: 'common' }).field({ _id: true }).limit(1000).get()
+			const commonList = (commonRes.data || [])
+			if (commonList.length < 74) {
+				return { errCode: 'NOT_ENOUGH', errMsg: `普通标签不足 74（当前 ${commonList.length}）` }
+			}
+
+			const shuffledCommon = shuffle(commonList)
+			const toRare = shuffledCommon.slice(0, 74)
+
+			await batchUpdate(toRare.map(d => d._id), 'rare')
+
+			// 统计当前分布
+			const counts = {}
+			const rarities = ['common', 'rare', 'mythic', 'epic', 'legendary', 'darkgold']
+			for (const r of rarities) {
+				const c = await tagsCol.where({ rarity: r }).count()
+				counts[r] = c.total
+			}
+
+			return {
+				errCode: 0,
+				data: {
+					steps: {
+						'稀有→史诗': toEpic.length,
+						'稀有→神话': toMythic.length,
+						'普通→稀有': toRare.length
+					},
+					distribution: counts
+				}
+			}
+		} catch (e) {
+			console.error('[mockRedistribute]', e)
+			return { errCode: 'DB_ERROR', errMsg: e.message || '重新分配失败' }
+		}
 	}
 }
