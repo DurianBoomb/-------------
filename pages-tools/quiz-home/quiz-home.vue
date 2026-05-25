@@ -11,6 +11,9 @@
 					</view>
 				</view>
 				<view class="header-right">
+					<view class="icon-btn" @click="goMockRarity">
+						<text>🔧</text>
+					</view>
 					<view class="icon-btn" @click="goProfile">
 						<text>🥸</text>
 					</view>
@@ -337,7 +340,9 @@ export default {
 			const rarityCfg = {
 				common: { fontSize: 22, hPad: 18 },
 				rare: { fontSize: 26, hPad: 24 },
+				mythic: { fontSize: 26, hPad: 24 },
 				epic: { fontSize: 36, hPad: 38 },
+				legendary: { fontSize: 36, hPad: 38 },
 				darkgold: { fontSize: 46, hPad: 44 }
 			}
 			let rows = 0, rowWidth = 0
@@ -369,6 +374,7 @@ export default {
 		goProfile() { uni.navigateTo({ url: '/pages-tools/profile/profile' }) },
 		goCareer() { uni.navigateTo({ url: '/pages-tools/career/career-history' }) },
 		goFav() { uni.navigateTo({ url: '/pages-tools/favorites/favorites' }) },
+		goMockRarity() { uni.navigateTo({ url: '/pages-tools/mock-rarity/mock-rarity' }) },
 		goGenerated() { uni.navigateTo({ url: '/pages-tools/my-surveys/my-surveys' }) },
 		goRandom() {
 			if (this.allTags.length === 0) return
@@ -597,7 +603,9 @@ export default {
 
 .tag-common { padding: 10rpx 18rpx; font-size: 22rpx; font-weight: 400; background: #F7F8FA; color: #101828; border: 1rpx solid #D1D5DC; box-shadow: none; }
 .tag-rare { padding: 14rpx 24rpx; font-size: 26rpx; font-weight: 500; background: white; color: #4FC3F7; border: 1rpx solid #4FC3F7; }
+.tag-mythic { padding: 14rpx 24rpx; font-size: 26rpx; font-weight: 500; background: white; color: #22C55E; border: 1rpx solid #22C55E; }
 .tag-epic { padding: 22rpx 38rpx; font-size: 36rpx; font-weight: 600; background: white; color: #A855F7; border: 1rpx solid #A855F7; }
+.tag-legendary { padding: 22rpx 38rpx; font-size: 36rpx; font-weight: 600; background: white; color: #EF4444; border: 1rpx solid #EF4444; }
 .tag-darkgold {
 	padding: 26rpx 44rpx;
 	font-size: 46rpx;
