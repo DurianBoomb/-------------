@@ -636,7 +636,9 @@ export default {
 			const cfg = {
 				common: { fontSize: 22, hPad: 10 },
 				rare: { fontSize: 22, hPad: 10 },
+				mythic: { fontSize: 22, hPad: 10 },
 				epic: { fontSize: 26, hPad: 12 },
+				legendary: { fontSize: 26, hPad: 12 },
 				darkgold: { fontSize: 28, hPad: 14 }
 			}
 			let rows = 0, rowWidth = 0
@@ -750,7 +752,9 @@ export default {
 }
 .mini-common { background: #F7F8FA; color: #101828; border-color: #D1D5DC; box-shadow: none; }
 .mini-rare { background: white; color: #4FC3F7; border-color: #4FC3F7; }
+.mini-mythic { background: white; color: #22C55E; border-color: #22C55E; }
 .mini-epic { padding: 14rpx 24rpx; font-size: 26rpx; font-weight: 600; background: white; color: #A855F7; border-color: #A855F7; }
+.mini-legendary { padding: 14rpx 24rpx; font-size: 26rpx; font-weight: 600; background: white; color: #EF4444; border-color: #EF4444; }
 .mini-darkgold {
 	padding: 16rpx 28rpx; font-size: 28rpx; font-weight: 900;
 	background: #1A1A1A; color: #C9A84C;
