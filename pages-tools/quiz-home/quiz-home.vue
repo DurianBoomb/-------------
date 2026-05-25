@@ -254,7 +254,6 @@ export default {
 		goProfile() { uni.navigateTo({ url: '/pages-tools/profile/profile' }) },
 		goCareer() { uni.navigateTo({ url: '/pages-tools/career/career-history' }) },
 		goFav() { uni.navigateTo({ url: '/pages-tools/favorites/favorites' }) },
-		goMockRarity() { uni.navigateTo({ url: '/pages-tools/mock-rarity/mock-rarity' }) },
 		goGenerated() { uni.navigateTo({ url: '/pages-tools/my-surveys/my-surveys' }) },
 		goRandom() {
 			if (this.allTags.length === 0) return

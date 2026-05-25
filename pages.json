@@ -150,14 +150,8 @@
 					"navigationStyle": "custom",
 					"navigationBarTitleText": "阶段一验证"
 				}
-			},
-			{
-				"path": "mock-rarity/mock-rarity",
-				"style": {
-					"navigationStyle": "custom",
-					"navigationBarTitleText": "稀有度升级"
-				}
-			}]
+			}
+		]
 		},
 		{
 			"root": "uni_modules/uni-id-pages/pages",
