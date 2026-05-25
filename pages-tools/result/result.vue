@@ -7,7 +7,7 @@
 		<!-- 隐藏 Canvas：用于生成分享图 -->
 		<canvas type="2d" id="shareCanvas" class="share-canvas"></canvas>
 
-		<scroll-view class="body" scroll-y :scroll-top="st">
+		<scroll-view class="body" scroll-y>
 			<view class="body-inner">
 				<view class="anim-res-1">
 			<view class="emoji-circle">
@@ -43,6 +43,23 @@
 						</view>
 					</view>
 				</view>
+				<view class="vote-area">
+					<view class="fav-btn" :class="{ 'fav-active': favorited }" hover-class="btn-press" :hover-start-time="0" :hover-stay-time="100" @click="toggleFav">
+						<text class="fav-icon">{{ favorited ? '⭐' : '☆' }}</text>
+						<text class="fav-label">{{ favorited ? '已收藏' : '收藏' }}</text>
+					</view>
+					<text class="vote-label">这个结果你觉得准吗？</text>
+					<view class="vote-btns">
+						<view class="vote-btn like" :class="{ 'vote-active': userVote === 'like' }" hover-class="btn-press" :hover-start-time="0" :hover-stay-time="100" @click="doVote('like')">
+							<text>👍</text>
+							<text class="vote-count">{{ voteStats.likes }}</text>
+						</view>
+						<view class="vote-btn dislike" :class="{ 'vote-active': userVote === 'dislike' }" hover-class="btn-press" :hover-start-time="0" :hover-stay-time="100" @click="doVote('dislike')">
+							<text>👎</text>
+							<text class="vote-count">{{ voteStats.dislikes }}</text>
+						</view>
+					</view>
+				</view>
 			<view class="bottom-spacer"></view>
 			</view>
 		</scroll-view>
@@ -59,6 +76,7 @@
 </template>
 
 <script>
+import { playAd } from '@/common/ad-utils.js'
 export default {
 		data() {
 		return {
@@ -73,13 +91,15 @@ export default {
 			surveyId: '',
 			radarSize: 760,
 
+			userVote: null,
+			voteStats: { likes: 0, dislikes: 0 },
+			favorited: false,
 			creatorNickname: '',
 			creatorId: '',  // 问卷创建者 ID，空值表示官方问卷
 			isCreator: false, // 当前用户是否是问卷创建者
 			topPad: 48,
 			shareImagePath: '',
 			miniTags: [],
-			st: 0,
 
 	
 		}
@@ -95,17 +115,22 @@ export default {
 		if (o.colors) this.colors = JSON.parse(decodeURIComponent(o.colors))
 		if (o.surveyId) this.surveyId = decodeURIComponent(o.surveyId)
 		if (o.image) {
-			this.resultImage = decodeURIComponent(o.image)
+			const raw = decodeURIComponent(o.image)
+			if (raw.startsWith('cloud://')) {
+				const res = await uniCloud.getTempFileURL({ fileList: [raw] })
+				this.resultImage = res.fileList[0].tempFileURL || raw
+			} else {
+				this.resultImage = raw
+			}
 		}
 	},
 	onReady() {
 		this.$nextTick(() => {
 			this.initRadar()
+			this.loadVoteInfo()
 			this.loadCreatorInfo()
 			this.initShareCanvas()
 			this.loadMiniTags()
-			// 微滚动触发 Canvas 2D 在 scroll-view 内重新布局
-			setTimeout(() => { this.st = 1 }, 100)
 		})
 	},
 
@@ -631,7 +656,7 @@ export default {
 			} catch (e) { console.error('[result] loadMiniTags:', e) }
 		},
 		limitRows(tags, maxRows) {
-			const availableWidth = 750 - 96
+			const availableWidth = 750 - 96 // body-inner padding 48rpx * 2
 			const gap = 16
 			const cfg = {
 				common: { fontSize: 22, hPad: 10 },
@@ -661,6 +686,21 @@ export default {
 			uni.navigateTo({ url: '/pages-tools/answer-quiz/answer-quiz?tag=' + encodeURIComponent(tag) })
 		},
 
+		async loadVoteInfo() {
+			if (!this.tag) return
+			try {
+				const survey = uniCloud.importObject('survey')
+				const [statRes, voteRes, favRes] = await Promise.all([
+					survey.getVoteStats({ tagName: this.tag }),
+					survey.getUserVote({ tagName: this.tag }),
+					survey.checkFavorites({ tagNames: [this.tag] }).catch(() => ({}))
+				])
+				if (statRes.errCode === 0) this.voteStats = statRes.data
+				if (voteRes.errCode === 0) this.userVote = voteRes.data.voted
+				if (favRes.errCode === 0) this.favorited = !!favRes.data[this.tag]
+			} catch (e) { console.error('[result] loadVoteInfo:', e) }
+		},
+
 		async loadCreatorInfo() {
 			if (!this.surveyId) return
 			try {
@@ -674,6 +714,35 @@ export default {
 			} catch (e) { console.error('[result] loadCreatorInfo:', e) }
 		},
 
+		async toggleFav() {
+			if (!this.tag) return
+			try {
+				const survey = uniCloud.importObject('survey')
+				const res = await survey.toggleFavorite({ tagName: this.tag })
+				if (res.errCode === 0) this.favorited = res.data.favorited
+			} catch (e) { console.error('[result] toggleFav:', e) }
+		},
+
+		async doVote(type) {
+			if (!this.tag) return
+			try {
+				const survey = uniCloud.importObject('survey')
+				const res = await survey.voteTag({ tagName: this.tag, type })
+				if (res.errCode === 0) {
+					this.userVote = res.data.voted
+					// 刷新统计
+					const statRes = await survey.getVoteStats({ tagName: this.tag })
+					if (statRes.errCode === 0) this.voteStats = statRes.data
+				}
+			} catch (e) { console.error('[result] doVote:', e) }
+		},
+		promoteSurvey() {
+			if (!this.surveyId) {
+				uni.showToast({ title: '问卷ID不可用', icon: 'none' })
+				return
+			}
+			playAd(this.surveyId)
+		}
 	}
 }
 </script>
@@ -738,6 +807,32 @@ export default {
 .desc-txt { font-size: 30rpx; color: #4A5565; font-weight: 500; line-height: 1.8; text-align: justify; letter-spacing: 0.76rpx; }
 .creator-line { display: block; font-size: 24rpx; color: #99A1AF; margin-top: 24rpx; text-align: right; font-weight: 400; }
 .creator-name { color: #F97316; font-weight: 600; }
+.vote-area { display: flex; flex-direction: column; align-items: center; margin-top: 40rpx; gap: 16rpx; width: 100%; }
+.fav-btn {
+	display: flex; align-items: center; gap: 8rpx;
+	background: white; border-radius: 60rpx; padding: 14rpx 36rpx;
+	box-shadow: 0 1rpx 2rpx -1rpx rgba(0,0,0,.1);
+	outline: 3rpx solid #F3F4F6; outline-offset: -3rpx;
+	font-size: 28rpx; color: #6B7280; font-weight: 500;
+	transition: all .15s;
+}
+.fav-btn.fav-active { background: #FEFCE8; outline-color: #F59E0B; color: #92400E; }
+.fav-icon { font-size: 36rpx; }
+.fav-label { font-size: 26rpx; font-weight: 600; }
+.vote-label { font-size: 26rpx; color: #99A1AF; font-weight: 500; }
+.vote-btns { display: flex; gap: 24rpx; }
+.vote-btn {
+	display: flex; align-items: center; gap: 8rpx;
+	background: white; border-radius: 60rpx; padding: 16rpx 36rpx;
+	box-shadow: 0 1rpx 2rpx -1rpx rgba(0,0,0,.1);
+	outline: 3rpx solid #F3F4F6; outline-offset: -3rpx;
+	font-size: 28rpx; color: #6B7280; font-weight: 500;
+	transition: all .15s;
+}
+.vote-active.like { background: #F0FFF0; outline-color: #22C55E; color: #166534; }
+.vote-active.dislike { background: #FFF0F0; outline-color: #EF4444; color: #991B1B; }
+.vote-count { font-size: 24rpx; font-weight: 600; }
+
 .mini-tags { margin-top: 40rpx; }
 .mini-tags-title { font-size: 28rpx; font-weight: 700; color: #1E2939; display: block; margin-bottom: 20rpx; }
 .mini-tags-grid { display: flex; flex-wrap: wrap; gap: 16rpx; }
