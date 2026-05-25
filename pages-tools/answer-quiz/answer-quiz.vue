@@ -619,12 +619,7 @@ export default {
 
 		// ====== 返回 ======
 		goBack() {
-			const pages = getCurrentPages()
-			if (pages.length > 1) {
-				uni.navigateBack()
-			} else {
-				uni.redirectTo({ url: '/pages-tools/quiz-home/quiz-home' })
-			}
+			uni.redirectTo({ url: '/pages-tools/quiz-home/quiz-home' })
 		},
 
 		// ====== 雷达图造假工具函数 ======
