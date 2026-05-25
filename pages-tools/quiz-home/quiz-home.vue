@@ -11,9 +11,6 @@
 					</view>
 				</view>
 				<view class="header-right">
-					<view class="icon-btn" @click="goMockRarity">
-						<text>🔧</text>
-					</view>
 					<view class="icon-btn" @click="goProfile">
 						<text>🥸</text>
 					</view>
