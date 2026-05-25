@@ -443,8 +443,9 @@ export default {
 				ctx.scale(dpr, dpr)
 
 				const foxImg = await this._loadImage(canvas, '/static/给狐狸.png')
+				const resultImg = this.resultImage ? await this._loadImage(canvas, this.resultImage) : null
 
-				this._drawShareCard(ctx, W, H, foxImg)
+				this._drawShareCard(ctx, W, H, foxImg, resultImg)
 
 				uni.canvasToTempFilePath({
 					canvas,
@@ -456,7 +457,7 @@ export default {
 			})
 		},
 
-		_drawShareCard(ctx, W, H, foxImg) {
+		_drawShareCard(ctx, W, H, foxImg, resultImg) {
 			// ====== 1. 背景渐变 ======
 			const bgGrad = ctx.createLinearGradient(0, 0, 0, H)
 			bgGrad.addColorStop(0, '#FFF7ED')
@@ -488,7 +489,14 @@ export default {
 				ctx.fill()
 			})
 
-			// ====== 3. 左 pill ======
+			// ====== 3. 结果形象图 ======
+			if (resultImg) {
+				const imgW = 180, imgH = 180
+				const imgX = 385 - imgW / 2, imgY = 120 - imgH / 2
+				ctx.drawImage(resultImg, imgX, imgY, imgW, imgH)
+			}
+
+			// ====== 4. 左 pill ======
 			this._roundRect(ctx, 32, 32, 124, 36, 18)
 			ctx.fillStyle = '#1F2937'
 			ctx.fill()
@@ -504,19 +512,6 @@ export default {
 			ctx.textAlign = 'left'
 			ctx.textBaseline = 'middle'
 			ctx.fillText(brandText, startX + foxW + gap, 50)
-
-			// ====== 4. 右 pill ======
-			this._roundRect(ctx, 360, 32, 108, 36, 18)
-			ctx.fillStyle = 'rgba(255,255,255,0.70)'
-			ctx.fill()
-			ctx.strokeStyle = '#F97316'
-			ctx.lineWidth = 1.5
-			ctx.stroke()
-			ctx.fillStyle = '#F97316'
-			ctx.textAlign = 'center'
-			ctx.textBaseline = 'middle'
-			ctx.font = '600 13px sans-serif'
-			ctx.fillText('🔥 趣味测试', 414, 50)
 
 			// ====== 5. 今日确诊 ======
 			this._roundRect(ctx, 38, 120, 84, 26, 13)
