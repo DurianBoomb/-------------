@@ -234,6 +234,13 @@
 					"navigationStyle": "custom",
 					"navigationBarTitleText": "阶段一验收测试"
 				}
+			},
+			{
+				"path": "mock-rarity/mock-rarity",
+				"style": {
+					"navigationStyle": "custom",
+					"navigationBarTitleText": "稀有度升级"
+				}
 			}]
 		},
 		{

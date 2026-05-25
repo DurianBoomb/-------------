@@ -42,12 +42,14 @@
 		},
 		"rarity": {
 			"bsonType": "string",
-			"description": "稀有度：common / rare / epic / handmade1-3 / darkgold",
+			"description": "稀有度：common / rare / mythic / epic / legendary / handmade1-3 / darkgold",
 			"defaultValue": "common",
 			"enum": [
 				{ "value": "common", "text": "普通" },
 				{ "value": "rare", "text": "稀有" },
+				{ "value": "mythic", "text": "神话" },
 				{ "value": "epic", "text": "史诗" },
+				{ "value": "legendary", "text": "传奇" },
 				{ "value": "handmade1", "text": "手工1" },
 				{ "value": "handmade2", "text": "手工2" },
 				{ "value": "handmade3", "text": "手工3" },

@@ -167,7 +167,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "你的职场功德还剩多少",
@@ -427,7 +427,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "legendary"
   },
   {
     "name": "你的离谱超能力",
@@ -437,7 +437,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "legendary"
   },
   {
     "name": "职场生存靠什么天赋",
@@ -477,7 +477,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "确诊为行走的弹幕",
@@ -507,7 +507,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "你的爱情兵法",
@@ -687,7 +687,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "legendary"
   },
   {
     "name": "你的废话能量等级",
@@ -797,7 +797,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "周一早八的怨气",
@@ -827,7 +827,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "legendary"
   },
   {
     "name": "下班前五分钟相对论",
@@ -857,7 +857,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "legendary"
   },
   {
     "name": "加班功德",
@@ -867,7 +867,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "周末人格分裂",
@@ -937,7 +937,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "legendary"
   },
   {
     "name": "你的KPI是啥",
@@ -947,7 +947,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "你的摸鱼搭子",
@@ -997,7 +997,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "你的摸鱼BGM",
@@ -1007,7 +1007,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "legendary"
   },
   {
     "name": "职场小强命格",
@@ -1077,7 +1077,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "legendary"
   },
   {
     "name": "职场隐形人修炼手册",
@@ -1197,7 +1197,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "legendary"
   },
   {
     "name": "在同事眼里的人设",
@@ -1237,7 +1237,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "摸鱼时的手部小动作",
@@ -1267,7 +1267,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "你是哪个小众领域专家",
@@ -1297,7 +1297,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "legendary"
   },
   {
     "name": "备忘录里的奇怪清单",
@@ -1657,7 +1657,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "legendary"
   },
   {
     "name": "吃货财运关联",
@@ -1697,7 +1697,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "追星梦女等级",
@@ -1807,7 +1807,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "新游尝鲜韭菜",
@@ -1827,7 +1827,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "隐藏菜单挖掘者",
@@ -1857,7 +1857,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "游戏喷人速度测试",
@@ -1867,7 +1867,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "legendary"
   },
   {
     "name": "爱豆生日记忆力",
@@ -1877,7 +1877,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "legendary"
   },
   {
     "name": "火锅蘸料配方师",
@@ -1917,7 +1917,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "脱单锦鲤绝缘体",
@@ -1927,7 +1927,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "相亲对象分类学",
@@ -1947,7 +1947,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "legendary"
   },
   {
     "name": "妈见打型单身贵族",
@@ -1977,7 +1977,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "前任的现任观察员",
@@ -2007,7 +2007,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "legendary"
   },
   {
     "name": "分手后遗症门诊",
@@ -2017,7 +2017,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "孤寡青蛙转世",
@@ -2047,7 +2047,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "前任遗物清理师",
@@ -2067,7 +2067,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "桃花运风水大师",
@@ -2117,7 +2117,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "legendary"
   },
   {
     "name": "催婚抗压训练营",
@@ -2127,7 +2127,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "legendary"
   },
   {
     "name": "分手大师速成班",
@@ -2167,7 +2167,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "自我攻略型选手",
@@ -2177,7 +2177,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "恋爱防沉迷系统",
@@ -2217,7 +2217,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "失恋废墟重建师",
@@ -2227,7 +2227,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "相亲对象图鉴收集",
@@ -2247,7 +2247,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "legendary"
   },
   {
     "name": "单身保命指南作者",
@@ -2307,7 +2307,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "legendary"
   },
   {
     "name": "线上疯批线下怂",
@@ -2337,7 +2337,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "MBTI行走说明书",
@@ -2367,7 +2367,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "废话文学大师",
@@ -2377,7 +2377,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "legendary"
   },
   {
     "name": "海底捞社恐选手",
@@ -2437,7 +2437,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "收藏夹吃灰达人",
@@ -2477,7 +2477,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "legendary"
   },
   {
     "name": "上辈子是守门石狮子",
@@ -2487,7 +2487,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "投胎当小区流浪猫",
@@ -2537,7 +2537,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "下辈子做冰箱",
@@ -2557,7 +2557,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "legendary"
   },
   {
     "name": "社交电池10%",
@@ -2577,7 +2577,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "把天聊死小能手",
@@ -2597,7 +2597,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "legendary"
   },
   {
     "name": "闺蜜恋爱军师",
@@ -2607,7 +2607,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "legendary"
   },
   {
     "name": "开会灵魂出窍",
@@ -2617,7 +2617,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "下班跑的比谁都快",
@@ -2637,7 +2637,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "legendary"
   },
   {
     "name": "改方案改到吐",
@@ -2697,7 +2697,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "开会摸鱼段位鉴定",
@@ -2717,7 +2717,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "legendary"
   },
   {
     "name": "下班倒计时选手",
@@ -2747,7 +2747,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "明日复明日信徒",
@@ -2787,7 +2787,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "拖延症阎王薄记载",
@@ -2797,7 +2797,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "legendary"
   },
   {
     "name": "工作群潜水冠军",
@@ -2817,7 +2817,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "快递拆箱仪式爱好者",
@@ -2837,7 +2837,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "legendary"
   },
   {
     "name": "乾隆同款外卖品味",
@@ -2857,7 +2857,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "legendary"
   },
   {
     "name": "下班失联专业户",
@@ -2907,7 +2907,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "legendary"
   },
   {
     "name": "深夜回忆杀患者",
@@ -2917,7 +2917,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "legendary"
   },
   {
     "name": "退货小能手",
@@ -2927,7 +2927,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "摸鱼转世锦鲤",
@@ -2937,7 +2937,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "legendary"
   },
   {
     "name": "网购买同款狂魔",
@@ -2957,7 +2957,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "下辈子当收租婆",
@@ -2967,7 +2967,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "外卖催单大师",
@@ -2977,7 +2977,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "下辈子是什么垃圾",
@@ -3077,7 +3077,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "legendary"
   },
   {
     "name": "确诊为二手市场",
@@ -3127,7 +3127,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "职场隐身术修炼等级",
@@ -3137,7 +3137,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "工位上的神秘失踪事件",
@@ -3157,7 +3157,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "社交电池容量",
@@ -3167,7 +3167,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "legendary"
   },
   {
     "name": "给Wi-Fi分配MBTI",
@@ -3187,7 +3187,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "灵气复苏后你的本体",
@@ -3217,7 +3217,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "通过奶茶订单反推人生",
@@ -3227,7 +3227,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "legendary"
   },
   {
     "name": "暗恋表达流派",
@@ -3247,7 +3247,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "legendary"
   },
   {
     "name": "确诊为路由器",
@@ -3267,7 +3267,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "legendary"
   },
   {
     "name": "今日运势（准不准你说了算）",
@@ -3277,7 +3277,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "legendary"
   },
   {
     "name": "朋友群里的备注名",
@@ -3287,7 +3287,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "摸鱼时创造的副业",
@@ -3297,7 +3297,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "把天聊死锦标赛冠军",
@@ -3327,7 +3327,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "拖延症晚期",
@@ -3367,7 +3367,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "抽象大师",
@@ -3397,7 +3397,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "你的超能力",
@@ -3427,7 +3427,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "精神状态良好",
@@ -3447,7 +3447,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "摸鱼天花板",
@@ -3457,7 +3457,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "渣男鉴别器",
@@ -3467,7 +3467,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "社恐评级",
@@ -3487,7 +3487,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "摆烂大师",
@@ -3497,7 +3497,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "戏精体质",
@@ -3527,7 +3527,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "小丑竟是我",
@@ -3537,7 +3537,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "legendary"
   },
   {
     "name": "测试你的怨气值",
@@ -3547,7 +3547,7 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "mythic"
   },
   {
     "name": "今天吃什么",
@@ -3567,6 +3567,6 @@
     "popularity": 0,
     "status": "published",
     "surveyCount": 1,
-    "rarity": "common"
+    "rarity": "legendary"
   }
 ]
