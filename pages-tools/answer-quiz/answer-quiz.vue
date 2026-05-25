@@ -269,7 +269,7 @@ export default {
 			// 答题按钮充能就绪标记
 			chargeReady: false,
 			creatorNickname: '',
-			_preloadedImageUrls: {}
+			preloadedImageUrls: {}
 		}
 	},
 	computed: {
@@ -762,7 +762,7 @@ export default {
 			const types = this.survey?.resultTypes || []
 			const cloudUrls = types
 				.map(t => t.image)
-				.filter(url => url && url.startsWith('cloud://'))
+				.filter(url => typeof url === 'string' && url.startsWith('cloud://'))
 
 			// 批量转换 cloud:// → https://
 			const urlMap = {}
@@ -772,13 +772,13 @@ export default {
 					;(res.fileList || []).forEach(item => {
 						if (item.tempFileURL) urlMap[item.fileID] = item.tempFileURL
 					})
-					this._preloadedImageUrls = { ...this._preloadedImageUrls, ...urlMap }
+					this.preloadedImageUrls = { ...this.preloadedImageUrls, ...urlMap }
 				} catch (e) { /* ignore */ }
 			}
 
 			// 所有图片 fire-and-forget 下载到微信缓存
 			types.forEach(t => {
-				const src = urlMap[t.image] || t.image || ''
+				const src = (typeof t.image === 'string' && urlMap[t.image]) || (typeof t.image === 'string' && t.image) || ''
 				if (src && !src.startsWith('cloud://')) {
 					uni.getImageInfo({ src, success: () => {}, fail: () => {} })
 				}
@@ -787,6 +787,7 @@ export default {
 
 		// ====== 跳转结果 ======
 		async goResult() {
+			try {
 			if (!this.survey) return
 			const dims = this.survey.dims
 			const sums = {}, cnts = {}
@@ -832,8 +833,10 @@ export default {
 
 			const colors = this.survey.resultTypes.map(r => r.emojiBg)
 			// 优先使用预加载时缓存的 https URL，没有则兜底现场转换
-			let imageUrl = this._preloadedImageUrls[result.image] || result.image || ''
-			if (imageUrl.startsWith('cloud://')) {
+			// 强制转字符串防止非字符串类型（数组/对象）导致 .startsWith() 抛 TypeError
+			let imageUrl = this.preloadedImageUrls[result.image] || result.image || ''
+			if (typeof imageUrl !== 'string') imageUrl = ''
+			if (imageUrl && imageUrl.startsWith('cloud://')) {
 				try {
 					const res = await uniCloud.getTempFileURL({ fileList: [imageUrl] })
 					imageUrl = res.fileList[0].tempFileURL || imageUrl
@@ -844,13 +847,17 @@ export default {
 			url: '/pages-tools/result/result?tag=' + encodeURIComponent(this.tag) +
 				'&dims=' + encodeURIComponent(JSON.stringify(dims)) +
 				'&scores=' + encodeURIComponent(JSON.stringify(scores)) +
-				'&emoji=' + encodeURIComponent(result.emoji) +
+				'&emoji=' + encodeURIComponent(result.emoji || '') +
 				'&image=' + encodeURIComponent(imageUrl) +
-				'&rname=' + encodeURIComponent(result.name) +
-				'&rdesc=' + encodeURIComponent(result.desc) +
+				'&rname=' + encodeURIComponent(result.name || '') +
+				'&rdesc=' + encodeURIComponent(result.desc || '') +
 				'&colors=' + encodeURIComponent(JSON.stringify(colors)) +
 				'&surveyId=' + encodeURIComponent(this.survey._id)
 		})
+			} catch (e) {
+				console.error('[answer-quiz] goResult 异常：', e)
+				uni.showToast({ title: '出错了，请重试', icon: 'none', duration: 2000 })
+			}
 		}
 	}
 }
