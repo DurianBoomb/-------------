@@ -831,7 +831,18 @@ export default {
 
 			const colors = this.survey.resultTypes.map(r => r.emojiBg)
 
-		uni.redirectTo({
+			// 预加载图片到微信缓存，结果页秒渲染
+			if (imageUrl && !imageUrl.startsWith('cloud://')) {
+				await new Promise((resolve) => {
+					uni.getImageInfo({
+						src: imageUrl,
+						success: () => resolve(),
+						fail: () => resolve()
+					})
+				})
+			}
+
+			uni.redirectTo({
 			url: '/pages-tools/result/result?tag=' + encodeURIComponent(this.tag) +
 				'&dims=' + encodeURIComponent(JSON.stringify(dims)) +
 				'&scores=' + encodeURIComponent(JSON.stringify(scores)) +
