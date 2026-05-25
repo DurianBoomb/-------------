@@ -36,9 +36,6 @@
 
 		<view class="footer anim-res-4">
 			<view class="footer-inner">
-				<view class="btn-retry" hover-class="btn-press" :hover-start-time="0" :hover-stay-time="150" @click="retry">
-					<text>🔄</text><text>再来一次</text>
-				</view>
 				<button class="btn-share" open-type="share" hover-class="btn-press">
 					<image class="share-icon" src="/static/share.svg" mode="aspectFit"></image><text>分享给朋友</text>
 				</button>
@@ -704,23 +701,8 @@ export default {
 	background: linear-gradient(0deg, #F7F8FA 0%, #F7F8FA 50%, transparent 100%);
 	display: flex; flex-direction: column; align-items: center;
 }
-.footer-inner { display: flex; gap: 12rpx; width: 100%; padding: 0 24rpx; }
-.btn-retry, .btn-promote, .btn-share { height: 118rpx; border-radius: 60rpx; display: flex; align-items: center; justify-content: center; gap: 6rpx; font-size: 32rpx; font-weight: 700; flex: 1; }
-.btn-retry {
-	background: #fff; color: #364153;
-	box-shadow: 0 1rpx 2rpx -1rpx rgba(0,0,0,.1), 0 1rpx 3rpx rgba(0,0,0,.1);
-	outline: 3rpx solid #E5E7EB; outline-offset: -3rpx;
-}
-.btn-promote {
-	background: linear-gradient(90deg, #FEF3C7 0%, #FDE68A 100%); color: #92400E;
-	box-shadow: 0 2rpx 4rpx -2rpx rgba(251,191,36,.3), 0 4rpx 6rpx -1rpx rgba(251,191,36,.3);
-	outline: 3rpx solid #FCD34D; outline-offset: -3rpx;
-}
-.btn-share {
-	flex: 1; background: linear-gradient(90deg, #FFB900 0%, #FF6900 100%); color: #fff;
-	box-shadow: 0 2rpx 4rpx -2rpx rgba(255,105,0,.3), 0 4rpx 6rpx -1rpx rgba(255,105,0,.3);
-	margin: 0; padding: 0; border: none; line-height: 1;
-}
+.footer-inner { display: flex; width: 100%; padding: 0 24rpx; }
+.btn-share { width: 100%; height: 118rpx; border-radius: 60rpx; display: flex; align-items: center; justify-content: center; gap: 6rpx; font-size: 32rpx; font-weight: 700; background: linear-gradient(90deg, #FFB900 0%, #FF6900 100%); color: #fff; box-shadow: 0 2rpx 4rpx -2rpx rgba(255,105,0,.3), 0 4rpx 6rpx -1rpx rgba(255,105,0,.3); margin: 0; padding: 0; border: none; line-height: 1; }
 .btn-share::after { border: none; }
 .btn-press { transform: scale(.96); }
 .footer-tag { font-size: 24rpx; color: #99A1AF; font-weight: 500; margin-top: 16rpx; }
