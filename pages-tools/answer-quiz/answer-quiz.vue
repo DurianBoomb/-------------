@@ -197,21 +197,21 @@
 // ====== 常量 ======
 const OPTS_LV1 = [
 	'绝非如此 🤨', '根本不是 🚫', '太扯了 🙄', '绝对不是 🤨',
-	'你瞎了 🙅', '举报了 🚫', '我裂开 💀', '不是我 🙈',
+	'你瞎了 🙅', '举报了 🙋', '和我不沾边 💅', '不是我 🙈',
 	'别扯了 😒', '不可能 😤', '你在放屁 💨', '想多了 🥱',
-	'完全不对 ❌', '关我啥事 🤷', '少来这套 😏', '笑死 🥴'
+	'完全不对 ❌', '关我啥事 🤷', '完全扯淡 😏', '你在扯什么 🥴'
 ]
 const OPTS_LV2 = [
-	'有点意思 🤔', '也许吧 🤷', '说不准 🫤', '好像有点 🫤',
+	'我想想 🤔', '也许吧 🤷', '说不准 🫤', '好像有点 🫤',
 	'猜对一半 🤷', '再想想 🤔', '有点痛 🩹', '一半一半 🐒',
 	'不好说 🫣', '看情况 😶', '也许大概 😬', '好像是的 🤥',
-	'说不好 🤫', '有点道理 🤨', '被你说中了 😅', 'emmm... 🤔'
+	'说不好 🤫', '有点道理 🤨', '稍微吧 😅', 'emmm... 🤔'
 ]
 const OPTS_LV3 = [
 	'被看穿了 😱', '就是我本人 ✅', '太准了 😳', '本人在此 😳',
-	'你监视我？ 🎯', '删掉监控 ✅', '精准打击 🔪', '是我本人 🐺',
+	'你偷窥我！👀', '删掉监控 📹️', '精准打击 🔪', '是我本人 😋',
 	'救命太准了 😰', '你在偷看我 👀', '我承认 😮‍💨', '被你发现了 🫢',
-	'全中 🎯', '这是监控吧 📹', '有被冒犯到 😠', '我闭嘴 🤐'
+	'全中 🎯', '全对 💯', '隐私被曝光 😠', '我闭嘴 🤐'
 ]
 const MOTTOS = ['离确诊又近了一步 🤡','嗯…有点东西 👀','你逃不掉的 🙃','这题有点扎心 🫠','最后一击 💥','稳住别慌 🫡']
 const BG_COLORS = ['#F7F8FA','#FFF9F4','#F4F7FB','#F7FAF4','#FCF6F4','#F4F8F9']
@@ -268,7 +268,8 @@ export default {
 			chargeSize: 240,
 			// 答题按钮充能就绪标记
 			chargeReady: false,
-			creatorNickname: ''
+			creatorNickname: '',
+			preloadedImageUrls: {}
 		}
 	},
 	computed: {
@@ -573,6 +574,8 @@ export default {
 				if (this.survey.creatorId) {
 					this.loadCreatorNickname()
 				}
+				// 提前异步下载全部结果类型图片到微信缓存
+				this.preloadResultImages()
 				this.slots.A.q = { ...this.qs[0], opts: this.pickOpts() }
 				// 首题入场动画完成后切到 entered 态（避免切题时 in→out 的 fill-mode 释放闪烁）
 				this.$nextTick(() => {
@@ -754,8 +757,37 @@ export default {
 			return fake
 		},
 
+		// ====== 预下载全部结果类型图片（fire-and-forget，不阻塞） ======
+		async preloadResultImages() {
+			const types = this.survey?.resultTypes || []
+			const cloudUrls = types
+				.map(t => t.image)
+				.filter(url => typeof url === 'string' && url.startsWith('cloud://'))
+
+			// 批量转换 cloud:// → https://
+			const urlMap = {}
+			if (cloudUrls.length) {
+				try {
+					const res = await uniCloud.getTempFileURL({ fileList: [...new Set(cloudUrls)] })
+					;(res.fileList || []).forEach(item => {
+						if (item.tempFileURL) urlMap[item.fileID] = item.tempFileURL
+					})
+					this.preloadedImageUrls = { ...this.preloadedImageUrls, ...urlMap }
+				} catch (e) { /* ignore */ }
+			}
+
+			// 所有图片 fire-and-forget 下载到微信缓存
+			types.forEach(t => {
+				const src = (typeof t.image === 'string' && urlMap[t.image]) || (typeof t.image === 'string' && t.image) || ''
+				if (src && !src.startsWith('cloud://')) {
+					uni.getImageInfo({ src, success: () => {}, fail: () => {} })
+				}
+			})
+		},
+
 		// ====== 跳转结果 ======
 		async goResult() {
+			try {
 			if (!this.survey) return
 			const dims = this.survey.dims
 			const sums = {}, cnts = {}
@@ -788,49 +820,44 @@ export default {
 			try {
 				const survey = uniCloud.importObject('survey')
 				const ansData = this.ans.map(a => ({ questionIndex: a.questionIndex, optionIndex: a.optionIndex }))
-				await survey.submitAnswer({
+				survey.submitAnswer({
 					surveyId: this.survey._id,
 					answers: ansData,
 					dimensionScores,
 					matchedType: { name: result.name, desc: result.desc, emoji: result.emoji },
 					surveySnapshot: this.survey
-				})
+				}).catch(e => { console.error('[answer-quiz] submitAnswer error:', e) })
 			} catch (e) {
 				console.error('[answer-quiz] submitAnswer error:', e)
 			}
 
 			const colors = this.survey.resultTypes.map(r => r.emojiBg)
-			// 提前解析 cloud:// 图片 URL，避免结果页 emoji 闪现
-			let imageUrl = result.image || ''
-			if (imageUrl.startsWith('cloud://')) {
+			// 优先使用预加载时缓存的 https URL，没有则兜底现场转换
+			// 强制转字符串防止非字符串类型（数组/对象）导致 .startsWith() 抛 TypeError
+			let imageUrl = this.preloadedImageUrls[result.image] || result.image || ''
+			if (typeof imageUrl !== 'string') imageUrl = ''
+			if (imageUrl && imageUrl.startsWith('cloud://')) {
 				try {
 					const res = await uniCloud.getTempFileURL({ fileList: [imageUrl] })
 					imageUrl = res.fileList[0].tempFileURL || imageUrl
 				} catch (e) { console.error('[answer-quiz] getTempFileURL:', e) }
 			}
 
-			// 预加载图片到微信缓存，结果页秒渲染
-			if (imageUrl && !imageUrl.startsWith('cloud://')) {
-				await new Promise((resolve) => {
-					uni.getImageInfo({
-						src: imageUrl,
-						success: () => resolve(),
-						fail: () => resolve()
-					})
-				})
-			}
-
 			uni.redirectTo({
 			url: '/pages-tools/result/result?tag=' + encodeURIComponent(this.tag) +
 				'&dims=' + encodeURIComponent(JSON.stringify(dims)) +
 				'&scores=' + encodeURIComponent(JSON.stringify(scores)) +
-				'&emoji=' + encodeURIComponent(result.emoji) +
+				'&emoji=' + encodeURIComponent(result.emoji || '') +
 				'&image=' + encodeURIComponent(imageUrl) +
-				'&rname=' + encodeURIComponent(result.name) +
-				'&rdesc=' + encodeURIComponent(result.desc) +
+				'&rname=' + encodeURIComponent(result.name || '') +
+				'&rdesc=' + encodeURIComponent(result.desc || '') +
 				'&colors=' + encodeURIComponent(JSON.stringify(colors)) +
 				'&surveyId=' + encodeURIComponent(this.survey._id)
 		})
+			} catch (e) {
+				console.error('[answer-quiz] goResult 异常：', e)
+				uni.showToast({ title: '出错了，请重试', icon: 'none', duration: 2000 })
+			}
 		}
 	}
 }
