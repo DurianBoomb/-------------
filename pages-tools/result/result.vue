@@ -30,6 +30,19 @@
 					<text class="desc-txt">{{ rdesc }}</text>
 					<text class="creator-line" v-if="creatorNickname">—— 来自 <text class="creator-name">{{ creatorNickname }}</text> 的创作</text>
 				</view>
+				<view class="mini-tags anim-res-4" v-if="miniTags.length">
+					<text class="mini-tags-title">🎲 继续发疯</text>
+					<view class="mini-tags-grid">
+						<view v-for="t in miniTags" :key="t._id"
+							:class="['mini-tag', 'mini-' + (t.rarity || 'common')]"
+							hover-class="tag-press"
+							:hover-start-time="0" :hover-stay-time="150"
+							@click="goMiniQuiz(t.name)"
+						>
+							<text>{{ t.name }}</text>
+						</view>
+					</view>
+				</view>
 				<view class="vote-area">
 					<view class="fav-btn" :class="{ 'fav-active': favorited }" hover-class="btn-press" :hover-start-time="0" :hover-stay-time="100" @click="toggleFav">
 						<text class="fav-icon">{{ favorited ? '⭐' : '☆' }}</text>
@@ -53,12 +66,6 @@
 
 		<view class="footer anim-res-4">
 			<view class="footer-inner">
-				<view class="btn-retry" hover-class="btn-press" :hover-start-time="0" :hover-stay-time="150" @click="retry">
-					<text>🔄</text><text>再来一次</text>
-				</view>
-			<view v-if="isCreator" class="btn-promote" hover-class="btn-press" :hover-start-time="0" :hover-stay-time="150" @click="promoteSurvey">
-				<text>📢</text><text>看广告置顶</text>
-			</view>
 				<button class="btn-share" open-type="share" hover-class="btn-press">
 					<image class="share-icon" src="/static/share.svg" mode="aspectFit"></image><text>分享给朋友</text>
 				</button>
@@ -92,6 +99,7 @@ export default {
 			isCreator: false, // 当前用户是否是问卷创建者
 			topPad: 48,
 			shareImagePath: '',
+			miniTags: [],
 
 	
 		}
@@ -122,6 +130,7 @@ export default {
 			this.loadVoteInfo()
 			this.loadCreatorInfo()
 			this.initShareCanvas()
+			this.loadMiniTags()
 		})
 	},
 
@@ -637,6 +646,44 @@ export default {
 			uni.redirectTo({ url: '/pages-tools/answer-quiz/answer-quiz?tag=' + encodeURIComponent(this.tag) })
 		},
 
+		async loadMiniTags() {
+			const survey = uniCloud.importObject('survey')
+			try {
+				const res = await survey.getTagList({ pageSize: 30, sortBy: 'random' })
+				if (res.errCode !== 0 || !res.data) return
+				const list = (res.data.list || []).filter(t => t.name !== this.tag)
+				this.miniTags = this.limitRows(list, 3)
+			} catch (e) { console.error('[result] loadMiniTags:', e) }
+		},
+		limitRows(tags, maxRows) {
+			const availableWidth = 750 - 96 // body-inner padding 48rpx * 2
+			const gap = 16
+			const cfg = {
+				common: { fontSize: 22, hPad: 10 },
+				rare: { fontSize: 22, hPad: 10 },
+				epic: { fontSize: 26, hPad: 12 },
+				darkgold: { fontSize: 28, hPad: 14 }
+			}
+			let rows = 0, rowWidth = 0
+			const result = []
+			for (const tag of tags) {
+				const c = cfg[tag.rarity] || cfg.common
+				const tw = c.hPad * 2 + tag.name.length * c.fontSize * 0.85
+				if (rowWidth + tw + (result.length > 0 && rowWidth > 0 ? gap : 0) > availableWidth) {
+					rows++
+					if (rows >= maxRows) break
+					rowWidth = tw
+				} else {
+					rowWidth += tw + (rowWidth > 0 ? gap : 0)
+				}
+				result.push(tag)
+			}
+			return result
+		},
+		goMiniQuiz(tag) {
+			uni.navigateTo({ url: '/pages-tools/answer-quiz/answer-quiz?tag=' + encodeURIComponent(tag) })
+		},
+
 		async loadVoteInfo() {
 			if (!this.tag) return
 			try {
@@ -784,6 +831,30 @@ export default {
 .vote-active.dislike { background: #FFF0F0; outline-color: #EF4444; color: #991B1B; }
 .vote-count { font-size: 24rpx; font-weight: 600; }
 
+.mini-tags { margin-top: 40rpx; }
+.mini-tags-title { font-size: 28rpx; font-weight: 700; color: #1E2939; display: block; margin-bottom: 20rpx; }
+.mini-tags-grid { display: flex; flex-wrap: wrap; gap: 16rpx; }
+.mini-tag {
+	padding: 10rpx 20rpx; border-radius: 40rpx;
+	font-size: 22rpx; font-weight: 500;
+	background: white; color: #374151;
+	border: 1rpx solid #D1D5DC;
+	box-shadow: 0 1rpx 2rpx -1rpx rgba(0,0,0,0.06);
+	transition: transform 0.1s;
+	white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis;
+}
+.mini-common { background: #F7F8FA; color: #101828; border-color: #D1D5DC; box-shadow: none; }
+.mini-rare { background: white; color: #4FC3F7; border-color: #4FC3F7; }
+.mini-epic { padding: 14rpx 24rpx; font-size: 26rpx; font-weight: 600; background: white; color: #A855F7; border-color: #A855F7; }
+.mini-darkgold {
+	padding: 16rpx 28rpx; font-size: 28rpx; font-weight: 900;
+	background: #1A1A1A; color: #C9A84C;
+	border-color: #C9A84C;
+	text-shadow: 0 0 6rpx rgba(201,168,76,0.5);
+	animation: miniDarkgoldGlow 3s ease-in-out infinite;
+}
+.tag-press { transform: scale(0.94); }
+
 .scroll-hint {
 	display: flex;
 	justify-content: center;
@@ -799,29 +870,18 @@ export default {
 	0%, 100% { transform: translateY(0); opacity: 0.6; }
 	50% { transform: translateY(14rpx); opacity: 1; }
 }
+@keyframes miniDarkgoldGlow {
+	0%, 100% { box-shadow: 0 0 8rpx rgba(201,168,76,0.3); border-color: #C9A84C; }
+	50% { box-shadow: 0 0 20rpx rgba(201,168,76,0.55); border-color: #E6C85C; }
+}
 .bottom-spacer { height: 200rpx; }
 .footer {
 	position: fixed; bottom: 0; left: 0; right: 0; padding: 0 24rpx 30rpx;
 	background: linear-gradient(0deg, #F7F8FA 0%, #F7F8FA 50%, transparent 100%);
 	display: flex; flex-direction: column; align-items: center;
 }
-.footer-inner { display: flex; gap: 12rpx; width: 100%; padding: 0 24rpx; }
-.btn-retry, .btn-promote, .btn-share { height: 118rpx; border-radius: 60rpx; display: flex; align-items: center; justify-content: center; gap: 6rpx; font-size: 32rpx; font-weight: 700; flex: 1; }
-.btn-retry {
-	background: #fff; color: #364153;
-	box-shadow: 0 1rpx 2rpx -1rpx rgba(0,0,0,.1), 0 1rpx 3rpx rgba(0,0,0,.1);
-	outline: 3rpx solid #E5E7EB; outline-offset: -3rpx;
-}
-.btn-promote {
-	background: linear-gradient(90deg, #FEF3C7 0%, #FDE68A 100%); color: #92400E;
-	box-shadow: 0 2rpx 4rpx -2rpx rgba(251,191,36,.3), 0 4rpx 6rpx -1rpx rgba(251,191,36,.3);
-	outline: 3rpx solid #FCD34D; outline-offset: -3rpx;
-}
-.btn-share {
-	flex: 1; background: linear-gradient(90deg, #FFB900 0%, #FF6900 100%); color: #fff;
-	box-shadow: 0 2rpx 4rpx -2rpx rgba(255,105,0,.3), 0 4rpx 6rpx -1rpx rgba(255,105,0,.3);
-	margin: 0; padding: 0; border: none; line-height: 1;
-}
+.footer-inner { display: flex; width: 100%; padding: 0 24rpx; }
+.btn-share { width: 100%; height: 118rpx; border-radius: 60rpx; display: flex; align-items: center; justify-content: center; gap: 6rpx; font-size: 32rpx; font-weight: 700; background: linear-gradient(90deg, #FFB900 0%, #FF6900 100%); color: #fff; box-shadow: 0 2rpx 4rpx -2rpx rgba(255,105,0,.3), 0 4rpx 6rpx -1rpx rgba(255,105,0,.3); margin: 0; padding: 0; border: none; line-height: 1; }
 .btn-share::after { border: none; }
 .btn-press { transform: scale(.96); }
 .footer-tag { font-size: 24rpx; color: #99A1AF; font-weight: 500; margin-top: 16rpx; }
