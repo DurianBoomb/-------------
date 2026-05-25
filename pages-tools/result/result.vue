@@ -30,6 +30,19 @@
 					<text class="desc-txt">{{ rdesc }}</text>
 					<text class="creator-line" v-if="creatorNickname">—— 来自 <text class="creator-name">{{ creatorNickname }}</text> 的创作</text>
 				</view>
+				<view class="mini-tags anim-res-4" v-if="miniTags.length">
+					<text class="mini-tags-title">🎲 继续发疯</text>
+					<view class="mini-tags-grid">
+						<view v-for="t in miniTags" :key="t._id"
+							:class="['mini-tag', 'mini-' + (t.rarity || 'common')]"
+							hover-class="tag-press"
+							:hover-start-time="0" :hover-stay-time="150"
+							@click="goMiniQuiz(t.name)"
+						>
+							<text>{{ t.name }}</text>
+						</view>
+					</view>
+				</view>
 			<view class="bottom-spacer"></view>
 			</view>
 		</scroll-view>
@@ -65,6 +78,7 @@ export default {
 			isCreator: false, // 当前用户是否是问卷创建者
 			topPad: 48,
 			shareImagePath: '',
+			miniTags: [],
 
 	
 		}
@@ -88,6 +102,7 @@ export default {
 			this.initRadar()
 			this.loadCreatorInfo()
 			this.initShareCanvas()
+			this.loadMiniTags()
 		})
 	},
 
@@ -603,6 +618,44 @@ export default {
 			uni.redirectTo({ url: '/pages-tools/answer-quiz/answer-quiz?tag=' + encodeURIComponent(this.tag) })
 		},
 
+		async loadMiniTags() {
+			const survey = uniCloud.importObject('survey')
+			try {
+				const res = await survey.getTagList({ pageSize: 30, sortBy: 'random' })
+				if (res.errCode !== 0 || !res.data) return
+				const list = (res.data.list || []).filter(t => t.name !== this.tag)
+				this.miniTags = this.limitRows(list, 3)
+			} catch (e) { console.error('[result] loadMiniTags:', e) }
+		},
+		limitRows(tags, maxRows) {
+			const availableWidth = 750 - 96
+			const gap = 16
+			const cfg = {
+				common: { fontSize: 22, hPad: 10 },
+				rare: { fontSize: 22, hPad: 10 },
+				epic: { fontSize: 26, hPad: 12 },
+				darkgold: { fontSize: 28, hPad: 14 }
+			}
+			let rows = 0, rowWidth = 0
+			const result = []
+			for (const tag of tags) {
+				const c = cfg[tag.rarity] || cfg.common
+				const tw = c.hPad * 2 + tag.name.length * c.fontSize * 0.85
+				if (rowWidth + tw + (result.length > 0 && rowWidth > 0 ? gap : 0) > availableWidth) {
+					rows++
+					if (rows >= maxRows) break
+					rowWidth = tw
+				} else {
+					rowWidth += tw + (rowWidth > 0 ? gap : 0)
+				}
+				result.push(tag)
+			}
+			return result
+		},
+		goMiniQuiz(tag) {
+			uni.navigateTo({ url: '/pages-tools/answer-quiz/answer-quiz?tag=' + encodeURIComponent(tag) })
+		},
+
 		async loadCreatorInfo() {
 			if (!this.surveyId) return
 			try {
@@ -680,6 +733,30 @@ export default {
 .desc-txt { font-size: 30rpx; color: #4A5565; font-weight: 500; line-height: 1.8; text-align: justify; letter-spacing: 0.76rpx; }
 .creator-line { display: block; font-size: 24rpx; color: #99A1AF; margin-top: 24rpx; text-align: right; font-weight: 400; }
 .creator-name { color: #F97316; font-weight: 600; }
+.mini-tags { margin-top: 40rpx; }
+.mini-tags-title { font-size: 28rpx; font-weight: 700; color: #1E2939; display: block; margin-bottom: 20rpx; }
+.mini-tags-grid { display: flex; flex-wrap: wrap; gap: 16rpx; }
+.mini-tag {
+	padding: 10rpx 20rpx; border-radius: 40rpx;
+	font-size: 22rpx; font-weight: 500;
+	background: white; color: #374151;
+	border: 1rpx solid #D1D5DC;
+	box-shadow: 0 1rpx 2rpx -1rpx rgba(0,0,0,0.06);
+	transition: transform 0.1s;
+	white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis;
+}
+.mini-common { background: #F7F8FA; color: #101828; border-color: #D1D5DC; box-shadow: none; }
+.mini-rare { background: white; color: #4FC3F7; border-color: #4FC3F7; }
+.mini-epic { padding: 14rpx 24rpx; font-size: 26rpx; font-weight: 600; background: white; color: #A855F7; border-color: #A855F7; }
+.mini-darkgold {
+	padding: 16rpx 28rpx; font-size: 28rpx; font-weight: 900;
+	background: #1A1A1A; color: #C9A84C;
+	border-color: #C9A84C;
+	text-shadow: 0 0 6rpx rgba(201,168,76,0.5);
+	animation: miniDarkgoldGlow 3s ease-in-out infinite;
+}
+.tag-press { transform: scale(0.94); }
+
 .scroll-hint {
 	display: flex;
 	justify-content: center;
@@ -694,6 +771,10 @@ export default {
 @keyframes bounceDown {
 	0%, 100% { transform: translateY(0); opacity: 0.6; }
 	50% { transform: translateY(14rpx); opacity: 1; }
+}
+@keyframes miniDarkgoldGlow {
+	0%, 100% { box-shadow: 0 0 8rpx rgba(201,168,76,0.3); border-color: #C9A84C; }
+	50% { box-shadow: 0 0 20rpx rgba(201,168,76,0.55); border-color: #E6C85C; }
 }
 .bottom-spacer { height: 200rpx; }
 .footer {
