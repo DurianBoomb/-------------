@@ -640,7 +640,7 @@ export default {
 		},
 
 		goHome() {
-			uni.navigateBack()
+			uni.redirectTo({ url: '/pages-tools/quiz-home/quiz-home' })
 		},
 		retry() {
 			uni.redirectTo({ url: '/pages-tools/answer-quiz/answer-quiz?tag=' + encodeURIComponent(this.tag) })
