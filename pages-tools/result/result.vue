@@ -7,7 +7,7 @@
 		<!-- 隐藏 Canvas：用于生成分享图 -->
 		<canvas type="2d" id="shareCanvas" class="share-canvas"></canvas>
 
-		<scroll-view class="body" scroll-y>
+		<scroll-view class="body" scroll-y :scroll-top="st">
 			<view class="body-inner">
 				<view class="anim-res-1">
 			<view class="emoji-circle">
@@ -79,6 +79,7 @@ export default {
 			topPad: 48,
 			shareImagePath: '',
 			miniTags: [],
+			st: 0,
 
 	
 		}
@@ -103,6 +104,8 @@ export default {
 			this.loadCreatorInfo()
 			this.initShareCanvas()
 			this.loadMiniTags()
+			// 微滚动触发 Canvas 2D 在 scroll-view 内重新布局
+			setTimeout(() => { this.st = 1 }, 100)
 		})
 	},
 
