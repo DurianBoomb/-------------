@@ -189,8 +189,6 @@
 				</view>
 			</view>
 			<!-- #endif -->
-			<!-- 临时测试：跳过答题直接出结果（不污染数据库） -->
-			<view class="mock-skip" @click="mockSkip">⚡M</view>
 		</template>
 	</view>
 </template>
@@ -270,7 +268,8 @@ export default {
 			chargeSize: 240,
 			// 答题按钮充能就绪标记
 			chargeReady: false,
-			creatorNickname: ''
+			creatorNickname: '',
+			_preloadedImageUrls: {}
 		}
 	},
 	computed: {
@@ -575,6 +574,8 @@ export default {
 				if (this.survey.creatorId) {
 					this.loadCreatorNickname()
 				}
+				// 提前异步下载全部结果类型图片到微信缓存
+				this.preloadResultImages()
 				this.slots.A.q = { ...this.qs[0], opts: this.pickOpts() }
 				// 首题入场动画完成后切到 entered 态（避免切题时 in→out 的 fill-mode 释放闪烁）
 				this.$nextTick(() => {
@@ -756,26 +757,31 @@ export default {
 			return fake
 		},
 
-		// ====== Mock 跳过（临时测试，不调用 submitAnswer 避免污染） ======
-		mockSkip() {
-			if (!this.survey) return
-			const dims = this.survey.dims
-			// 随机生成分数
-			const scores = dims.map(() => Math.floor(Math.random() * 60) + 30)
-			// 随机选中一个结果类型
-			const results = this.survey.resultTypes
-			const result = results[Math.floor(Math.random() * results.length)]
-			const colors = results.map(r => r.emojiBg)
-			uni.redirectTo({
-				url: '/pages-tools/result/result?tag=' + encodeURIComponent(this.tag) +
-					'&dims=' + encodeURIComponent(JSON.stringify(dims)) +
-					'&scores=' + encodeURIComponent(JSON.stringify(scores)) +
-					'&emoji=' + encodeURIComponent(result.emoji) +
-					'&image=' + encodeURIComponent(result.image || '') +
-					'&rname=' + encodeURIComponent(result.name) +
-					'&rdesc=' + encodeURIComponent(result.desc) +
-					'&colors=' + encodeURIComponent(JSON.stringify(colors)) +
-					'&surveyId=' + encodeURIComponent(this.survey._id)
+		// ====== 预下载全部结果类型图片（fire-and-forget，不阻塞） ======
+		async preloadResultImages() {
+			const types = this.survey?.resultTypes || []
+			const cloudUrls = types
+				.map(t => t.image)
+				.filter(url => url && url.startsWith('cloud://'))
+
+			// 批量转换 cloud:// → https://
+			const urlMap = {}
+			if (cloudUrls.length) {
+				try {
+					const res = await uniCloud.getTempFileURL({ fileList: [...new Set(cloudUrls)] })
+					;(res.fileList || []).forEach(item => {
+						if (item.tempFileURL) urlMap[item.fileID] = item.tempFileURL
+					})
+					this._preloadedImageUrls = { ...this._preloadedImageUrls, ...urlMap }
+				} catch (e) { /* ignore */ }
+			}
+
+			// 所有图片 fire-and-forget 下载到微信缓存
+			types.forEach(t => {
+				const src = urlMap[t.image] || t.image || ''
+				if (src && !src.startsWith('cloud://')) {
+					uni.getImageInfo({ src, success: () => {}, fail: () => {} })
+				}
 			})
 		},
 
@@ -813,28 +819,25 @@ export default {
 			try {
 				const survey = uniCloud.importObject('survey')
 				const ansData = this.ans.map(a => ({ questionIndex: a.questionIndex, optionIndex: a.optionIndex }))
-				await survey.submitAnswer({
+				survey.submitAnswer({
 					surveyId: this.survey._id,
 					answers: ansData,
 					dimensionScores,
 					matchedType: { name: result.name, desc: result.desc, emoji: result.emoji },
 					surveySnapshot: this.survey
-				})
+				}).catch(e => { console.error('[answer-quiz] submitAnswer error:', e) })
 			} catch (e) {
 				console.error('[answer-quiz] submitAnswer error:', e)
 			}
 
 			const colors = this.survey.resultTypes.map(r => r.emojiBg)
-
-			// 预加载图片到微信缓存，结果页秒渲染
-			if (imageUrl && !imageUrl.startsWith('cloud://')) {
-				await new Promise((resolve) => {
-					uni.getImageInfo({
-						src: imageUrl,
-						success: () => resolve(),
-						fail: () => resolve()
-					})
-				})
+			// 优先使用预加载时缓存的 https URL，没有则兜底现场转换
+			let imageUrl = this._preloadedImageUrls[result.image] || result.image || ''
+			if (imageUrl.startsWith('cloud://')) {
+				try {
+					const res = await uniCloud.getTempFileURL({ fileList: [imageUrl] })
+					imageUrl = res.fileList[0].tempFileURL || imageUrl
+				} catch (e) { console.error('[answer-quiz] getTempFileURL:', e) }
 			}
 
 			uni.redirectTo({
@@ -842,7 +845,7 @@ export default {
 				'&dims=' + encodeURIComponent(JSON.stringify(dims)) +
 				'&scores=' + encodeURIComponent(JSON.stringify(scores)) +
 				'&emoji=' + encodeURIComponent(result.emoji) +
-				'&image=' + encodeURIComponent(result.image || '') +
+				'&image=' + encodeURIComponent(imageUrl) +
 				'&rname=' + encodeURIComponent(result.name) +
 				'&rdesc=' + encodeURIComponent(result.desc) +
 				'&colors=' + encodeURIComponent(JSON.stringify(colors)) +
@@ -1413,17 +1416,6 @@ export default {
 	0%   { opacity: 0.5; }
 	50%  { opacity: 1; }
 	100% { opacity: 0.5; }
-}
-
-/* ===== mock 跳过按钮（临时测试） ===== */
-.mock-skip {
-	position: fixed; top: 16rpx; right: 16rpx; z-index: 999;
-	padding: 4rpx 12rpx;
-	background: rgba(249,115,22,0.12);
-	color: #F97316; font-size: 20rpx; font-weight: 700;
-	border-radius: 16rpx;
-	border: 2rpx solid rgba(249,115,22,0.25);
-	line-height: 1.6;
 }
 
 /* #ifdef H5 */
