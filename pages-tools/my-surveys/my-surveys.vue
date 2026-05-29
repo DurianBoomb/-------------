@@ -6,7 +6,7 @@
 				<view class="hd-back" hover-class="press-9" :hover-start-time="0" :hover-stay-time="150" @click="goBack">
 					<image class="back-arrow" src="/static/left.svg" mode="aspectFit"></image>
 				</view>
-				<text class="hd-title">已生成问卷</text>
+				<text class="hd-title">已生成模板</text>
 			</view>
 		</view>
 
@@ -18,11 +18,11 @@
 				</view>
 				<view v-else-if="needLogin" class="empty-state">
 					<text class="empty-icon">🪄</text>
-					<text class="empty-txt">登录后才能查看已生成的问卷</text>
+					<text class="empty-txt">登录后才能查看已生成的模板</text>
 				</view>
 				<view v-else-if="list.length === 0" class="empty-state">
 					<text class="empty-icon">🪄</text>
-					<text class="empty-txt">还没有生成过问卷，去搜索页定制一个吧 🧐</text>
+					<text class="empty-txt">还没有生成过模板，去搜索页定制一个吧 🧐</text>
 				</view>
 				<view v-else class="list">
 					<view v-for="(item, idx) in list" :key="idx" class="card">
@@ -83,7 +83,7 @@ export default {
 		},
 		removeSurvey(item, idx) {
 			uni.showModal({
-				title: '删除问卷',
+				title: '删除模板',
 				content: `确定删除「${item.title || item.tagName}」吗？（答题数据不受影响）`,
 				success: async (res) => {
 					if (!res.confirm) return
@@ -109,7 +109,7 @@ export default {
 			const dims = item.dims || []
 			const rts = item.resultTypes || []
 			if (!qs.length || !dims.length) {
-				uni.showToast({ title: '问卷数据不完整', icon: 'none' })
+				uni.showToast({ title: '模板数据不完整', icon: 'none' })
 				return
 			}
 			uni.navigateTo({

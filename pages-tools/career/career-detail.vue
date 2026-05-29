@@ -54,7 +54,7 @@
 
 						<view class="cert-title-row">
 							<text class="cert-quote">「</text>
-							<text class="cert-title">{{ record.surveyTitle || '未知问卷' }}</text>
+							<text class="cert-title">{{ record.surveyTitle || '未知模板' }}</text>
 							<text class="cert-quote">」</text>
 						</view>
 
@@ -260,9 +260,9 @@ export default {
 					ctx.textAlign = 'center'
 					ctx.fillStyle = '#9CA3AF'
 					ctx.font = '13px ' + FONT
-					ctx.fillText('经本局鉴定，以下问卷在置顶期间获得如下注视：', W / 2, y); y += 28
+					ctx.fillText('经本局鉴定，以下模板在置顶期间获得如下注视：', W / 2, y); y += 28
 
-					const title = rec.surveyTitle || '未知问卷'
+					const title = rec.surveyTitle || '未知模板'
 					ctx.font = 'bold 20px ' + FONT
 					ctx.fillStyle = '#1F2937'
 					ctx.fillText('《' + title + '》', W / 2, y); y += 36

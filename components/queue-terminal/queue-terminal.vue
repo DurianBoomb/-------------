@@ -75,7 +75,7 @@ export default {
 			const pct = Math.min(99, Math.floor(this.effectiveElapsed / totalDuration * 100))
 			// 进度很低时显示自然提示，不暴露百分比
 			if (pct <= 0) return '刚进来，正在排队'
-			if (pct < 10) return '正在审核你的问卷...'
+			if (pct < 10) return '正在审核你的模板...'
 			if (pct < 30) return '内容审核中...'
 			if (pct < 50) return '质量检测中...'
 			if (pct < 70) return '推送分发中...'

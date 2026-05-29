@@ -16,7 +16,7 @@
 					<input
 						class="input-field"
 						v-model="keyword"
-						placeholder="搜点啥，万一有呢..."
+						placeholder="想打印什么标签？"
 						:focus="true"
 						@input="onSearch"
 					/>
@@ -29,7 +29,7 @@
 
 			<!-- 搜索结果区域 -->
 			<view class="result-area" v-if="!keyword">
-				<text class="default-text">输入点什么吧，你不打字我怎么知道你想测啥 🥱</text>
+				<text class="default-text">输入标签名，标签机就会给你匹配或设计一套模板</text>
 			</view>
 			<view class="result-area has-results" v-else>
 			<view
@@ -58,8 +58,8 @@
 						<text class="custom-tag-symbol">🪄</text>
 					</view>
 					<view class="custom-tag-body">
-						<text class="custom-tag-headline">没搜到想要的？</text>
-						<text class="custom-tag-sub">看个广告，我现场给你定制一个！</text>
+						<text class="custom-tag-headline">标签机还没学会这个标签</text>
+						<text class="custom-tag-sub">看个广告，现场教它打印新模板！</text>
 					</view>
 					<text class="custom-tag-arrow">›</text>
 				</view>
@@ -126,7 +126,7 @@
 			<view class="sheet-panel" @click.stop>
 				<view class="sheet-handle"></view>
 				<view class="sheet-header">
-					<text class="sheet-title">🪄 定制你的专属标签</text>
+					<text class="sheet-title">🖨️ 教标签机打印新模板</text>
 					<text class="sheet-close" @click="hideCustomPopup">✕</text>
 				</view>
 				<view class="sheet-body">
@@ -147,7 +147,7 @@
 				</view>
 				<view class="sheet-footer">
 					<view class="sheet-btn" hover-class="press-95" :hover-start-time="0" :hover-stay-time="150" @click="submitCustomTag">
-						<text class="sheet-btn-text">看广告，开始生成</text>
+						<text class="sheet-btn-text">看广告，教标签机学习</text>
 					</view>
 				</view>
 			</view>
@@ -430,7 +430,7 @@ export default {
 				} else if (res.errCode === 'AUTH_ERROR') {
 					uni.showModal({
 						title: '请先登录',
-						content: '生成问卷需要登录账号',
+						content: '生成模板需要登录账号',
 						success: (r) => {
 							if (r.confirm) {
 								uni.navigateTo({ url: '/pages/ucenter/login/login' })
@@ -454,7 +454,7 @@ export default {
 			} else if (res.errCode === 'TAG_ALREADY_EXISTS') {
 				uni.showModal({
 					title: '标签已存在',
-					content: '该标签已有其他人生成的问卷，请换一个标签名',
+					content: '该标签已有其他人生成的模板，请换一个标签名',
 					showCancel: false
 				})
 			} else {

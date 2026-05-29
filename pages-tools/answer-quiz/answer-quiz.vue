@@ -213,7 +213,7 @@ const OPTS_LV3 = [
 	'救命太准了 😰', '你在偷看我 👀', '我承认 😮‍💨', '被你发现了 🫢',
 	'全中 🎯', '全对 💯', '隐私被曝光 😠', '我闭嘴 🤐'
 ]
-const MOTTOS = ['离确诊又近了一步 🤡','嗯…有点东西 👀','你逃不掉的 🙃','这题有点扎心 🫠','最后一击 💥','稳住别慌 🫡']
+const MOTTOS = ['参数采集中…','特征提取中…','成分扫描中…','数据分析中…','标签排版中…','准备打印…']
 const BG_COLORS = ['#F7F8FA','#FFF9F4','#F4F7FB','#F7FAF4','#FCF6F4','#F4F8F9']
 const CONFETTI_COLORS = ['#FB923C','#F97316','#FDBA74','#FCD34D','#34D399','#60A5FA']
 
@@ -303,7 +303,7 @@ export default {
 			survey.recordShare({ surveyId: this.survey._id }).catch(() => {})
 		}
 		return {
-			title: '来看看「' + (this.title || '这份问卷') + '」',
+			title: '标签自动机给我打了张标签：' + (this.title || '这个标签'),
 			path: '/pages-tools/answer-quiz/answer-quiz?tag=' + encodeURIComponent(this.tag) + '&surveyId=' + encodeURIComponent(this.survey._id)
 		}
 	},
@@ -592,7 +592,7 @@ export default {
 				console.error('[answer-quiz] load error:', e.message)
 				this.loading = false
 				if (e.message && e.message.indexOf('未找到') !== -1) {
-					uni.showToast({ title: '该标签暂无问卷数据', icon: 'none' })
+					uni.showToast({ title: '标签机还没学会打印这个标签', icon: 'none' })
 					setTimeout(() => {
 						const pages = getCurrentPages()
 						if (pages.length > 1) {

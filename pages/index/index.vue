@@ -106,9 +106,9 @@ export default {
 			tools: [
 				{
 					id: 'quiz',
-					name: '趣味测试',
+					name: '标签自动机',
 					emoji: '📝',
-					desc: '测着玩的，别当真',
+					desc: 'AI自动生成，仅供娱乐',
 					route: '/pages-tools/quiz-home/quiz-home'
 				}
 			]

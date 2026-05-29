@@ -9,7 +9,7 @@
 			<view class="gcs-logs">
 				<text class="gcs-log">[系统] 检测到新用户绿色通道资格 ✓</text>
 				<text class="gcs-log">[系统] 正在跳过候场区...</text>
-				<text class="gcs-log">[系统] → 您的问卷已进入置顶池！</text>
+				<text class="gcs-log">[系统] → 您的模板已进入置顶池！</text>
 			</view>
 		</view>
 	</view>

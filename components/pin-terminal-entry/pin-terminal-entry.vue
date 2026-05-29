@@ -5,7 +5,7 @@
 			<text>📺</text>
 		</view>
 		<view class="pte-info">
-			<text class="pte-title">看广告 · 置顶问卷</text>
+			<text class="pte-title">看广告 · 置顶模板</text>
 			<text class="pte-desc">15分钟精选曝光</text>
 		</view>
 		<text class="pte-arrow">→</text>
@@ -138,8 +138,8 @@ export default {
 		_promptSurveyId() {
 			return new Promise((resolve) => {
 				uni.showModal({
-					title: '选择问卷',
-					content: '输入问卷ID置顶',
+					title: '选择模板',
+					content: '输入模板ID置顶',
 					editable: true,
 					placeholderText: '请输入 surveyId',
 					success: (r) => {

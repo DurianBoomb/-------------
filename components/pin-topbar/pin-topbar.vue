@@ -3,7 +3,7 @@
 	<view class="pin-topbar">
 		<view class="ptb-header">
 			<text class="ptb-title">🔥 置顶热门</text>
-			<text class="ptb-subtitle">你的问卷正在被推荐</text>
+			<text class="ptb-subtitle">你的模板正在被推荐</text>
 		</view>
 
 		<!-- 加载态：骨架屏 -->
@@ -18,8 +18,8 @@
 		<!-- 空池态：引导 -->
 		<view v-else-if="cards.length === 0" class="ptb-empty">
 			<text class="ptb-empty-icon">📭</text>
-			<text class="ptb-empty-txt">当前暂无置顶问卷</text>
-			<text class="ptb-empty-sub">看广告置顶你的问卷，让它被更多人看见</text>
+			<text class="ptb-empty-txt">当前暂无置顶模板</text>
+			<text class="ptb-empty-sub">看广告置顶你的模板，让它被更多人看见</text>
 		</view>
 
 		<!-- 正常态：水平滚动卡片 -->

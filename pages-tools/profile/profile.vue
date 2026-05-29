@@ -6,14 +6,14 @@
 				<view class="hd-back" hover-class="press-9" :hover-start-time="0" :hover-stay-time="150" @click="goBack">
 					<image class="back-arrow" src="/static/left.svg" mode="aspectFit"></image>
 				</view>
-				<text class="hd-title">照照镜子</text>
+				<text class="hd-title">标签收藏册</text>
 			</view>
 			<view class="hd-nickname" @click="showNicknameEditor = true">
 				<text class="hd-nickname-label">昵称：</text>
 				<text class="hd-nickname-val">{{ nickname }}</text>
 				<text class="hd-nickname-edit">✏️</text>
 			</view>
-			<text class="hd-subtitle">已确诊 {{ total }} 个标签</text>
+			<text class="hd-subtitle">已打印 {{ total }} 张标签</text>
 		</view>
 
 		<!-- 昵称编辑弹窗 -->
@@ -36,8 +36,8 @@
 				</view>
 			<view v-else-if="list.length === 0" class="empty-state">
 					<text class="empty-icon">📋</text>
-					<text class="empty-txt">还没有答题记录</text>
-					<text class="empty-sub">去首页随便测测吧 🧐</text>
+					<text class="empty-txt">标签本还是空的</text>
+					<text class="empty-sub">去首页让标签机打几张吧 🏷️</text>
 				</view>
 				<view v-else class="profile-list">
 					<view v-for="(item, idx) in list" :key="item._id || idx" class="profile-card" hover-class="press-98" :hover-start-time="0" :hover-stay-time="150" @click="goResult(item)">

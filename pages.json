@@ -99,7 +99,7 @@
 				"path": "quiz-home/quiz-home",
 				"style": {
 					"navigationStyle": "custom",
-					"navigationBarTitleText": "趣味测试"
+					"navigationBarTitleText": "标签自动机"
 				}
 			},
 			{
@@ -113,21 +113,21 @@
 				"path": "search/search-page",
 				"style": {
 					"navigationStyle": "custom",
-					"navigationBarTitleText": "搜索"
+					"navigationBarTitleText": "标签模板"
 				}
 			},
 			{
 				"path": "result/result",
 				"style": {
 					"navigationStyle": "custom",
-					"navigationBarTitleText": "测试结果"
+					"navigationBarTitleText": "标签已打印"
 				}
 			},
 			{
 				"path": "answer-history/answer-history",
 				"style": {
 					"navigationStyle": "custom",
-					"navigationBarTitleText": "答题历史",
+					"navigationBarTitleText": "标签收藏册",
 					"enablePullDownRefresh": true
 				}
 			},
@@ -142,7 +142,7 @@
 				"path": "profile/profile",
 				"style": {
 					"navigationStyle": "custom",
-					"navigationBarTitleText": "照照镜子"
+					"navigationBarTitleText": "标签收藏册"
 				}
 			},
 			{

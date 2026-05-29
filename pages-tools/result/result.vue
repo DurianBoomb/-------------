@@ -14,7 +14,7 @@
 				<image v-if="resultImage" class="emoji-img" :src="resultImage" mode="aspectFit"></image>
 				<text v-else class="emoji-txt">{{ emoji }}</text>
 			</view>
-					<text class="title-main">你被确诊为</text>
+					<text class="title-main">拿好标签</text>
 					<view class="badge">
 						<text class="badge-txt">{{ rname }}</text>
 					</view>
@@ -48,7 +48,7 @@
 						<text class="fav-icon">{{ favorited ? '⭐' : '☆' }}</text>
 						<text class="fav-label">{{ favorited ? '已收藏' : '收藏' }}</text>
 					</view>
-					<text class="vote-label">这个结果你觉得准吗？</text>
+					<text class="vote-label">这个标签贴得准吗？</text>
 					<view class="vote-btns">
 						<view class="vote-btn like" :class="{ 'vote-active': userVote === 'like' }" hover-class="btn-press" :hover-start-time="0" :hover-stay-time="100" @click="doVote('like')">
 							<text>👍</text>
@@ -67,10 +67,10 @@
 		<view class="footer anim-res-4">
 			<view class="footer-inner">
 				<button class="btn-share" open-type="share" hover-class="btn-press">
-					<image class="share-icon" src="/static/share.svg" mode="aspectFit"></image><text>分享给朋友</text>
+					<image class="share-icon" src="/static/share.svg" mode="aspectFit"></image><text>贴出去</text>
 				</button>
 			</view>
-			<text class="footer-tag">测着玩的，别当真 😅</text>
+			<text class="footer-tag">标签机可能会打歪，AI 自动生成，仅供娱乐</text>
 		</view>
 	</view>
 </template>
@@ -143,7 +143,7 @@ export default {
 
 	onShareAppMessage() {
 		return {
-			title: '来看看「' + (this.rname || '结果') + '」',
+			title: '标签自动机给我打了张标签：' + (this.rname || '未知标签'),
 			path: '/pages-tools/answer-quiz/answer-quiz?tag=' + encodeURIComponent(this.tag),
 			imageUrl: this.shareImagePath || '/static/share-banner.png'
 		}
@@ -521,7 +521,7 @@ export default {
 			ctx.textAlign = 'center'
 			ctx.textBaseline = 'middle'
 			ctx.font = '700 13px sans-serif'
-			ctx.fillText('今日确诊', 80, 133)
+			ctx.fillText('标签已打印', 80, 133)
 
 		// ====== 6. 主标题：结果名 ======
 		const mainTitle = this.rname || ''
@@ -733,7 +733,7 @@ export default {
 		},
 		promoteSurvey() {
 			if (!this.surveyId) {
-				uni.showToast({ title: '问卷ID不可用', icon: 'none' })
+				uni.showToast({ title: '模板ID不可用', icon: 'none' })
 				return
 			}
 			playAd(this.surveyId)

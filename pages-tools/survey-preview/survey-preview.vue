@@ -6,7 +6,7 @@
 				<view class="hd-back" hover-class="press-9" :hover-start-time="0" :hover-stay-time="150" @click="goBack">
 					<image class="back-arrow" src="/static/left.svg" mode="aspectFit"></image>
 				</view>
-				<text class="hd-title">问卷预览</text>
+				<text class="hd-title">模板预览</text>
 			</view>
 		</view>
 
@@ -175,7 +175,7 @@ export default {
 			} else if (res.errCode === 'TAG_ALREADY_EXISTS') {
 				uni.showModal({
 					title: '标签已存在',
-					content: '该标签已有其他人生成的问卷，请换个标签名试试',
+					content: '该标签已有其他人生成的模板，请换个标签名试试',
 					showCancel: false
 				})
 			} else {

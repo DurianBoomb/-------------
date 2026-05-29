@@ -46,7 +46,7 @@
 				<!-- 搜索栏 -->
 				<view class="search-bar" @click="goSearch">
 					<text class="search-icon">🔍</text>
-					<text class="search-placeholder">搜点啥，万一有呢...</text>
+					<text class="search-placeholder">想打印什么标签？</text>
 				</view>
 
 				<!-- 随便测测 -->
@@ -54,9 +54,9 @@
 					<view class="random-left">
 						<view class="random-title-row">
 							<text class="dice-icon">🎲</text>
-							<text class="random-title">随便测测</text>
+							<text class="random-title">随便打一张</text>
 						</view>
-						<text class="random-desc">瞎选一个，反正测出来也不准</text>
+						<text class="random-desc">瞎填也行，反正标签机经常打歪</text>
 					</view>
 				<view class="random-arrow">
 					<image class="random-arrow-img" src="/static/right.svg" mode="aspectFit"></image>
@@ -66,7 +66,7 @@
 				<!-- 标签池 -->
 				<view class="tag-pool">
 				<view class="tag-pool-header">
-					<text class="tag-pool-title">🏷️ 随便逛逛</text>
+					<text class="tag-pool-title">🏷️ 标签模板库</text>
 					<view class="tag-pool-actions">
 						<view class="refresh-btn" @click="handleRefresh">
 							<view class="icon-wrapper" :style="{ transform: 'rotate(' + spinDeg + 'deg)' }">🔄</view>

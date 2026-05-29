@@ -65,7 +65,7 @@
 				<view v-if="careerTotal === 0 && !loadingCareers" class="empty-state">
 					<text class="empty-icon">📋</text>
 					<text class="empty-txt">暂无历史档案</text>
-					<text class="empty-sub">置顶过的问卷到期后，战绩单会出现在这里</text>
+					<text class="empty-sub">置顶过的模板到期后，战绩单会出现在这里</text>
 				</view>
 
 				<!-- 加载态 -->
@@ -191,7 +191,7 @@ export default {
 		careerGroups() {
 			const groups = {}
 			for (const rec of this.careerRecords) {
-				const key = rec.surveyTitle || '未知问卷'
+				const key = rec.surveyTitle || '未知模板'
 				if (!groups[key]) { groups[key] = { surveyTitle: key, records: [], latestAt: 0, expanded: false } }
 				groups[key].records.push(rec)
 				if (rec.createdAt > groups[key].latestAt) groups[key].latestAt = rec.createdAt
@@ -212,9 +212,9 @@ export default {
 			}
 			const audience = totalViews
 			let oneLiner = ''
-			if (audience >= 100000) oneLiner = '你的问卷累计被世界注视过 ' + this.formatNum(audience) + ' 次，相当于一场大型演唱会的观众人数。本局对此表示认可。'
-			else if (audience >= 10000) oneLiner = '你的问卷累计被世界注视过 ' + this.formatNum(audience) + ' 次，相当于一座小型体育馆的观众数。'
-			else if (audience >= 1000) oneLiner = '你的问卷累计被世界注视过 ' + this.formatNum(audience) + ' 次，已经超过一个班级的人数啦。'
+			if (audience >= 100000) oneLiner = '你的模板累计被世界注视过 ' + this.formatNum(audience) + ' 次，相当于一场大型演唱会的观众人数。本局对此表示认可。'
+			else if (audience >= 10000) oneLiner = '你的模板累计被世界注视过 ' + this.formatNum(audience) + ' 次，相当于一座小型体育馆的观众数。'
+			else if (audience >= 1000) oneLiner = '你的模板累计被世界注视过 ' + this.formatNum(audience) + ' 次，已经超过一个班级的人数啦。'
 			else oneLiner = '你的每一份档案都在积累，万丈高楼从地起。'
 			return { totalViews, totalClicks, totalFavs, oneLiner }
 		}
