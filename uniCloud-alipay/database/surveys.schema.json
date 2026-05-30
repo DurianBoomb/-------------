@@ -122,6 +122,19 @@
 			"defaultValue": {
 				"$env": "now"
 			}
+		},
+		"clickCount": {
+			"bsonType": "int",
+			"description": "外部用户打开答题页的累计次数，达到 101 后标签晋升 handmade1",
+			"defaultValue": 0,
+			"minimum": 0
+		},
+		"source": {
+			"bsonType": "string",
+			"description": "问卷来源：coze（用户AI生成）或空（系统预置）",
+			"enum": [
+				{ "value": "coze", "text": "用户Coze生成" }
+			]
 		}
 	},
 	"indexes": [
@@ -135,11 +148,15 @@
 			]
 		},
 		{
-			"name": "tagName_unique",
+			"name": "tagName_creatorId_unique",
 			"unique": true,
 			"fields": [
 				{
 					"name": "tagName",
+					"direction": "asc"
+				},
+				{
+					"name": "creatorId",
 					"direction": "asc"
 				}
 			]

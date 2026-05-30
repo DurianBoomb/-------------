@@ -1,6 +1,10 @@
 <!-- ========== 结果页 ========== -->
 <template>
 	<view class="page">
+		<!-- 阶段三调试指示条 -->
+		<view v-if="debugMode" class="debug-bar" :class="debugBarClass">
+			<text>{{ debugBarText }}</text>
+		</view>
 		<view class="back-btn" :style="{ top: topPad + 'px' }" hover-class="btn-press" :hover-start-time="0" :hover-stay-time="100" @click="goHome">
 			<image class="back-icon" src="/static/left.svg" mode="aspectFit"></image>
 		</view>
@@ -60,6 +64,16 @@
 						</view>
 					</view>
 				</view>
+				<view v-if="clickCount != null && rarity" class="exp-bar-section">
+					<view class="exp-bar-row">
+						<text class="exp-bar-label">🔥 总点击 {{ clickCount }}/{{ nextThreshold }}</text>
+						<text class="exp-bar-badge">{{ rarityDisplay }}</text>
+					</view>
+					<view class="exp-bar-track">
+						<view class="exp-bar-fill" :style="{ width: expPercent + '%' }"></view>
+					</view>
+					<text class="exp-bar-hint">分享助力升级</text>
+				</view>
 			<view class="bottom-spacer"></view>
 			</view>
 		</scroll-view>
@@ -80,6 +94,8 @@ import { playAd } from '@/common/ad-utils.js'
 export default {
 		data() {
 		return {
+			debugMode: false,
+			debugSurveyId: '',
 			scores: [85, 90, 40, 75, 80],
 			labels: ['淀粉肠指数', '加肉程度', '社交油腻度', '性价比', '抗造性'],
 		emoji: '🌭',
@@ -100,11 +116,38 @@ export default {
 			topPad: 48,
 			shareImagePath: '',
 			miniTags: [],
+			debugBarClass: '',
+			debugBarText: '',
+
+			clickCount: 0,
+			rarity: ''
 
 	
 		}
 	},
 	async onLoad(o) {
+		this.debugMode = (o._debug === '1')
+		this.debugSurveyId = o.surveyId ? decodeURIComponent(o.surveyId) : ''
+		// 动态计算雷达图尺寸：屏幕宽度 - 两侧 padding(48rpx*2)
+		try {
+			const sysInfo = uni.getSystemInfoSync()
+			const windowWidthRpx = (sysInfo.windowWidth / 375) * 750
+			this.radarSize = Math.floor(Math.min(760, windowWidthRpx - 96))
+		} catch (e) { /* 降级用 654 */ this.radarSize = 654 }
+		console.log('===== [阶段三] result onLoad =====')
+		console.log('[阶段三] radarSize:', this.radarSize, 'rpx')
+		console.log('[阶段三] surveyId from URL:', this.debugSurveyId || '(无)')
+		console.log('[阶段三] debugMode:', this.debugMode)
+		console.log('[阶段三] 判定:', this.debugSurveyId ? '✅ M4 通过 — surveyId 已传入结果页' : '⚠️ 无 surveyId')
+		if (this.debugMode) {
+			if (this.debugSurveyId) {
+				this.debugBarClass = 'db-ok'
+				this.debugBarText = '✅ M4 通过 | surveyId: ' + this.debugSurveyId.slice(-8)
+			} else {
+				this.debugBarClass = 'db-err'
+				this.debugBarText = '❌ surveyId 缺失 | 分享路径将不含 surveyId'
+			}
+		}
 		try { const menu = uni.getMenuButtonBoundingClientRect(); this.topPad = menu.top } catch (e) {}
 		if (o.tag) this.tag = decodeURIComponent(o.tag)
 		if (o.scores) this.scores = JSON.parse(decodeURIComponent(o.scores))
@@ -114,6 +157,8 @@ export default {
 		if (o.rdesc) this.rdesc = decodeURIComponent(o.rdesc)
 		if (o.colors) this.colors = JSON.parse(decodeURIComponent(o.colors))
 		if (o.surveyId) this.surveyId = decodeURIComponent(o.surveyId)
+		this.clickCount = parseInt(o.clickCount) || 0
+		this.rarity = decodeURIComponent(o.rarity || '')
 		if (o.image) {
 			const raw = decodeURIComponent(o.image)
 			if (raw.startsWith('cloud://')) {
@@ -122,6 +167,15 @@ export default {
 			} else {
 				this.resultImage = raw
 			}
+		}
+		// 阶段三：onLoad 完成后立即预检分享路径
+		if (this.debugMode || this.surveyId) {
+			let path = '/pages-tools/answer-quiz/answer-quiz?tag=' + encodeURIComponent(this.tag)
+			if (this.surveyId) path += '&surveyId=' + encodeURIComponent(this.surveyId)
+			console.log('===== [阶段三] M4 分享路径预检 =====')
+			console.log('[阶段三] 分享路径:', path)
+			console.log('[阶段三] 含 surveyId:', !!this.surveyId)
+			console.log('[阶段三] 判定:', this.surveyId ? '✅ M4 通过 — 分享路径含 surveyId' : '❌ M4 失败')
 		}
 	},
 	onReady() {
@@ -142,10 +196,50 @@ export default {
 	},
 
 	onShareAppMessage() {
+		let path = '/pages-tools/answer-quiz/answer-quiz?tag=' + encodeURIComponent(this.tag)
+		if (this.surveyId) path += '&surveyId=' + encodeURIComponent(this.surveyId)
+		console.log('===== [阶段三] result onShareAppMessage =====')
+		console.log('[阶段三] 分享路径:', path)
+		console.log('[阶段三] 含 surveyId:', !!this.surveyId)
+		console.log('[阶段三] 判定:', this.surveyId ? '✅ M4 通过 — 分享路径含 surveyId' : '❌ M4 失败 — 分享路径无 surveyId')
 		return {
 			title: '标签自动机给我打了张标签：' + (this.rname || '未知标签'),
-			path: '/pages-tools/answer-quiz/answer-quiz?tag=' + encodeURIComponent(this.tag),
+			path,
 			imageUrl: this.shareImagePath || '/static/share-banner.png'
+		}
+	},
+	computed: {
+		rarityLevels() {
+			return [
+				{ rarity: 'handmade0', min: 0,    next: 101 },
+				{ rarity: 'handmade1', min: 101,  next: 501 },
+				{ rarity: 'handmade2', min: 501,  next: 1501 },
+				{ rarity: 'handmade3', min: 1501, next: 5001 },
+				{ rarity: 'darkgold',  min: 5001, next: null }
+			]
+		},
+		currentLevel() {
+			const cnt = this.clickCount || 0
+			const levels = this.rarityLevels
+			for (let i = levels.length - 1; i >= 0; i--) {
+				if (cnt >= levels[i].min) return levels[i]
+			}
+			return levels[0]
+		},
+		nextThreshold() {
+			return this.currentLevel.next || '—'
+		},
+		expPercent() {
+			if (this.currentLevel.next == null) return 100
+			const range = this.currentLevel.next - this.currentLevel.min
+			return Math.min(100, ((this.clickCount || 0) - this.currentLevel.min) / range * 100)
+		},
+		rarityDisplay() {
+			if (this.currentLevel.rarity === 'darkgold') return '已达最高'
+			const levels = this.rarityLevels
+			const idx = levels.indexOf(this.currentLevel)
+			const next = levels[idx + 1]
+			return next ? '→ ' + next.rarity : ''
 		}
 	},
 	methods: {
@@ -743,6 +837,17 @@ export default {
 </script>
 
 <style scoped>
+/* ====== 阶段三调试指示条 ====== */
+.debug-bar {
+	position: fixed; top: 0; left: 0; right: 0; z-index: 300;
+	padding: 8rpx 32rpx; text-align: center;
+	font-size: 22rpx; font-weight: 700; color: #fff;
+	pointer-events: none;
+}
+.db-ok { background: #16A34A; }
+.db-warn { background: #EA580C; }
+.db-err { background: #DC2626; }
+
 /* ====== 结果页入场动画 ====== */
 @keyframes resDrop {
 	0%   { opacity: 0; transform: translateY(-60px); }
@@ -787,7 +892,7 @@ export default {
 	outline: 3rpx solid #FFD6A8; outline-offset: -3rpx;
 }
 .badge-txt { font-size: 28rpx; color: #CA3500; font-weight: 700; white-space: nowrap; }
-.radar-area { align-self: center; display: flex; justify-content: center; }
+.radar-area { align-self: center; display: flex; justify-content: center; max-width: 100%; overflow: hidden; }
 
 .desc-card {
 	width: 100%; background: #fff; border-radius: 48rpx; padding: 50rpx;
@@ -892,5 +997,13 @@ export default {
 	width: 500px;
 	height: 400px;
 }
+
+.exp-bar-section { margin-top: 30rpx; padding: 20rpx 24rpx; background: #F8FAFC; border-radius: 16rpx; }
+.exp-bar-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10rpx; }
+.exp-bar-label { font-size: 24rpx; color: #475569; font-weight: 500; }
+.exp-bar-badge { font-size: 22rpx; color: #F97316; font-weight: 600; }
+.exp-bar-track { height: 8rpx; background: #E2E8F0; border-radius: 4rpx; overflow: hidden; }
+.exp-bar-fill { height: 100%; background: linear-gradient(90deg, #F97316, #FBBF24); border-radius: 4rpx; transition: width 0.5s ease; }
+.exp-bar-hint { font-size: 20rpx; color: #94A3B8; margin-top: 8rpx; text-align: center; }
 
 </style>

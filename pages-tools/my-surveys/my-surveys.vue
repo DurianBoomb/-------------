@@ -30,6 +30,7 @@
 							<view class="card-info">
 								<text class="card-name">{{ item.title }}</text>
 								<text class="card-time">{{ fmtTime(item.createdAt) }}</text>
+								<text v-if="item.clickCount != null" class="card-clicks">🔥 已被 {{ item.clickCount }} 人点击</text>
 							</view>
 						</view>
 						<view class="card-actions">
@@ -120,7 +121,10 @@ export default {
 					'&tagDesc=' + encodeURIComponent(item.tagDesc || '') +
 					'&dims=' + encodeURIComponent(JSON.stringify(dims)) +
 					'&qs=' + encodeURIComponent(JSON.stringify(qs)) +
-					'&rts=' + encodeURIComponent(JSON.stringify(rts))
+					'&rts=' + encodeURIComponent(JSON.stringify(rts)) +
+					'&clickCount=' + (item.clickCount || 0) +
+					'&isPublic=' + (item.isPublic ? '1' : '0') +
+					'&rarity=' + encodeURIComponent(item.rarity || '')
 			})
 		},
 		promoteSurvey(item) {
@@ -150,6 +154,7 @@ export default {
 .card-info { flex: 1; min-width: 0; }
 .card-name { font-size: 30rpx; font-weight: 700; color: #1E2939; display: block; }
 .card-time { font-size: 22rpx; color: #99A1AF; display: block; margin-top: 4rpx; }
+.card-clicks { font-size: 22rpx; color: #F97316; font-weight: 600; display: block; margin-top: 4rpx; }
 .card-actions {
 	display: flex;
 	flex-direction: row;

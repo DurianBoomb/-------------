@@ -12,6 +12,32 @@
 
 		<scroll-view class="body" scroll-y>
 			<view class="body-inner">
+				<!-- 私有状态 -->
+				<view v-if="!isPublic" class="share-banner">
+					<view class="share-banner-top">
+						<text class="share-banner-icon">🔒</text>
+						<text class="share-banner-title">私有问卷</text>
+					</view>
+					<text class="share-banner-desc">被 101 个人点击后即可公开到标签池，让更多人看到你的标签</text>
+					<view class="share-progress-wrap">
+						<view class="share-progress-bar">
+							<view class="share-progress-fill" :style="{ width: Math.min(100, clickCount / 101 * 100) + '%' }"></view>
+						</view>
+						<text class="share-progress-num">{{ clickCount }}/101</text>
+					</view>
+					<button class="share-banner-btn" open-type="share" hover-class="press-95">分享给朋友</button>
+				</view>
+
+				<!-- 已公开状态 -->
+				<view v-else class="share-banner" style="background: linear-gradient(135deg, #F0FDF4, #DCFCE7); border-color: #86EFAC;">
+					<view class="share-banner-top">
+						<text class="share-banner-icon">✅</text>
+						<text class="share-banner-title" style="color: #16A34A;">已公开</text>
+					</view>
+					<text class="share-banner-desc" style="color: #166534;">你的标签已出现在公共标签池中</text>
+					<text class="share-banner-done">🎉 已有 {{ clickCount }} 人点击过</text>
+				</view>
+
 				<!-- 标签信息 -->
 				<view class="section">
 					<view class="section-header">
@@ -108,7 +134,9 @@ export default {
 			title: '',
 			dims: [],
 			qs: [],
-			resultTypes: []
+			resultTypes: [],
+			clickCount: 0,
+			isPublic: false
 		}
 	},
 	onShareAppMessage() {
@@ -125,6 +153,8 @@ export default {
 		if (o.dims) this.dims = JSON.parse(decodeURIComponent(o.dims))
 		if (o.qs) this.qs = JSON.parse(decodeURIComponent(o.qs))
 		if (o.rts) this.resultTypes = JSON.parse(decodeURIComponent(o.rts))
+		this.clickCount = parseInt(o.clickCount) || 0
+		if (o.isPublic != null) this.isPublic = o.isPublic === 'true' || o.isPublic === '1'
 	},
 	methods: {
 		async regenerate() {
@@ -145,6 +175,8 @@ export default {
 
 				if (res.errCode === 0) {
 					const q = res.data.questionnaire
+					this.clickCount = res.data.clickCount || 0
+					this.isPublic = res.data.isPublic || false
 					uni.redirectTo({
 						url: '/pages-tools/survey-preview/survey-preview?' +
 							'tag=' + encodeURIComponent(tagName) +
@@ -153,7 +185,9 @@ export default {
 							'&tagDesc=' + encodeURIComponent(q.tagDesc || '') +
 							'&dims=' + encodeURIComponent(JSON.stringify(q.dims || [])) +
 							'&qs=' + encodeURIComponent(JSON.stringify(q.qs || [])) +
-							'&rts=' + encodeURIComponent(JSON.stringify(q.resultTypes || []))
+							'&rts=' + encodeURIComponent(JSON.stringify(q.resultTypes || [])) +
+							'&clickCount=' + (res.data.clickCount || 0) +
+							'&isPublic=' + (res.data.isPublic ? '1' : '0')
 					})
 			} else if (res.errCode === 'AUTH_ERROR') {
 				uni.showModal({

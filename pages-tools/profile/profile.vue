@@ -8,7 +8,7 @@
 				</view>
 				<text class="hd-title">标签收藏册</text>
 			</view>
-			<view class="hd-nickname" @click="showNicknameEditor = true">
+			<view class="hd-nickname" @click="openNicknameEditor">
 				<text class="hd-nickname-label">昵称：</text>
 				<text class="hd-nickname-val">{{ nickname }}</text>
 				<text class="hd-nickname-edit">✏️</text>
@@ -20,7 +20,7 @@
 		<view v-if="showNicknameEditor" class="modal-overlay" @click="cancelNicknameEdit">
 			<view class="modal-box" @click.stop>
 				<text class="modal-title">修改昵称</text>
-				<input class="modal-input" v-model="editNickname" maxlength="7" placeholder="最多 7 个汉字" @confirm="saveNickname" />
+				<input class="modal-input" :value="editNickname" @input="onNicknameInput" @focus="onInputFocus" maxlength="7" placeholder="最多 7 个汉字" />
 				<view class="modal-btns">
 					<view class="modal-btn modal-btn-cancel" hover-class="press-95" @click="cancelNicknameEdit">取消</view>
 					<view class="modal-btn modal-btn-confirm" hover-class="press-95" @click="saveNickname">保存</view>
@@ -111,11 +111,23 @@ export default {
 			}
 			this.loading = false
 		},
+		openNicknameEditor() {
+			this.editNickname = ''
+			this.showNicknameEditor = true
+		},
 		cancelNicknameEdit() {
 			this.showNicknameEditor = false
 			this.editNickname = ''
 		},
-		async saveNickname() {
+		onNicknameInput(e) {
+			const val = (e.detail && e.detail.value) || (e.mp && e.mp.detail && e.mp.detail.value) || e.target?.value || ''
+			// IME 组合输入期间（keyCode 229）如果值为空 → 忽略，保留上一次有效值
+			const keyCode = (e.detail && e.detail.keyCode) || (e.mp && e.mp.detail && e.mp.detail.keyCode) || 0
+			if (keyCode === 229 && val === '') return
+			this.editNickname = val
+		},
+		onInputFocus() {},
+		async saveNickname(e) {
 			const name = (this.editNickname || '').trim()
 			if (!name) {
 				uni.showToast({ title: '昵称不能为空', icon: 'none' })
@@ -144,11 +156,18 @@ export default {
 					userInfo.nickname = name
 					uni.setStorageSync('uni-id-pages-userInfo', userInfo)
 					uni.showToast({ title: '昵称已更新', icon: 'success' })
-				} else if (res.errCode === 'RISK_CONTENT') {
-					uni.showToast({ title: '昵称包含违规内容', icon: 'none' })
-				} else {
-					uni.showToast({ title: res.errMsg || '修改失败', icon: 'none' })
-				}
+			} else if (res.errCode === 'RISK_CONTENT') {
+				uni.showToast({ title: '昵称包含违规内容', icon: 'none' })
+			} else if (res.errCode === 'NICKNAME_TAKEN') {
+				uni.showModal({
+					title: '昵称已被使用',
+					content: '该昵称已被其他用户使用，请换一个',
+					showCancel: false,
+					confirmText: '好的'
+				})
+			} else {
+				uni.showToast({ title: res.errMsg || '修改失败', icon: 'none' })
+			}
 			} catch (e) {
 				hideLoading()
 				console.error('[profile] updateNickname error:', e)

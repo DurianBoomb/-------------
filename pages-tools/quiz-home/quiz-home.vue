@@ -11,6 +11,9 @@
 					</view>
 				</view>
 				<view class="header-right">
+					<view class="icon-btn" @click="goNicknameTest">
+						<text>🆔</text>
+					</view>
 					<view class="icon-btn" @click="goMockRarity">
 						<text>🔧</text>
 					</view>
@@ -26,6 +29,18 @@
 					<view class="icon-btn" @click="goGenerated">
 						<text>🪄</text>
 					</view>
+					<view class="icon-btn icon-btn-debug" @click="goPhase2Test">
+						<text>🛠️</text>
+					</view>
+					<view class="icon-btn icon-btn-debug" @click="goPhase3Test">
+						<text>🔗</text>
+					</view>
+				<view class="icon-btn icon-btn-debug" @click="goPhase1ClickCountTest">
+					<text>📊</text>
+				</view>
+				<view class="icon-btn icon-btn-debug" @click="goPhase4Test">
+					<text>⚙️</text>
+				</view>
 				</view>
 			</view>
 		</view>
@@ -82,10 +97,11 @@
 							class="tag-wrapper"
 							hover-class="tag-press"
 							:hover-start-time="0" :hover-stay-time="150"
-							@click="goQuiz(tag.name)"
+							@click="goQuiz(tag.name, tag.surveyId)"
 						>
 							<view :class="['tag-inner', tag.classStr, animFlip ? 'anim-a' : 'anim-b']" :style="tag.animStyle">
 								<text>{{ tag.name }}</text>
+								<text v-if="tag.source === 'user' && tag.creatorNickname" class="tag-creator">@{{ tag.creatorNickname }}</text>
 								<text v-if="tag.rarity === 'darkgold'" class="sparkle-tail">✨</text>
 							</view>
 						</view>
@@ -305,18 +321,23 @@ export default {
 			this.isRefreshing = true
 			this.spinDeg += 360
 			this.animFlip = !this.animFlip
+			const mockNickname = (uni.getStorageSync('uni-id-pages-userInfo') || {}).nickname || '匿名用户'
+			// 构造 mock 标签列表：手工三档 + 暗金
+			const mockTags = [
+				{ name: '手工标签①', rarity: 'handmade1', emoji: '🧡', source: 'user', creatorNickname: mockNickname },
+				{ name: '手工标签②', rarity: 'handmade2', emoji: '🧡', source: 'user', creatorNickname: mockNickname },
+				{ name: '手工标签③', rarity: 'handmade3', emoji: '🧡', source: 'user', creatorNickname: mockNickname },
+			]
 			// 从 allTags 中找暗金标签
 			const dg = this.allTags.find(t => t.rarity === 'darkgold')
-			const arr = [...this.allTags]
-			if (dg) {
-				// 把暗金标签移到数组前 3 位，确保 calculateTagsForRows 能选到它
-				const dgIdx = arr.indexOf(dg)
-				if (dgIdx > 2) {
-					arr.splice(dgIdx, 1)
-					arr.splice(2, 0, dg)
-				}
+			if (dg) { mockTags.push(dg) }
+			// 补齐到 7 个
+			while (mockTags.length < 7) {
+				const t = this.allTags.find(t => !mockTags.includes(t))
+				if (!t) break
+				mockTags.push(t)
 			}
-			this.activeTags = this.calculateTagsForRows(arr, 7)
+			this.activeTags = this.calculateTagsForRows(mockTags, 7)
 			this.refreshId++
 			this.$nextTick(() => {
 				setTimeout(() => {
@@ -343,7 +364,10 @@ export default {
 				mythic: { fontSize: 26, hPad: 24 },
 				epic: { fontSize: 36, hPad: 38 },
 				legendary: { fontSize: 36, hPad: 38 },
-				darkgold: { fontSize: 46, hPad: 44 }
+				darkgold: { fontSize: 46, hPad: 44 },
+				handmade1: { fontSize: 22, hPad: 18 },
+				handmade2: { fontSize: 26, hPad: 24 },
+				handmade3: { fontSize: 36, hPad: 38 }
 			}
 			let rows = 0, rowWidth = 0
 			const result = []
@@ -374,16 +398,33 @@ export default {
 		goProfile() { uni.navigateTo({ url: '/pages-tools/profile/profile' }) },
 		goCareer() { uni.navigateTo({ url: '/pages-tools/career/career-history' }) },
 		goFav() { uni.navigateTo({ url: '/pages-tools/favorites/favorites' }) },
+		goNicknameTest() { uni.navigateTo({ url: '/pages-tools/phase1-nickname-test/phase1-nickname-test' }) },
 		goMockRarity() { uni.navigateTo({ url: '/pages-tools/mock-rarity/mock-rarity' }) },
+		goPhase2Test() { uni.navigateTo({ url: '/pages-tools/phase2-test/phase2-test' }) },
+		goPhase3Test() { uni.navigateTo({ url: '/pages-tools/phase3-test/phase3-test' }) },
+		goPhase1ClickCountTest() { uni.navigateTo({ url: '/pages-tools/phase1-clickcount-test/phase1-clickcount-test' }) },
+		goPhase4Test() { uni.navigateTo({ url: '/pages-tools/phase4-test/phase4-test' }) },
 		goGenerated() { uni.navigateTo({ url: '/pages-tools/my-surveys/my-surveys' }) },
 		goRandom() {
 			if (this.allTags.length === 0) return
 			const tag = this.allTags[Math.floor(Math.random() * this.allTags.length)].name
 			uni.navigateTo({ url: '/pages-tools/answer-quiz/answer-quiz?tag=' + encodeURIComponent(tag) })
 		},
-		goQuiz(tag) {
-			uni.navigateTo({ url: '/pages-tools/answer-quiz/answer-quiz?tag=' + encodeURIComponent(tag) })
-		},
+	goQuiz(tagName, surveyId) {
+		let url = '/pages-tools/answer-quiz/answer-quiz?tag=' + encodeURIComponent(tagName)
+		if (surveyId) url += '&surveyId=' + encodeURIComponent(surveyId)
+		// 阶段三调试：从测试页跳转来时带上 _debug=1，触发答题页指示条
+		if (uni.getStorageSync('_phase3_m1_debug')) {
+			url += '&_debug=1'
+			uni.removeStorageSync('_phase3_m1_debug')
+		}
+		console.log('===== [阶段三] quiz-home goQuiz =====')
+		console.log('[阶段三] tagName:', tagName)
+		console.log('[阶段三] surveyId:', surveyId || '(无)')
+		console.log('[阶段三] 跳转 URL:', url)
+		console.log('[阶段三] 判定:', surveyId ? '✅ M1 通过 — URL 含 surveyId' : '⚠️ M1 待验 — 该标签无 surveyId（非 user 标签）')
+		uni.navigateTo({ url })
+	},
 		async loadFavorites() {
 			if (!uni.getStorageSync('uni_id_token')) return
 			try {
@@ -512,6 +553,9 @@ export default {
 	border-radius: 50%; display: flex; align-items: center; justify-content: center;
 	font-size: 28rpx;
 }
+.icon-btn-debug {
+	background: #FFF7ED; border: 1rpx solid #FED7AA;
+}
 
 
 /* ====== scroll-view 容器 ====== */
@@ -597,6 +641,7 @@ export default {
 	animation-duration: 0.6s;
 	animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1); animation-fill-mode: both;
 	max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+	position: relative;
 }
 .tag-inner.anim-a { animation-name: dropElasticA; }
 .tag-inner.anim-b { animation-name: dropElasticB; }
@@ -606,6 +651,9 @@ export default {
 .tag-mythic { padding: 14rpx 24rpx; font-size: 26rpx; font-weight: 500; background: white; color: #22C55E; border: 1rpx solid #22C55E; }
 .tag-epic { padding: 22rpx 38rpx; font-size: 36rpx; font-weight: 600; background: white; color: #A855F7; border: 1rpx solid #A855F7; }
 .tag-legendary { padding: 22rpx 38rpx; font-size: 36rpx; font-weight: 600; background: white; color: #EF4444; border: 1rpx solid #EF4444; }
+.tag-handmade1 { padding: 10rpx 18rpx; font-size: 22rpx; font-weight: 400; background: #FFF7ED; color: #F97316; border: 1rpx solid #FED7AA; box-shadow: none; }
+.tag-handmade2 { padding: 14rpx 24rpx; font-size: 26rpx; font-weight: 500; background: #FFF7ED; color: #F97316; border: 1rpx solid #F97316; }
+.tag-handmade3 { padding: 22rpx 38rpx; font-size: 36rpx; font-weight: 600; background: #FFF7ED; color: #F97316; border: 1rpx solid #F97316; }
 .tag-darkgold {
 	padding: 26rpx 44rpx;
 	font-size: 46rpx;
@@ -626,6 +674,10 @@ export default {
 .sparkle-tail {
 	font-size: 32rpx;
 	animation: sparkle 2s ease-in-out infinite;
+}
+.tag-creator {
+	font-size: 18rpx; color: #99A1AF; font-weight: 400;
+	position: absolute; right: 12rpx; bottom: 6rpx;
 }
 
 /* ====== 精选发疯 ====== */

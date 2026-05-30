@@ -15,6 +15,10 @@
 				<text class="retry-btn-text">点我重试</text>
 			</view>
 		</view>
+		<!-- 阶段三调试指示条 -->
+		<view v-if="debugMode" class="debug-bar" :class="debugBarClass">
+			<text>{{ debugBarText }}</text>
+		</view>
 		<template v-else>
 			<view class="frame" :style="frameBgStyle">
 				<!-- 背景光斑（低端机关闭） -->
@@ -220,6 +224,8 @@ const CONFETTI_COLORS = ['#FB923C','#F97316','#FDBA74','#FCD34D','#34D399','#60A
 export default {
 	data() {
 		return {
+			debugMode: false,
+			debugSurveyId: '',
 			idx: 0,
 			locked: false,
 			activeSlot: 'A',
@@ -279,6 +285,19 @@ export default {
 		pct() { return this.qs.length ? (this.idx / this.qs.length) * 100 : 0 },
 		motto() { return MOTTOS[this.idx % MOTTOS.length] },
 		isLast() { return this.idx + 1 >= this.qs.length },
+		debugBarClass() {
+			if (!this.debugMode) return ''
+			if (this.debugSurveyId) return 'db-ok'
+			// 无 surveyId 但是加载成功了 → 兜底查询模式
+			if (!this.loading && !this.loadFailed && this.survey) return 'db-warn'
+			return 'db-err'
+		},
+		debugBarText() {
+			if (!this.debugMode) return ''
+			if (this.debugSurveyId) return '✅ M2 通过 | surveyId: ' + this.debugSurveyId.slice(-8)
+			if (!this.loading && !this.loadFailed && this.survey) return '⚠️ M5 兜底查询 | 无 surveyId，向后兼容正常'
+			return '❌ surveyId 缺失 | 待确认'
+		},
 		frameBgStyle() {
 			const bg = BG_COLORS[this.idx % BG_COLORS.length]
 			return { background: bg, transition: 'background-color 0.7s ease-out' }
@@ -286,25 +305,28 @@ export default {
 	},
 	onLoad(o) {
 		this.tag = decodeURIComponent(o.tag || '确诊为烤肠')
+		this._surveyIdFromUrl = o.surveyId ? decodeURIComponent(o.surveyId) : ''
+		this.debugMode = (o._debug === '1')
+		this.debugSurveyId = this._surveyIdFromUrl
+		console.log('===== [阶段三] answer-quiz onLoad =====')
+		console.log('[阶段三] tag:', this.tag)
+		console.log('[阶段三] surveyId from URL:', this._surveyIdFromUrl || '(无)')
+		console.log('[阶段三] debugMode:', this.debugMode)
+		console.log('[阶段三] 判定:', this._surveyIdFromUrl ? '✅ M1/M2 通过 — surveyId 已传入' : '⚠️ 无 surveyId — 走兜底查询')
 		this.detectLowPerf()
 		this.loadSurvey()
 		try { const menu = uni.getMenuButtonBoundingClientRect(); this.capsuleBottom = menu.bottom } catch (e) {}
-		// fire-and-forget: recordClick
-		if (o.surveyId) {
-			const survey = uniCloud.importObject('survey')
-			survey.recordClick({ surveyId: decodeURIComponent(o.surveyId) }).catch(() => {})
-		}
 	},
 
 	onShareAppMessage() {
-		// fire-and-forget：记录分享计数
-		if (this.survey && this.survey._id) {
-			const survey = uniCloud.importObject('survey')
-			survey.recordShare({ surveyId: this.survey._id }).catch(() => {})
-		}
+		const sharePath = '/pages-tools/answer-quiz/answer-quiz?tag=' + encodeURIComponent(this.tag) + '&surveyId=' + encodeURIComponent(this.survey._id)
+		console.log('===== [阶段三] answer-quiz onShareAppMessage =====')
+		console.log('[阶段三] 分享路径:', sharePath)
+		console.log('[阶段三] 含 surveyId:', !!this.survey._id)
+		console.log('[阶段三] 判定:', this.survey._id ? '✅ M3 通过 — 分享路径含 surveyId' : '❌ M3 失败 — 分享路径无 surveyId')
 		return {
 			title: '标签自动机给我打了张标签：' + (this.title || '这个标签'),
-			path: '/pages-tools/answer-quiz/answer-quiz?tag=' + encodeURIComponent(this.tag) + '&surveyId=' + encodeURIComponent(this.survey._id)
+			path: sharePath
 		}
 	},
 	methods: {
@@ -567,9 +589,30 @@ export default {
 			this.loadFailed = false
 			try {
 				const survey = uniCloud.importObject('survey')
-				const res = await survey.getSurveyByTag({ tagName: this.tag })
+				const params = {
+					tagName: this.tag,
+					surveyId: this._surveyIdFromUrl || undefined
+				}
+				console.log('[阶段三] loadSurvey 请求参数:', JSON.stringify(params))
+				const res = await survey.getSurveyByTag(params)
 				if (res && res.data) {
 				this.survey = res.data
+				// 阶段三：clickCount 乐观 +1 + rarity 缓存
+				this._clickCountFromSurvey = (res.data.clickCount || 0) + 1
+				this._rarityFromSurvey = res.data.rarity || 'handmade0'
+				// fire-and-forget：记录点击计数
+				if (this._surveyIdFromUrl) {
+					const survey = uniCloud.importObject('survey')
+					survey.recordClick({ surveyId: this._surveyIdFromUrl }).catch(() => {})
+				}
+				// 阶段三：页面加载后立即计算分享路径
+				if (this.debugMode || this._surveyIdFromUrl) {
+					const sharePath = '/pages-tools/answer-quiz/answer-quiz?tag=' + encodeURIComponent(this.tag) + '&surveyId=' + encodeURIComponent(this.survey._id)
+					console.log('===== [阶段三] M3 分享路径预检 =====')
+					console.log('[阶段三] 分享路径:', sharePath)
+					console.log('[阶段三] 含 surveyId:', !!this.survey._id)
+					console.log('[阶段三] 判定:', this.survey._id ? '✅ M3 通过 — 分享路径含 surveyId' : '❌ M3 失败')
+				}
 				// 如果是用户生成问卷，查创建者昵称
 				if (this.survey.creatorId) {
 					this.loadCreatorNickname()
@@ -789,6 +832,9 @@ export default {
 		async goResult() {
 			try {
 			if (!this.survey) return
+			console.log('===== [阶段三] answer-quiz goResult =====')
+			console.log('[阶段三] 跳转结果页 surveyId:', this.survey._id)
+			console.log('[阶段三] 判定: ✅ surveyId 已传入结果页 URL')
 			const dims = this.survey.dims
 			const sums = {}, cnts = {}
 			dims.forEach(d => { sums[d] = 0; cnts[d] = 0 })
@@ -852,7 +898,9 @@ export default {
 				'&rname=' + encodeURIComponent(result.name || '') +
 				'&rdesc=' + encodeURIComponent(result.desc || '') +
 				'&colors=' + encodeURIComponent(JSON.stringify(colors)) +
-				'&surveyId=' + encodeURIComponent(this.survey._id)
+				'&surveyId=' + encodeURIComponent(this.survey._id) +
+				'&clickCount=' + (this._clickCountFromSurvey || 0) +
+				'&rarity=' + encodeURIComponent(this._rarityFromSurvey)
 		})
 			} catch (e) {
 				console.error('[answer-quiz] goResult 异常：', e)
@@ -1288,6 +1336,17 @@ export default {
 }
 .press-95 { transform: scale(0.95); }
 .retry-btn-text { color: #fff; }
+
+/* ===== 阶段三调试指示条 ===== */
+.debug-bar {
+	position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+	padding: 8rpx 32rpx; text-align: center;
+	font-size: 22rpx; font-weight: 700; color: #fff;
+	pointer-events: none;
+}
+.db-ok { background: #16A34A; }
+.db-warn { background: #EA580C; }
+.db-err { background: #DC2626; }
 
 /* ============================
    完整 @keyframes

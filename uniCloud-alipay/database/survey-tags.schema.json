@@ -42,9 +42,10 @@
 		},
 		"rarity": {
 			"bsonType": "string",
-			"description": "稀有度：common / rare / mythic / epic / legendary / handmade1-3 / darkgold",
+			"description": "稀有度。handmade0 不可被搜索和标签池刷新（私有），其余等级均为公开可见",
 			"defaultValue": "common",
 			"enum": [
+				{ "value": "handmade0", "text": "手工0（私有）" },
 				{ "value": "common", "text": "普通" },
 				{ "value": "rare", "text": "稀有" },
 				{ "value": "mythic", "text": "神话" },
@@ -70,26 +71,16 @@
 			"description": "创建者用户 ID（用户生成标签时记录，预置标签留空）",
 			"trim": "both"
 		},
-		"shareCount": {
+		"surveyId": {
+			"bsonType": "string",
+			"description": "关联的问卷 _id（用户生成标签时记录，用于标签池跳转精准定位）",
+			"trim": "both"
+		},
+		"clickCount": {
 			"bsonType": "int",
-			"description": "分享计数，达到阈值后可晋升为公共可搜索",
+			"description": "外部用户点击累计次数，驱动等级晋升和精选发疯池排序",
 			"defaultValue": 0,
 			"minimum": 0
-		},
-		"searchable": {
-			"bsonType": "bool",
-			"description": "是否可被公共搜索和标签池刷新展示",
-			"defaultValue": false
-		},
-		"status": {
-			"bsonType": "string",
-			"description": "状态：draft / published / disabled。用户生成默认为 draft，不进入公共搜索",
-			"defaultValue": "published",
-			"enum": [
-				{ "value": "draft", "text": "草稿" },
-				{ "value": "published", "text": "已发布" },
-				{ "value": "disabled", "text": "已下架" }
-			]
 		},
 		"surveyCount": {
 			"bsonType": "int",
@@ -107,14 +98,10 @@
 	},
 	"indexes": [
 		{
-			"name": "category_status",
+			"name": "rarity",
 			"fields": [
 				{
-					"name": "category",
-					"direction": "asc"
-				},
-				{
-					"name": "status",
+					"name": "rarity",
 					"direction": "asc"
 				}
 			]

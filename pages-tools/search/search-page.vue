@@ -425,7 +425,9 @@ export default {
 							'&tagDesc=' + encodeURIComponent(q.tagDesc || '') +
 							'&dims=' + encodeURIComponent(JSON.stringify(q.dims || [])) +
 							'&qs=' + encodeURIComponent(JSON.stringify(q.qs || [])) +
-							'&rts=' + encodeURIComponent(JSON.stringify(q.resultTypes || []))
+							'&rts=' + encodeURIComponent(JSON.stringify(q.resultTypes || [])) +
+							'&clickCount=' + (res.data.clickCount || 0) +
+							'&isPublic=' + (res.data.isPublic ? '1' : '0')
 					})
 				} else if (res.errCode === 'AUTH_ERROR') {
 					uni.showModal({
