@@ -105,9 +105,6 @@
 				<!-- 操作按钮 -->
 				<view class="action-area">
 					<view class="btn-row">
-						<view class="btn-secondary" hover-class="press-95" @click="regenerate">
-							<text>🔄 重新生成</text>
-						</view>
 						<button class="btn-secondary btn-share" open-type="share" hover-class="press-95">
 							<text>↗ 分享</text>
 						</button>
@@ -124,7 +121,6 @@
 </template>
 
 <script>
-import { showLoading, hideLoading } from '@/common/loading.js'
 export default {
 	data() {
 		return {
@@ -164,70 +160,6 @@ export default {
 		if (data.isPublic != null) this.isPublic = data.isPublic === true || data.isPublic === 'true' || data.isPublic === '1'
 	},
 	methods: {
-		async regenerate() {
-			const tagName = this.tagName
-			const tagDesc = this.tagDesc
-			if (!tagName) {
-				uni.redirectTo({ url: '/pages-tools/search/search-page' })
-				return
-			}
-
-			showLoading('AI 正在重新生成...')
-
-			try {
-				const survey = uniCloud.importObject('survey')
-				const res = await survey.generateFromCoze({ tagName, tagDesc })
-
-				hideLoading()
-
-				if (res.errCode === 0) {
-					const q = res.data.questionnaire
-					this.clickCount = res.data.clickCount || 0
-					this.isPublic = res.data.isPublic || false
-					uni.redirectTo({
-						url: '/pages-tools/survey-preview/survey-preview?' +
-							'tag=' + encodeURIComponent(tagName) +
-							'&surveyId=' + encodeURIComponent(res.data.surveyId) +
-							'&title=' + encodeURIComponent(q.title || '') +
-							'&tagDesc=' + encodeURIComponent(q.tagDesc || '') +
-							'&dims=' + encodeURIComponent(JSON.stringify(q.dims || [])) +
-							'&qs=' + encodeURIComponent(JSON.stringify(q.qs || [])) +
-							'&rts=' + encodeURIComponent(JSON.stringify(q.resultTypes || [])) +
-							'&clickCount=' + (res.data.clickCount || 0) +
-							'&isPublic=' + (res.data.isPublic ? '1' : '0')
-					})
-			} else if (res.errCode === 'AUTH_ERROR') {
-				uni.showModal({
-					title: '请先登录',
-					content: '重新生成需要登录账号',
-					success: (r) => {
-						if (r.confirm) {
-							uni.navigateTo({ url: '/pages/ucenter/login/login' })
-						}
-					}
-				})
-			} else if (res.errCode === 'COZE_QUOTA_EXHAUSTED') {
-				uni.showModal({
-					title: 'AI 额度已用完',
-					content: '当前 AI 生成额度已耗尽，您可以：\n1. 等待每日额度重置\n2. 联系开发者获取更多额度',
-					showCancel: false,
-					confirmText: '知道了'
-				})
-			} else if (res.errCode === 'TAG_ALREADY_EXISTS') {
-				uni.showModal({
-					title: '标签已存在',
-					content: '该标签已有其他人生成的模板，请换个标签名试试',
-					showCancel: false
-				})
-			} else {
-				uni.showToast({ title: res.errMsg || '生成失败，请稍后重试', icon: 'none' })
-			}
-			} catch (e) {
-				hideLoading()
-				console.error('[survey-preview] regenerate error:', e)
-				uni.showToast({ title: '网络异常，请稍后重试', icon: 'none' })
-			}
-		},
 		goQuiz() {
 			let url = '/pages-tools/answer-quiz/answer-quiz?tag=' + encodeURIComponent(this.tagName)
 			if (this.surveyId) url += '&surveyId=' + this.surveyId
