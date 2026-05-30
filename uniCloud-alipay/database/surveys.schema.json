@@ -125,7 +125,7 @@
 		},
 		"clickCount": {
 			"bsonType": "int",
-			"description": "外部用户打开答题页的累计次数，达到 101 后标签晋升 handmade1",
+			"description": "外部用户打开答题页的累计次数，达到 101 后标签晋升 Artifact 1",
 			"defaultValue": 0,
 			"minimum": 0
 		},

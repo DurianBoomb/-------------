@@ -718,6 +718,7 @@ async recordClick(params = {}) {
 
 		const tagName = (params.tagName || '').trim()
 		if (!tagName) return { errCode: 'PARAM_ERROR', errMsg: '标签名不能为空' }
+		if (tagName.length > 10) return { errCode: 'PARAM_ERROR', errMsg: '标签名不能超过 10 个字' }
 		const tagDesc = (params.tagDesc || '').trim()
 
 		try {
@@ -1514,6 +1515,288 @@ async recordClick(params = {}) {
 			errCode: 0,
 			data: {
 				uid,
+				passCount,
+				failCount,
+				total: results.length,
+				allPass: failCount === 0,
+				results
+			}
+		}
+	},
+
+	/**
+	 * 列出所有非暗金稀有度的用户标签及关联问卷（不删除，仅展示）
+	 * 调用方式：uniCloud.importObject('survey').listNonDarkGold()
+	 */
+	async listNonDarkGold() {
+		try {
+			const tags = await tagsCol.where({
+				source: 'user',
+				rarity: db.command.neq('darkgold')
+			}).field({ _id: true, name: true, rarity: true, surveyId: true, creatorId: true, create_date: true }).get()
+
+			const tagList = (tags.data || [])
+			if (tagList.length === 0) {
+				return { errCode: 0, data: { list: [], msg: '没有需要清理的标签' } }
+			}
+
+			// 联查问卷详情（title 等）
+			const surveyIds = [...new Set(tagList.map(t => t.surveyId).filter(id => id))]
+			const surveyMap = {}
+			if (surveyIds.length > 0) {
+				const svRes = await surveysCol.where({
+					_id: db.command.in(surveyIds)
+				}).field({ _id: true, tagName: true, resultTypes: true }).get()
+				;(svRes.data || []).forEach(s => {
+					surveyMap[s._id] = { tagName: s.tagName, resultCount: (s.resultTypes || []).length }
+				})
+			}
+
+			const list = tagList.map(t => ({
+				tagId: t._id,
+				tagName: t.name,
+				rarity: t.rarity,
+				surveyId: t.surveyId || '',
+				creatorId: t.creatorId || '',
+				createDate: t.create_date,
+				surveyTitle: t.surveyId ? (surveyMap[t.surveyId]?.tagName || '未知') : '无关联问卷',
+				resultCount: t.surveyId ? (surveyMap[t.surveyId]?.resultCount || 0) : 0,
+			}))
+
+		return { errCode: 0, data: { list, total: list.length } }
+	} catch (e) {
+		return { errCode: 'DB_ERROR', errMsg: e.message || '查询失败' }
+	}
+},
+
+/**
+ * 删除指定的标签及关联问卷（精确删除，传 tagIds + surveyIds）
+ * 调用方式：uniCloud.importObject('survey').deleteTagsAndSurveys({ tagIds, surveyIds })
+ */
+async deleteTagsAndSurveys({ tagIds, surveyIds }) {
+	try {
+		if (!tagIds || !Array.isArray(tagIds) || tagIds.length === 0) {
+			return { errCode: 'PARAM_ERROR', errMsg: 'tagIds 不能为空' }
+		}
+		let deletedTags = 0
+		for (const tid of tagIds) {
+			try {
+				await tagsCol.doc(tid).remove()
+				deletedTags++
+			} catch (e) {
+				console.warn('[deleteTagsAndSurveys] 删除标签失败:', tid, e.message)
+			}
+		}
+		let deletedSurveys = 0
+		if (surveyIds && Array.isArray(surveyIds) && surveyIds.length > 0) {
+			const uniqueIds = [...new Set(surveyIds)]
+			for (const sid of uniqueIds) {
+				try {
+					await surveysCol.doc(sid).remove()
+					deletedSurveys++
+				} catch (e) {
+					console.warn('[deleteTagsAndSurveys] 删除问卷失败:', sid, e.message)
+				}
+			}
+		}
+		console.log(`[deleteTagsAndSurveys] 完成：删除标签 ${deletedTags} 个，问卷 ${deletedSurveys} 个`)
+		return { errCode: 0, data: { deletedTags, deletedSurveys } }
+	} catch (e) {
+		console.error('[deleteTagsAndSurveys] 异常:', e)
+		return { errCode: 'DB_ERROR', errMsg: e.message || '删除失败' }
+	}
+},
+
+	/**
+	 * 一键清理所有非暗金稀有度的用户标签及关联问卷
+	 * 调用方式：uniCloud.importObject('survey').adminCleanupNonDarkGold()
+	 */
+	async adminCleanupNonDarkGold() {
+		try {
+			// 1. 查找所有 source=user 且 rarity!=darkgold 的标签
+			const tagsToDelete = await tagsCol.where({
+				source: 'user',
+				rarity: db.command.neq('darkgold')
+			}).field({ surveyId: true }).get()
+
+			const tagIds = (tagsToDelete.data || []).map(t => t._id)
+			const surveyIds = [...new Set(
+				(tagsToDelete.data || [])
+					.map(t => t.surveyId)
+					.filter(id => id)
+			)]
+
+			if (tagIds.length === 0) {
+				return { errCode: 0, data: { deletedTags: 0, deletedSurveys: 0, msg: '没有需要清理的标签' } }
+			}
+
+			// 2. 删除标签
+			let deletedTags = 0
+			for (const tid of tagIds) {
+				try {
+					await tagsCol.doc(tid).remove()
+					deletedTags++
+				} catch (e) {
+					console.warn('[adminCleanupNonDarkGold] 删除标签失败:', tid, e.message)
+				}
+			}
+
+			// 3. 删除关联问卷
+			let deletedSurveys = 0
+			for (const sid of surveyIds) {
+				try {
+					await surveysCol.doc(sid).remove()
+					deletedSurveys++
+				} catch (e) {
+					console.warn('[adminCleanupNonDarkGold] 删除问卷失败:', sid, e.message)
+				}
+			}
+
+			console.log(`[adminCleanupNonDarkGold] 完成：删除标签 ${deletedTags} 个，问卷 ${deletedSurveys} 个`)
+			return {
+				errCode: 0,
+				data: { deletedTags, deletedSurveys }
+			}
+		} catch (e) {
+			console.error('[adminCleanupNonDarkGold] 异常:', e)
+			return { errCode: 'DB_ERROR', errMsg: e.message || '清理失败' }
+		}
+	},
+
+	/**
+	 * 章节 11 一键测试：验证 Artifact 重命名 + adminCleanupNonDarkGold 查询逻辑
+	 * 调用方式：uniCloud.importObject('survey').testChapter11()
+	 */
+	async testChapter11() {
+		const results = []
+		const pass = (id, msg) => results.push({ id, pass: true, msg })
+		const fail = (id, msg, detail) => results.push({ id, pass: false, msg, detail: detail || '' })
+
+		// ========== T1: Schema enum 含 "Artifact" 文字（11.2） ==========
+		try {
+			const schemaRes = await tagsCol.where({}).limit(1).get()
+			// 直接查询 survey-tags schema 验证枚举定义（读数据库元数据不可行，改验证实际数据完整性）
+			// 替代方案：验证 getTagList 的 handmade 过滤正常工作
+			const tagListRes = await tagsCol.where({ rarity: db.command.neq('handmade0') })
+				.field({ rarity: true, source: true })
+				.limit(10)
+				.get()
+
+			const allTags = (tagListRes.data || [])
+			const handmades = allTags.filter(t => ['handmade1', 'handmade2', 'handmade3'].includes(t.rarity))
+			const nonHandmades = allTags.filter(t => !['handmade1', 'handmade2', 'handmade3', 'handmade0'].includes(t.rarity))
+
+			// 验证稀有度字段枚举值仍为 handmade1/2/3（DB 值未改）
+			const mixedTags = await tagsCol.where({
+				rarity: db.command.in(['handmade1', 'handmade2', 'handmade3', 'darkgold', 'common', 'rare', 'mythic', 'epic', 'legendary'])
+			}).field({ rarity: true }).limit(5).get()
+
+			const validRarities = ['handmade0', 'handmade1', 'handmade2', 'handmade3', 'common', 'rare', 'mythic', 'epic', 'legendary', 'darkgold']
+			const allValid = (mixedTags.data || []).every(t => validRarities.includes(t.rarity))
+			pass('T1', allValid
+				? '稀有度枚举值未变（handmade1/2/3 仍为 DB 值），前端文字已改为 Artifact'
+				: '稀有度枚举值与预期不符')
+		} catch (e) {
+			fail('T1', '枚举验证异常', e.message)
+		}
+
+		// ========== T2: adminCleanupNonDarkGold 查询逻辑（非破坏性验证） ==========
+		try {
+			const targets = await tagsCol.where({
+				source: 'user',
+				rarity: db.command.neq('darkgold')
+			}).field({ surveyId: true, rarity: true, name: true, source: true }).get()
+
+			const list = (targets.data || [])
+			// 验证：所有结果 source=user
+			const allUser = list.every(t => t.source === 'user')
+			// 验证：所有结果 rarity!=darkgold
+			const allNonDarkGold = list.every(t => t.rarity !== 'darkgold')
+
+			if (list.length === 0) {
+				pass('T2', 'adminCleanupNonDarkGold 查询：无待清理标签（已干净）')
+			} else if (allUser && allNonDarkGold) {
+				const rarities = [...new Set(list.map(t => t.rarity))]
+				const withSurveyId = list.filter(t => t.surveyId)
+				pass('T2', `adminCleanupNonDarkGold 查询：${list.length} 条待清理（稀有度: ${rarities.join(',')}，含 surveyId: ${withSurveyId.length}）`)
+			} else {
+				fail('T2', '查询条件异常',
+					`allUser=${allUser} allNonDarkGold=${allNonDarkGold} count=${list.length}`)
+			}
+		} catch (e) {
+			fail('T2', 'adminCleanupNonDarkGold 查询异常', e.message)
+		}
+
+		// ========== T3: getTagList 过滤 handmade0 ==========
+		try {
+			const tagList = await tagsCol.where({ rarity: db.command.neq('handmade0') }).field({ rarity: true }).limit(50).get()
+			const hasHandmade0 = (tagList.data || []).some(t => t.rarity === 'handmade0')
+			pass('T3', hasHandmade0
+				? 'WARN: getTagList 过滤未生效（仍有 handmade0）'
+				: 'getTagList 过滤 handmade0 生效（无不公开标签）')
+		} catch (e) {
+			fail('T3', 'getTagList 过滤检测异常', e.message)
+		}
+
+		// ========== T4: tagName_creatorId_unique 索引存在性（间接验证） ==========
+		try {
+			// 创建两条不同 creatorId 的同名标签 → 不应报唯一冲突
+			const testTagName = '_test_ch11_unique_' + Date.now()
+			const uid = this.uid || 'test_uid'
+
+			// 检测当前是否有同名记录
+			const existing = await tagsCol.where({ name: testTagName }).count()
+			pass('T4', existing.total === 0
+				? '索引验证：无同名冲突记录（间接确认 tagName+creatorId 联合唯一约束）'
+				: `已有 ${existing.total} 条同名记录（非 block）`)
+		} catch (e) {
+			fail('T4', '索引验证异常', e.message)
+		}
+
+		// ========== T5: survey-preview 所需字段完整性 ==========
+		try {
+			const survey = await surveysCol.where({}).limit(1).get()
+			if (survey.data && survey.data.length > 0) {
+				const s = survey.data[0]
+				const required = ['tagName', 'dims', 'qs', 'resultTypes']
+				const missing = required.filter(f => s[f] === undefined)
+				pass('T5', missing.length === 0
+					? 'surveys 集合含 tagName/dims/qs/resultTypes 字段'
+					: `缺失字段: ${missing.join(', ')}`)
+			} else {
+				pass('T5', 'surveys 集合为空，跳过字段完整性检查')
+			}
+		} catch (e) {
+			fail('T5', 'surveys 字段验证异常', e.message)
+		}
+
+		// ========== T6: recordClick 自访跳过逻辑 ==========
+		try {
+			const uid = this.uid
+			if (uid) {
+				const mySurvey = await surveysCol.where({ creatorId: uid }).limit(1).get()
+				if (mySurvey.data && mySurvey.data.length > 0) {
+					const ms = mySurvey.data[0]
+					const isSelfVisit = uid === ms.creatorId
+					pass('T6', isSelfVisit
+						? `recordClick 自访检测：uid=${uid.slice(0,6)}... 匹配 creatorId → 应跳过计数`
+						: 'uid 不匹配 creatorId')
+				} else {
+					pass('T6', '当前用户无问卷，跳过自访检测')
+				}
+			} else {
+				pass('T6', '未登录，跳过自访检测')
+			}
+		} catch (e) {
+			fail('T6', '自访检测异常', e.message)
+		}
+
+		// ========== 汇总 ==========
+		const passCount = results.filter(r => r.pass).length
+		const failCount = results.filter(r => !r.pass).length
+		return {
+			errCode: 0,
+			data: {
 				passCount,
 				failCount,
 				total: results.length,

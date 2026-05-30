@@ -146,15 +146,22 @@ export default {
 		}
 	},
 	onLoad(o) {
-		if (o.surveyId) this.surveyId = decodeURIComponent(o.surveyId)
-		if (o.tag) this.tagName = decodeURIComponent(o.tag)
-		if (o.tagDesc) this.tagDesc = decodeURIComponent(o.tagDesc)
-		if (o.title) this.title = decodeURIComponent(o.title)
-		if (o.dims) this.dims = JSON.parse(decodeURIComponent(o.dims))
-		if (o.qs) this.qs = JSON.parse(decodeURIComponent(o.qs))
-		if (o.rts) this.resultTypes = JSON.parse(decodeURIComponent(o.rts))
-		this.clickCount = parseInt(o.clickCount) || 0
-		if (o.isPublic != null) this.isPublic = o.isPublic === 'true' || o.isPublic === '1'
+		// 从队列弹窗进入 → 从 Storage 读取完整数据
+		let data = o
+		if (o.from === 'queue') {
+			const cached = uni.getStorageSync('_previewData')
+			if (cached) data = cached
+		}
+
+		if (data.surveyId) this.surveyId = data.surveyId
+		if (data.tag) this.tagName = data.tag
+		if (data.tagDesc) this.tagDesc = data.tagDesc
+		if (data.title) this.title = data.title
+		if (data.dims) this.dims = (typeof data.dims === 'string') ? JSON.parse(data.dims) : data.dims
+		if (data.qs) this.qs = (typeof data.qs === 'string') ? JSON.parse(data.qs) : data.qs
+		if (data.rts) this.resultTypes = (typeof data.rts === 'string') ? JSON.parse(data.rts) : data.rts
+		this.clickCount = parseInt(data.clickCount) || 0
+		if (data.isPublic != null) this.isPublic = data.isPublic === true || data.isPublic === 'true' || data.isPublic === '1'
 	},
 	methods: {
 		async regenerate() {

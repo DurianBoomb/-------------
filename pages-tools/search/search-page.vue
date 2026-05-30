@@ -8,6 +8,9 @@
 				<view class="back-btn" hover-class="press-95" :hover-start-time="0" :hover-stay-time="150" @click="goBack">
 					<image class="back-icon" src="/static/left.svg" mode="aspectFit"></image>
 				</view>
+				<view class="icon-btn icon-btn-debug" @click="_debugInjectTestTasks">
+					<text>📋</text>
+				</view>
 			</view>
 			<!-- 搜索栏行（胶囊下方） -->
 			<view class="search-row">
@@ -146,9 +149,35 @@
 					/>
 				</view>
 				<view class="sheet-footer">
-					<view class="sheet-btn" hover-class="press-95" :hover-start-time="0" :hover-stay-time="150" @click="submitCustomTag">
-						<text class="sheet-btn-text">看广告，教标签机学习</text>
+					<view class="sheet-btn"
+						:class="{ 'sheet-btn-cooldown': generateCooldown }"
+						:hover-class="generateCooldown ? '' : 'press-95'"
+						:hover-start-time="0"
+						:hover-stay-time="150"
+						@click="submitCustomTag">
+						<text class="sheet-btn-text">
+							{{ generateCooldown ? '冷却中 ' + cooldownRemaining + 's' : '看广告，教标签机学习' }}
+						</text>
 					</view>
+				</view>
+			</view>
+		</view>
+		<!-- 底部浮层：正在生成中（章节10） -->
+		<view class="queue-float" v-if="queueFloatVisible" @click="toggleQueueFloat">
+			<view class="queue-float-bar">
+				<text class="queue-float-icon">⏳</text>
+				<text class="queue-float-text">正在生成 {{ queueActiveCount }} 个…</text>
+				<text class="queue-float-arrow">{{ queueFloatExpanded ? '▲' : '▼' }}</text>
+			</view>
+			<view class="queue-float-detail" v-if="queueFloatExpanded">
+				<view
+					class="queue-float-item"
+					v-for="t in queueActiveList"
+					:key="t.id"
+				>
+					<text class="queue-item-status">{{ t.status === 'queued' ? '🕐' : '🔄' }}</text>
+					<text class="queue-item-name">{{ t.tagName }}</text>
+					<text class="queue-item-state">{{ t.status === 'queued' ? '排队中' : '生成中' }}</text>
 				</view>
 			</view>
 		</view>
@@ -174,8 +203,18 @@ export default {
 				// 自定义标签弹窗
 				showCustomSheet: false,
 				customTagName: '',
-				customTagDesc: ''
-			}
+				customTagDesc: '',
+				// 后台生成 + 队列（章节10）
+				generateCooldown: false,
+				cooldownRemaining: 0,
+				queueFloatVisible: false,
+				queueFloatExpanded: false,
+			queueActiveCount: 0,
+			queueActiveList: [],
+			_taskPollTimer: null,
+			_popChainStopped: false,
+			_popChainActive: false,
+		}
 		},
 
 	onLoad() {
@@ -189,6 +228,29 @@ export default {
 			// 降级默认值
 		}
 		this.loadData()
+	},
+	onShow() {
+		this._checkTaskQueue()
+		// 轮询：后台生成完成后自动感知
+		this._taskPollTimer = setInterval(() => {
+			this._checkTaskQueue()
+		}, 2000)
+	},
+	onHide() {
+		if (this._taskPollTimer) {
+			clearInterval(this._taskPollTimer)
+			this._taskPollTimer = null
+		}
+	},
+	beforeDestroy() {
+		if (this._cooldownTimer) {
+			clearInterval(this._cooldownTimer)
+			this._cooldownTimer = null
+		}
+		if (this._taskPollTimer) {
+			clearInterval(this._taskPollTimer)
+			this._taskPollTimer = null
+		}
 	},
 
 	methods: {
@@ -365,9 +427,18 @@ export default {
 			this.showCustomSheet = false
 		},
 		async submitCustomTag() {
+			console.log('[CH10] submitCustomTag 被调用 | customTagName:', JSON.stringify(this.customTagName), '| generateCooldown:', this.generateCooldown)
+			if (this.generateCooldown) {
+				console.log('[CH10] submitCustomTag → 冷却中，忽略点击')
+				return
+			}
 			const name = this.customTagName.trim()
 			if (!name) {
 				uni.showToast({ title: '请输入标签名称', icon: 'none' })
+				return
+			}
+			if (name.length > 10) {
+				uni.showToast({ title: '标签名称不能超过 10 个字', icon: 'none' })
 				return
 			}
 
@@ -396,8 +467,11 @@ export default {
 			// 先关弹窗
 			this.hideCustomPopup()
 
-			// 进入生成流程
-			this.doGenerate(name, desc)
+			// 后台生成（不阻塞页面）
+			this.backgroundGenerate(name, desc)
+
+			// 广告 → Toast 流程
+			this._afterGenerateFlow()
 		},
 
 		async doGenerate(tagName, tagDesc) {
@@ -468,7 +542,413 @@ export default {
 				console.error('[generate] error:', e)
 				uni.showToast({ title: '网络异常，请稍后重试', icon: 'none' })
 			}
-		}
+		},
+		
+		// ====== 章节10：后台生成 + 队列系统 ======
+		
+		// 更新队列中某个任务的状态，同步刷新底部浮层
+		_updateTaskStatus(taskId, status, extra = {}) {
+			const queue = uni.getStorageSync('_taskQueue') || []
+			const idx = queue.findIndex(t => t.id === taskId)
+			if (idx === -1) return
+			queue[idx].status = status
+			if (extra.data !== undefined) queue[idx].data = extra.data
+			if (extra.errCode !== undefined) queue[idx].errCode = extra.errCode
+			if (extra.errMsg !== undefined) queue[idx].errMsg = extra.errMsg
+			uni.setStorageSync('_taskQueue', queue)
+			this._updateQueueFloat()
+		},
+
+		// 从队列中移除某个任务
+		_removeTask(taskId) {
+			let queue = uni.getStorageSync('_taskQueue') || []
+			queue = queue.filter(t => t.id !== taskId)
+			uni.setStorageSync('_taskQueue', queue)
+			this._updateQueueFloat()
+		},
+
+		// 刷新底部浮层数据
+		_updateQueueFloat() {
+			const queue = uni.getStorageSync('_taskQueue') || []
+			const active = queue.filter(
+				t => t.status === 'queued' || t.status === 'generating'
+			)
+			console.log(`[CH10] _updateQueueFloat → 进行中:${active.length} (queued:${active.filter(t => t.status === 'queued').length} generating:${active.filter(t => t.status === 'generating').length}) visible:${active.length > 0}`)
+			this.queueActiveCount = active.length
+			this.queueActiveList = active
+			this.queueFloatVisible = active.length > 0
+		},
+
+		// 展开/收起底部浮层
+		toggleQueueFloat() {
+			this.queueFloatExpanded = !this.queueFloatExpanded
+		},
+
+		// 错误码 → 叙事层文案映射
+		_getErrMsg(errCode) {
+			const map = {
+				'AUTH_ERROR': '需要先登录才能指挥标签机干活',
+				'VALIDATE_ERROR': '标签机吐出来的模板格式不对，换个标签名试试',
+				'COZE_QUOTA_EXHAUSTED': '标签机今天累了，明天再来教它吧',
+				'TAG_ALREADY_EXISTS': '这个标签已经有人印过了，换个名字吧',
+				'TIMEOUT': '标签机印太久卡住了，重新试试',
+				'NETWORK_ERROR': '信号不太好，标签机没收到指令'
+			}
+			return map[errCode] || '标签机出了点小问题，稍后再试'
+		},
+
+		// 队列检测主入口（含过期清理 + 超时兜底 + done/failed 弹窗分发）
+		_checkTaskQueue() {
+			let queue = uni.getStorageSync('_taskQueue') || []
+			console.log('[CH10] _checkTaskQueue 开始，_popChainActive=', this._popChainActive, '_popChainStopped=', this._popChainStopped, '队列长度:', queue.length)
+			if (queue.length === 0) {
+				console.log('[CH10] _checkTaskQueue → 队列为空，强制刷新浮层')
+				this._updateQueueFloat()
+				return
+			}
+
+			const now = Date.now()
+			const ONE_DAY = 24 * 60 * 60 * 1000
+			const ONE_HOUR = 60 * 60 * 1000
+
+			// 0. 清理过期任务
+			const before = queue.length
+			queue = queue.filter(t => {
+				const age = now - t.createdAt
+				if (t.status === 'done' && age > ONE_DAY) return false
+				if (t.status === 'failed' && age > ONE_HOUR) return false
+				return true
+			})
+			if (queue.length < before) {
+				console.log(`[CH10] 过期清理：${before} → ${queue.length}（移除 ${before - queue.length} 条）`)
+				uni.setStorageSync('_taskQueue', queue)
+			}
+
+			// 1. 超时兜底：超过 60s 仍 generating 的标 failed
+			const staleGenerating = queue.filter(
+				t => t.status === 'generating' && (now - t.createdAt) > 60000
+			)
+			if (staleGenerating.length > 0) {
+				console.log(`[CH10] 超时检测：${staleGenerating.length} 个任务标为 failed`)
+			}
+			staleGenerating.forEach(t => {
+				this._updateTaskStatus(t.id, 'failed', {
+					errCode: 'TIMEOUT',
+					errMsg: this._getErrMsg('TIMEOUT')
+				})
+			})
+
+			// 重新读队列
+			queue = uni.getStorageSync('_taskQueue') || []
+
+			// 2. 处理已完成的任务（优先级最高）
+			const doneTasks = queue.filter(t => t.status === 'done')
+			console.log(`[CH10] 状态分布 → done:${doneTasks.length} failed:${queue.filter(t => t.status === 'failed').length} generating:${queue.filter(t => t.status === 'generating').length} queued:${queue.filter(t => t.status === 'queued').length}`)
+
+			if (doneTasks.length > 0) {
+				if (this._popChainActive) {
+					console.log(`[CH10] → done 弹窗被拦截！已有弹窗链正在执行，跳过本次调用（调用来源可能是轮询 timer 竞态）`)
+					this._updateQueueFloat()
+					return
+				}
+				this._popChainActive = true
+				console.log(`[CH10] → 启动弹窗链，_popChainActive=true，${doneTasks.length} 个 done`)
+				this._popNextDone(doneTasks)
+			}
+
+			// 3. 处理失败的任务
+			const failedTasks = queue.filter(t => t.status === 'failed')
+			if (failedTasks.length > 0 && doneTasks.length === 0) {
+				console.log(`[CH10] → 开始弹出 ${failedTasks.length} 个 failed 弹窗`)
+				this._popNextFailed(failedTasks)
+			}
+
+			// 4. 更新底部浮层
+			this._updateQueueFloat()
+		},
+
+		// done 弹窗链：逐个弹出，二次检查防重复弹窗
+		_popNextDone(tasks) {
+			console.log(`[CH10] _popNextDone 剩余 ${tasks.length} 个 done 待弹出，_popChainActive=${this._popChainActive}`)
+			if (tasks.length === 0) {
+				const queue = uni.getStorageSync('_taskQueue') || []
+				const failed = queue.filter(t => t.status === 'failed')
+				console.log(`[CH10] _popNextDone → done 弹完，failed 剩余 ${failed.length} 个，释放 _popChainActive`)
+				this._popChainActive = false
+				if (failed.length > 0) this._popNextFailed(failed)
+				return
+			}
+			const task = tasks[0]
+			console.log(`[CH10] _popNextDone → 弹出: "${task.tagName}" (id=${task.id.slice(-6)})`)
+
+			// 二次检查：任务是否还在队列中且状态仍为 done
+			const currentQueue = uni.getStorageSync('_taskQueue') || []
+			const stillThere = currentQueue.find(t => t.id === task.id && t.status === 'done')
+			if (!stillThere) {
+				console.log(`[CH10] _popNextDone → 二次检查失败（已被消费），跳过`)
+				const remaining = tasks.slice(1)
+				this.$nextTick(() => { this._popNextDone(remaining) })
+				return
+			}
+
+			uni.showModal({
+				title: '生成完成',
+				content: `「${task.tagName}」已生成！`,
+				confirmText: '查看',
+				cancelText: '稍后',
+				success: (res) => {
+					console.log(`[CH10] _popNextDone → 用户操作: ${res.confirm ? '查看' : '稍后'}`)
+					if (res.confirm) {
+						this._popChainStopped = true
+						this._removeTask(task.id)
+						console.log(`[CH10] _popNextDone → 任务已移除，跳转预览，停止弹窗链`)
+						// 展平数据存入 Storage（task.data 有 questionnaire 嵌套，onLoad 需要扁平结构）
+						uni.setStorageSync('_previewData', {
+							tag: task.tagName,
+							surveyId: task.data?.surveyId || '',
+							title: task.data?.questionnaire?.title || '',
+							tagDesc: task.data?.questionnaire?.tagDesc || '',
+							dims: task.data?.questionnaire?.dims || [],
+							qs: task.data?.questionnaire?.qs || [],
+							rts: task.data?.questionnaire?.resultTypes || [],
+							clickCount: task.data?.clickCount || 0,
+							isPublic: task.data?.isPublic || false,
+						})
+						uni.navigateTo({
+							url: '/pages-tools/survey-preview/survey-preview?' +
+								'tag=' + encodeURIComponent(task.tagName) +
+								'&surveyId=' + encodeURIComponent(task.data?.surveyId || '') +
+								'&from=queue'
+						})
+					} else {
+						console.log(`[CH10] _popNextDone → 任务保留在队列`)
+					}
+				},
+				complete: () => {
+					if (this._popChainStopped) {
+						console.log(`[CH10] _popNextDone → 弹窗链已停止（用户跳转预览），释放 _popChainStopped + _popChainActive`)
+						this._popChainStopped = false
+						this._popChainActive = false
+						return
+					}
+					const remaining = tasks.slice(1)
+					this._popNextDone(remaining)
+				}
+			})
+		},
+
+		// failed 弹窗链
+		_popNextFailed(tasks) {
+			console.log(`[CH10] _popNextFailed 剩余 ${tasks.length} 个 failed 待弹出`)
+			if (tasks.length === 0) {
+				console.log(`[CH10] _popNextFailed → 全部弹完`)
+				return
+			}
+			const task = tasks[0]
+			console.log(`[CH10] _popNextFailed → 弹出: "${task.tagName}" errCode=${task.errCode}`)
+
+			uni.showModal({
+				title: '生成失败',
+				content: `「${task.tagName}」${this._getErrMsg(task.errCode)}`,
+				confirmText: '知道了',
+				showCancel: false,
+				success: () => {
+					console.log(`[CH10] _popNextFailed → 用户点「知道了」，移除任务`)
+					this._removeTask(task.id)
+					const remaining = tasks.slice(1)
+					this.$nextTick(() => {
+						this._popNextFailed(remaining)
+					})
+				}
+			})
+		},
+
+		// 30s 冷却计时器
+		_startCooldown() {
+			this.generateCooldown = true
+			this.cooldownRemaining = 30
+			this._cooldownTimer = setInterval(() => {
+				this.cooldownRemaining--
+				if (this.cooldownRemaining <= 0) {
+					clearInterval(this._cooldownTimer)
+					this._cooldownTimer = null
+					this.generateCooldown = false
+				}
+			}, 1000)
+		},
+
+		// 广告播放（预留）
+		_playAdIfNeeded() {
+			return new Promise((resolve) => {
+				if (!this._shouldShowAd()) {
+					resolve()
+					return
+				}
+				// TODO: 替换为实际广告 SDK
+				resolve()
+			})
+		},
+
+		// 广告开关（正式版返回 true）
+		_shouldShowAd() {
+			return false
+		},
+
+		// ========== 后台生成（不阻塞页面） ==========
+		backgroundGenerate(tagName, tagDesc) {
+			// 队列容量上限检查
+			const currentQueue = uni.getStorageSync('_taskQueue') || []
+			if (currentQueue.length >= 10) {
+				uni.showToast({
+					title: '标签机手头的活太多了，先清一批再来',
+					icon: 'none',
+					duration: 2000
+				})
+				return
+			}
+
+			const taskId = String(Date.now()) + '_' + Math.random().toString(36).slice(2, 8)
+			const task = {
+				id: taskId,
+				status: 'queued',
+				tagName,
+				tagDesc: tagDesc || '',
+				data: null,
+				errCode: null,
+				errMsg: null,
+				createdAt: Date.now()
+			}
+
+			// 追加到队列尾部
+			currentQueue.push(task)
+			uni.setStorageSync('_taskQueue', currentQueue)
+			console.log(`[CH10] backgroundGenerate → 任务入队: "${tagName}" (id=${taskId.slice(-6)})`)
+
+			// 异步 IIFE，不 await
+			;(async () => {
+				try {
+					this._updateTaskStatus(taskId, 'generating')
+					console.log(`[CH10] backgroundGenerate → 状态: generating，开始请求 Coze`)
+
+					const survey = uniCloud.importObject('survey')
+					const res = await survey.generateFromCoze({ tagName, tagDesc })
+
+					if (res.errCode === 0) {
+						console.log(`[CH10] backgroundGenerate → Coze 成功 surveyId=${res.data.surveyId}`)
+						this._updateTaskStatus(taskId, 'done', { data: res.data })
+					} else {
+						console.log(`[CH10] backgroundGenerate → Coze 失败 errCode=${res.errCode}`)
+						this._updateTaskStatus(taskId, 'failed', {
+							errCode: res.errCode,
+							errMsg: res.errMsg || '生成失败'
+						})
+					}
+				} catch (e) {
+				console.error('[CH10] backgroundGenerate error:', e)
+				this._updateTaskStatus(taskId, 'failed', {
+					errCode: 'NETWORK_ERROR',
+					errMsg: '网络异常，请稍后重试'
+				})
+			}
+			// Coze 返回后立即触发队列检测 → 弹窗
+			this._checkTaskQueue()
+		})()
+		},
+
+		// 广告 → Toast → 冷却
+		async _afterGenerateFlow() {
+			try {
+				await this._playAdIfNeeded()
+			} catch (e) {
+				console.warn('[CH10] _afterGenerateFlow ad skipped:', e)
+			}
+
+			console.log('[CH10] _afterGenerateFlow → Toast + 启动冷却')
+			uni.showToast({
+				title: '标签机已接单，印好了会通知你',
+				icon: 'none',
+				duration: 2000
+			})
+
+			this._startCooldown()
+		},
+
+		// ====== 调试方法（阶段1-3测试用，阶段5验收后移除） ======
+		_debugInjectTestTasks() {
+			// 清空旧队列
+			uni.setStorageSync('_taskQueue', [])
+
+			// 触发完整 UI 流程（冷却 + Toast）
+			console.log('[CH10] ====== Mock：模拟完整生成流程 ======')
+			this._startCooldown()
+			uni.showToast({
+				title: '标签机已接单，印好了会通知你',
+				icon: 'none',
+				duration: 2000
+			})
+
+			// 模拟后台生成：注入 2 个生成中任务，3s 后一个 done 一个 failed
+			const now = Date.now()
+			const taskDone = {
+				id: String(now) + '_mock1',
+				status: 'queued',
+				tagName: '确诊为芋泥波波奶茶',
+				tagDesc: '芋泥波波奶茶成分鉴定',
+				data: null,
+				errCode: null,
+				errMsg: null,
+				createdAt: now
+			}
+			const taskFailed = {
+				id: String(now + 1) + '_mock2',
+				status: 'queued',
+				tagName: '代码写得像屎山',
+				tagDesc: '',
+				data: null,
+				errCode: null,
+				errMsg: null,
+				createdAt: now
+			}
+
+			const queue = [taskDone, taskFailed]
+			uni.setStorageSync('_taskQueue', queue)
+
+			// 立即标记为 generating
+			this._updateTaskStatus(taskDone.id, 'generating')
+			this._updateTaskStatus(taskFailed.id, 'generating')
+
+			console.log('[CH10] 2 个任务已注入（生成中），3s 后模拟完成...')
+			console.log(`[CH10] 浮层应显示「正在生成 2 个…」`)
+
+			// 3s 后：done 成功返回 mock 问卷数据
+			setTimeout(() => {
+				console.log('[CH10] ====== Mock Coze 返回 ======')
+				this._updateTaskStatus(taskDone.id, 'done', {
+					data: {
+						surveyId: 'mock_survey_done',
+						tagName: '确诊为芋泥波波奶茶',
+						questionnaire: {
+							title: '确诊为芋泥波波奶茶',
+							dims: [{ name: '芋泥浓度', low: '寡淡', high: '浓郁' }],
+							qs: [{ text: '喝奶茶必加芋泥？', options: ['是', '否'] }],
+							resultTypes: [{ name: '纯正芋泥党', desc: '无芋泥不欢' }]
+						}
+					}
+				})
+				console.log('[CH10] → 芋泥波波奶茶 → done')
+
+				this._updateTaskStatus(taskFailed.id, 'failed', {
+					errCode: 'COZE_QUOTA_EXHAUSTED',
+					errMsg: '额度耗尽'
+				})
+				console.log('[CH10] → 代码写得像屎山 → failed (COZE_QUOTA_EXHAUSTED)')
+
+				console.log('[CH10] 弹出弹窗链：done → failed')
+
+				// 触发弹窗
+				this._checkTaskQueue()
+			}, 3000)
+		},
 	}
 }
 </script>
@@ -494,6 +974,17 @@ view { box-sizing: border-box; }
 	transition: transform 0.15s;
 }
 .back-icon { width: 28rpx; height: 28rpx; }
+
+/* debug 按钮（与 quiz-home 统一） */
+.nav-row .icon-btn {
+	width: 64rpx; height: 64rpx; flex-shrink: 0;
+	display: flex; align-items: center; justify-content: center;
+	border-radius: 50%; background: #F3F4F6;
+	font-size: 28rpx; margin-left: 12rpx;
+}
+.nav-row .icon-btn-debug {
+	background: #FFF7ED; border: 1rpx solid #FED7AA;
+}
 
 /* ====== 搜索栏行 ====== */
 .search-row { margin-top: 12rpx; }
@@ -599,8 +1090,13 @@ view { box-sizing: border-box; }
 .tag-inner.anim-b { animation-name: dropElasticB; }
 .tag-common { padding: 10rpx 18rpx; font-size: 22rpx; font-weight: 400; background: #F7F8FA; color: #101828; border: 1rpx solid #D1D5DC; box-shadow: none; }
 .tag-rare { padding: 14rpx 24rpx; font-size: 26rpx; font-weight: 500; background: white; color: #4FC3F7; border: 1rpx solid #4FC3F7; }
+.tag-mythic { padding: 14rpx 24rpx; font-size: 26rpx; font-weight: 500; background: white; color: #22C55E; border: 1rpx solid #22C55E; }
 .tag-epic { padding: 22rpx 38rpx; font-size: 36rpx; font-weight: 600; background: white; color: #A855F7; border: 1rpx solid #A855F7; }
-.tag-darkgold { /* 暗金 — 设计中 */ }
+.tag-legendary { padding: 22rpx 38rpx; font-size: 36rpx; font-weight: 600; background: white; color: #EF4444; border: 1rpx solid #EF4444; }
+.tag-handmade1 { padding: 10rpx 18rpx; font-size: 22rpx; font-weight: 400; background: #FFF7ED; color: #F97316; border: 1rpx solid #FED7AA; box-shadow: none; }
+.tag-handmade2 { padding: 14rpx 24rpx; font-size: 26rpx; font-weight: 500; background: #FFF7ED; color: #F97316; border: 1rpx solid #F97316; }
+.tag-handmade3 { padding: 22rpx 38rpx; font-size: 36rpx; font-weight: 600; background: #FFF7ED; color: #F97316; border: 1rpx solid #F97316; }
+.tag-darkgold { padding: 26rpx 44rpx; font-size: 46rpx; font-weight: 900; background: #1A1A1A; color: #C9A84C; border: 2rpx solid #C9A84C; text-shadow: 0 0 8rpx rgba(201, 168, 76, 0.5), 0 0 16rpx rgba(201, 168, 76, 0.3); }
 /* ====== 交互反馈 ====== */
 .press-98 { transform: scale(0.98); }
 .press-95 { transform: scale(0.95); }
@@ -658,6 +1154,11 @@ view { box-sizing: border-box; }
 	transition: transform 0.15s;
 }
 .sheet-btn-text { font-size: 32rpx; font-weight: 700; color: white; }
+.sheet-btn-cooldown {
+	background: #E5E7EB !important;
+	opacity: 0.6;
+	pointer-events: none;
+}
 
 /* ====== 动画 ====== */
 @keyframes dropElasticA {
@@ -682,6 +1183,59 @@ view { box-sizing: border-box; }
 @keyframes slideUp {
 	0% { transform: translateY(100%); }
 	100% { transform: translateY(0); }
+}
+
+/* ====== 章节10：底部浮层 ====== */
+.queue-float {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background: rgba(30, 30, 30, 0.92);
+	backdrop-filter: blur(10rpx);
+	z-index: 999;
+	padding: 16rpx 32rpx;
+	border-radius: 24rpx 24rpx 0 0;
+}
+.queue-float-bar {
+	display: flex;
+	align-items: center;
+	gap: 12rpx;
+}
+.queue-float-icon {
+	font-size: 28rpx;
+}
+.queue-float-text {
+	flex: 1;
+	font-size: 26rpx;
+	color: #fff;
+}
+.queue-float-arrow {
+	font-size: 22rpx;
+	color: rgba(255, 255, 255, 0.5);
+}
+.queue-float-detail {
+	margin-top: 16rpx;
+	border-top: 1rpx solid rgba(255, 255, 255, 0.1);
+	padding-top: 12rpx;
+}
+.queue-float-item {
+	display: flex;
+	align-items: center;
+	gap: 12rpx;
+	padding: 10rpx 0;
+}
+.queue-item-status {
+	font-size: 24rpx;
+}
+.queue-item-name {
+	flex: 1;
+	font-size: 24rpx;
+	color: rgba(255, 255, 255, 0.85);
+}
+.queue-item-state {
+	font-size: 22rpx;
+	color: rgba(255, 255, 255, 0.45);
 }
 
 </style>

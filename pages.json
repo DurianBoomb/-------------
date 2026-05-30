@@ -255,6 +255,13 @@
 					"navigationStyle": "custom",
 					"navigationBarTitleText": "阶段四验收测试"
 				}
+			},
+			{
+				"path": "chapter11-test/chapter11-test",
+				"style": {
+					"navigationStyle": "custom",
+					"navigationBarTitleText": "章节11一键测试"
+				}
 			}
 		]
 		},

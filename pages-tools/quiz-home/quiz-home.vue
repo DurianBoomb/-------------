@@ -29,9 +29,12 @@
 					<view class="icon-btn icon-btn-debug" @click="goPhase3Test">
 						<text>🧪</text>
 					</view>
-					<view class="icon-btn icon-btn-debug" @click="goPhase4Test">
-						<text>🏆</text>
-					</view>
+				<view class="icon-btn icon-btn-debug" @click="goPhase4Test">
+					<text>🏆</text>
+				</view>
+				<view class="icon-btn icon-btn-debug" @click="goChapter11Test">
+					<text>🧬</text>
+				</view>
 				</view>
 			</view>
 		</view>
@@ -170,6 +173,25 @@
 				</view>
 			</view>
 		</view>
+		<!-- 底部浮层：正在生成中（章节10） -->
+		<view class="queue-float" v-if="queueFloatVisible" @click="toggleQueueFloat">
+			<view class="queue-float-bar">
+				<text class="queue-float-icon">⏳</text>
+				<text class="queue-float-text">正在生成 {{ queueActiveCount }} 个…</text>
+				<text class="queue-float-arrow">{{ queueFloatExpanded ? '▲' : '▼' }}</text>
+			</view>
+			<view class="queue-float-detail" v-if="queueFloatExpanded">
+				<view
+					class="queue-float-item"
+					v-for="t in queueActiveList"
+					:key="t.id"
+				>
+					<text class="queue-item-status">{{ t.status === 'queued' ? '🕐' : '🔄' }}</text>
+					<text class="queue-item-name">{{ t.tagName }}</text>
+					<text class="queue-item-state">{{ t.status === 'queued' ? '排队中' : '生成中' }}</text>
+				</view>
+			</view>
+		</view>
 	</view>
 </template>
 
@@ -198,6 +220,14 @@ export default {
 			recommendList: [],
 			favorites: {},
 			_favListener: null,
+			// 后台生成队列浮层（章节10）
+			queueFloatVisible: false,
+			queueFloatExpanded: false,
+			queueActiveCount: 0,
+			queueActiveList: [],
+			generateCooldown: false,
+			cooldownRemaining: 0,
+			_taskPollTimer: null,
 		}
 	},
 
@@ -218,6 +248,11 @@ export default {
 	},
 
 	onShow() {
+		this._checkTaskQueue()
+		// 轮询：后台生成完成后自动感知
+		this._taskPollTimer = setInterval(() => {
+			this._checkTaskQueue()
+		}, 2000)
 		this.loadTags()
 		this.loadFavorites()
 		// 刷新置顶栏（pinTopbar.refresh() 内部调用 pinSystem.draw()）
@@ -232,7 +267,21 @@ export default {
 			this.$refs.pinTopbar?.refresh()
 		})
 	},
+	onHide() {
+		if (this._taskPollTimer) {
+			clearInterval(this._taskPollTimer)
+			this._taskPollTimer = null
+		}
+	},
 	onUnload() {
+		if (this._cooldownTimer) {
+			clearInterval(this._cooldownTimer)
+			this._cooldownTimer = null
+		}
+		if (this._taskPollTimer) {
+			clearInterval(this._taskPollTimer)
+			this._taskPollTimer = null
+		}
 		if (this._favListener) {
 			uni.$off('uni-id-pages-login-success', this._favListener)
 			this._favListener = null
@@ -257,6 +306,234 @@ export default {
 	},
 
 	methods: {
+		// ====== 章节10：后台生成 + 队列系统 ======
+
+		// 更新队列中某个任务的状态，同步刷新底部浮层
+		_updateTaskStatus(taskId, status, extra = {}) {
+			const queue = uni.getStorageSync('_taskQueue') || []
+			const idx = queue.findIndex(t => t.id === taskId)
+			if (idx === -1) return
+			queue[idx].status = status
+			if (extra.data !== undefined) queue[idx].data = extra.data
+			if (extra.errCode !== undefined) queue[idx].errCode = extra.errCode
+			if (extra.errMsg !== undefined) queue[idx].errMsg = extra.errMsg
+			uni.setStorageSync('_taskQueue', queue)
+			this._updateQueueFloat()
+		},
+
+		// 从队列中移除某个任务
+		_removeTask(taskId) {
+			let queue = uni.getStorageSync('_taskQueue') || []
+			queue = queue.filter(t => t.id !== taskId)
+			uni.setStorageSync('_taskQueue', queue)
+			this._updateQueueFloat()
+		},
+
+		// 刷新底部浮层数据
+		_updateQueueFloat() {
+			const queue = uni.getStorageSync('_taskQueue') || []
+			const active = queue.filter(
+				t => t.status === 'queued' || t.status === 'generating'
+			)
+			console.log(`[CH10] _updateQueueFloat → 进行中:${active.length} (queued:${active.filter(t => t.status === 'queued').length} generating:${active.filter(t => t.status === 'generating').length}) visible:${active.length > 0}`)
+			this.queueActiveCount = active.length
+			this.queueActiveList = active
+			this.queueFloatVisible = active.length > 0
+		},
+
+		// 展开/收起底部浮层
+		toggleQueueFloat() {
+			this.queueFloatExpanded = !this.queueFloatExpanded
+		},
+
+		// 错误码 → 叙事层文案映射
+		_getErrMsg(errCode) {
+			const map = {
+				'AUTH_ERROR': '需要先登录才能指挥标签机干活',
+				'VALIDATE_ERROR': '标签机吐出来的模板格式不对，换个标签名试试',
+				'COZE_QUOTA_EXHAUSTED': '标签机今天累了，明天再来教它吧',
+				'TAG_ALREADY_EXISTS': '这个标签已经有人印过了，换个名字吧',
+				'TIMEOUT': '标签机印太久卡住了，重新试试',
+				'NETWORK_ERROR': '信号不太好，标签机没收到指令'
+			}
+			return map[errCode] || '标签机出了点小问题，稍后再试'
+		},
+
+		// 队列检测主入口（含过期清理 + 超时兜底 + done/failed 弹窗分发）
+		_checkTaskQueue() {
+			let queue = uni.getStorageSync('_taskQueue') || []
+			console.log('[CH10] _checkTaskQueue 开始，队列长度:', queue.length)
+			if (queue.length === 0) {
+				console.log('[CH10] _checkTaskQueue → 队列为空，强制刷新浮层')
+				this._updateQueueFloat()
+				return
+			}
+
+			const now = Date.now()
+			const ONE_DAY = 24 * 60 * 60 * 1000
+			const ONE_HOUR = 60 * 60 * 1000
+
+			// 0. 清理过期任务
+			const before = queue.length
+			queue = queue.filter(t => {
+				const age = now - t.createdAt
+				if (t.status === 'done' && age > ONE_DAY) return false
+				if (t.status === 'failed' && age > ONE_HOUR) return false
+				return true
+			})
+			if (queue.length < before) {
+				console.log(`[CH10] 过期清理：${before} → ${queue.length}（移除 ${before - queue.length} 条）`)
+				uni.setStorageSync('_taskQueue', queue)
+			}
+
+			// 1. 超时兜底：超过 60s 仍 generating 的标 failed
+			const staleGenerating = queue.filter(
+				t => t.status === 'generating' && (now - t.createdAt) > 60000
+			)
+			if (staleGenerating.length > 0) {
+				console.log(`[CH10] 超时检测：${staleGenerating.length} 个任务标为 failed`)
+			}
+			staleGenerating.forEach(t => {
+				this._updateTaskStatus(t.id, 'failed', {
+					errCode: 'TIMEOUT',
+					errMsg: this._getErrMsg('TIMEOUT')
+				})
+			})
+
+			// 重新读队列
+			queue = uni.getStorageSync('_taskQueue') || []
+
+			// 2. 处理已完成的任务（优先级最高）
+			const doneTasks = queue.filter(t => t.status === 'done')
+			console.log(`[CH10] 状态分布 → done:${doneTasks.length} failed:${queue.filter(t => t.status === 'failed').length} generating:${queue.filter(t => t.status === 'generating').length} queued:${queue.filter(t => t.status === 'queued').length}`)
+
+			if (doneTasks.length > 0) {
+				console.log(`[CH10] → 开始弹出 ${doneTasks.length} 个 done 弹窗`)
+				this._popNextDone(doneTasks)
+			}
+
+			// 3. 处理失败的任务
+			const failedTasks = queue.filter(t => t.status === 'failed')
+			if (failedTasks.length > 0 && doneTasks.length === 0) {
+				console.log(`[CH10] → 开始弹出 ${failedTasks.length} 个 failed 弹窗`)
+				this._popNextFailed(failedTasks)
+			}
+
+			// 4. 更新底部浮层
+			this._updateQueueFloat()
+		},
+
+		// done 弹窗链：逐个弹出，二次检查防重复弹窗
+		_popNextDone(tasks) {
+			console.log(`[CH10] _popNextDone 剩余 ${tasks.length} 个 done 待弹出`)
+			if (tasks.length === 0) {
+				const queue = uni.getStorageSync('_taskQueue') || []
+				const failed = queue.filter(t => t.status === 'failed')
+				console.log(`[CH10] _popNextDone → done 弹完，failed 剩余 ${failed.length} 个`)
+				if (failed.length > 0) this._popNextFailed(failed)
+				return
+			}
+			const task = tasks[0]
+			console.log(`[CH10] _popNextDone → 弹出: "${task.tagName}" (id=${task.id.slice(-6)})`)
+
+			// 二次检查：任务是否还在队列中且状态仍为 done
+			const currentQueue = uni.getStorageSync('_taskQueue') || []
+			const stillThere = currentQueue.find(t => t.id === task.id && t.status === 'done')
+			if (!stillThere) {
+				console.log(`[CH10] _popNextDone → 二次检查失败（已被消费），跳过`)
+				const remaining = tasks.slice(1)
+				this.$nextTick(() => { this._popNextDone(remaining) })
+				return
+			}
+
+			uni.showModal({
+				title: '生成完成',
+				content: `「${task.tagName}」已生成！`,
+				confirmText: '查看',
+				cancelText: '稍后',
+				success: (res) => {
+					console.log(`[CH10] _popNextDone → 用户操作: ${res.confirm ? '查看' : '稍后'}`)
+					if (res.confirm) {
+						this._removeTask(task.id)
+						console.log(`[CH10] _popNextDone → 任务已移除，跳转预览`)
+						const q = task.data?.questionnaire
+						if (q) {
+							uni.setStorageSync('_previewData', task.data)
+							uni.navigateTo({
+								url: '/pages-tools/survey-preview/survey-preview?' +
+									'tag=' + encodeURIComponent(task.tagName) +
+									'&surveyId=' + encodeURIComponent(task.data.surveyId || '') +
+									'&from=queue'
+							})
+						}
+					} else {
+						console.log(`[CH10] _popNextDone → 任务保留在队列`)
+					}
+				},
+				complete: () => {
+					const remaining = tasks.slice(1)
+					this._popNextDone(remaining)
+				}
+			})
+		},
+
+		// failed 弹窗链
+		_popNextFailed(tasks) {
+			console.log(`[CH10] _popNextFailed 剩余 ${tasks.length} 个 failed 待弹出`)
+			if (tasks.length === 0) {
+				console.log(`[CH10] _popNextFailed → 全部弹完`)
+				return
+			}
+			const task = tasks[0]
+			console.log(`[CH10] _popNextFailed → 弹出: "${task.tagName}" errCode=${task.errCode}`)
+
+			uni.showModal({
+				title: '生成失败',
+				content: `「${task.tagName}」${this._getErrMsg(task.errCode)}`,
+				confirmText: '知道了',
+				showCancel: false,
+				success: () => {
+					console.log(`[CH10] _popNextFailed → 用户点「知道了」，移除任务`)
+					this._removeTask(task.id)
+					const remaining = tasks.slice(1)
+					this.$nextTick(() => {
+						this._popNextFailed(remaining)
+					})
+				}
+			})
+		},
+
+		// 30s 冷却计时器
+		_startCooldown() {
+			this.generateCooldown = true
+			this.cooldownRemaining = 30
+			this._cooldownTimer = setInterval(() => {
+				this.cooldownRemaining--
+				if (this.cooldownRemaining <= 0) {
+					clearInterval(this._cooldownTimer)
+					this._cooldownTimer = null
+					this.generateCooldown = false
+				}
+			}, 1000)
+		},
+
+		// 广告播放（预留）
+		_playAdIfNeeded() {
+			return new Promise((resolve) => {
+				if (!this._shouldShowAd()) {
+					resolve()
+					return
+				}
+				// TODO: 替换为实际广告 SDK
+				resolve()
+			})
+		},
+
+		// 广告开关（正式版返回 true）
+		_shouldShowAd() {
+			return false
+		},
+
 		async loadTags() {
 			try {
 				const survey = uniCloud.importObject('survey')
@@ -394,6 +671,7 @@ export default {
 		goMockRarity() { uni.navigateTo({ url: '/pages-tools/mock-rarity/mock-rarity' }) },
 		goPhase3Test() { uni.navigateTo({ url: '/pages-tools/phase3-test/phase3-test' }) },
 		goPhase4Test() { uni.navigateTo({ url: '/pages-tools/phase4-test/phase4-test' }) },
+		goChapter11Test() { uni.navigateTo({ url: '/pages-tools/chapter11-test/chapter11-test' }) },
 		goGenerated() { uni.navigateTo({ url: '/pages-tools/my-surveys/my-surveys' }) },
 		goRandom() {
 			if (this.allTags.length === 0) return
@@ -775,6 +1053,59 @@ export default {
 @keyframes sparkle {
 	0%, 100% { opacity: 0.4; transform: scale(0.8); }
 	50% { opacity: 1; transform: scale(1.1); }
+}
+
+/* ====== 章节10：底部浮层 ====== */
+.queue-float {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background: rgba(30, 30, 30, 0.92);
+	backdrop-filter: blur(10rpx);
+	z-index: 999;
+	padding: 16rpx 32rpx;
+	border-radius: 24rpx 24rpx 0 0;
+}
+.queue-float-bar {
+	display: flex;
+	align-items: center;
+	gap: 12rpx;
+}
+.queue-float-icon {
+	font-size: 28rpx;
+}
+.queue-float-text {
+	flex: 1;
+	font-size: 26rpx;
+	color: #fff;
+}
+.queue-float-arrow {
+	font-size: 22rpx;
+	color: rgba(255, 255, 255, 0.5);
+}
+.queue-float-detail {
+	margin-top: 16rpx;
+	border-top: 1rpx solid rgba(255, 255, 255, 0.1);
+	padding-top: 12rpx;
+}
+.queue-float-item {
+	display: flex;
+	align-items: center;
+	gap: 12rpx;
+	padding: 10rpx 0;
+}
+.queue-item-status {
+	font-size: 24rpx;
+}
+.queue-item-name {
+	flex: 1;
+	font-size: 24rpx;
+	color: rgba(255, 255, 255, 0.85);
+}
+.queue-item-state {
+	font-size: 22rpx;
+	color: rgba(255, 255, 255, 0.45);
 }
 
 </style>
