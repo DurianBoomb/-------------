@@ -91,9 +91,11 @@
 							@click="goQuiz(tag.name, tag.surveyId)"
 						>
 							<view :class="['tag-inner', tag.classStr, animFlip ? 'anim-a' : 'anim-b']" :style="tag.animStyle">
-								<text>{{ tag.name }}</text>
+								<view class="tag-name-row">
+									<text>{{ tag.name }}</text>
+									<text v-if="tag.rarity === 'darkgold'" class="sparkle-tail">✨</text>
+								</view>
 								<text v-if="tag.source === 'user' && tag.creatorNickname" class="tag-creator">@{{ tag.creatorNickname }}</text>
-								<text v-if="tag.rarity === 'darkgold'" class="sparkle-tail">✨</text>
 							</view>
 						</view>
 					</view>
@@ -624,15 +626,19 @@ export default {
 
 /* 标签内层掉落动画 */
 .tag-inner {
+	display: inline-flex; flex-direction: column; align-items: center;
 	border-radius: 40rpx;
 	box-shadow: 0 1rpx 2rpx -1rpx rgba(0,0,0,0.1);
 	animation-duration: 0.6s;
 	animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1); animation-fill-mode: both;
-	max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+	max-width: 100%;
+	overflow: hidden; text-overflow: ellipsis;
 	position: relative;
 }
 .tag-inner.anim-a { animation-name: dropElasticA; }
 .tag-inner.anim-b { animation-name: dropElasticB; }
+
+.tag-name-row { display: flex; flex-direction: row; align-items: center; gap: 6rpx; }
 
 .tag-common { padding: 10rpx 18rpx; font-size: 22rpx; font-weight: 400; background: #F7F8FA; color: #101828; border: 1rpx solid #D1D5DC; box-shadow: none; }
 .tag-rare { padding: 14rpx 24rpx; font-size: 26rpx; font-weight: 500; background: white; color: #4FC3F7; border: 1rpx solid #4FC3F7; }
@@ -665,7 +671,7 @@ export default {
 }
 .tag-creator {
 	font-size: 18rpx; color: #99A1AF; font-weight: 400;
-	position: absolute; right: 12rpx; bottom: 6rpx;
+	margin-top: 2rpx;
 }
 
 /* ====== 精选发疯 ====== */

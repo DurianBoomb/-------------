@@ -82,8 +82,10 @@
 					<view class="tag-accept-row">
 						<view class="tag-wrapper-accept" hover-class="tag-press-accept" @click="goDarkgoldQuiz">
 							<view class="tag-inner tag-darkgold">
-								<text>群友成分鉴定</text>
-								<text class="sparkle-tail">✨</text>
+								<view class="tag-name-row">
+									<text>群友成分鉴定</text>
+									<text class="sparkle-tail">✨</text>
+								</view>
 							</view>
 						</view>
 					</view>
@@ -236,6 +238,7 @@ export default {
 	box-shadow: 0 1rpx 2rpx -1rpx rgba(0,0,0,0.1);
 	max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
+.tag-name-row { display: flex; flex-direction: row; align-items: center; gap: 6rpx; }
 .tag-darkgold {
 	padding: 26rpx 44rpx;
 	font-size: 46rpx;

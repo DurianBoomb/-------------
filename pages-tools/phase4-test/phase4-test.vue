@@ -48,19 +48,38 @@
 
 		<!-- ====== handmade 外观预览 ====== -->
 		<view class="btn-group">
-			<text class="section-label">🎨 handmade1/2/3 CSS 外观预览</text>
+			<text class="section-label">🎨 用户标签外观预览（换行显示创建者）</text>
 			<view class="handmade-demo">
 				<view class="demo-row">
 					<text class="demo-label">handmade1</text>
-					<view class="tag-inner tag-handmade1"><text>手工标签① @创建者</text></view>
+					<view class="tag-inner tag-handmade1">
+						<text>手工标签①</text>
+						<text class="tag-creator">@创建者张三</text>
+					</view>
 				</view>
 				<view class="demo-row">
 					<text class="demo-label">handmade2</text>
-					<view class="tag-inner tag-handmade2"><text>手工标签② @创建者</text></view>
+					<view class="tag-inner tag-handmade2">
+						<text>手工标签②</text>
+						<text class="tag-creator">@创建者张三</text>
+					</view>
 				</view>
 				<view class="demo-row">
 					<text class="demo-label">handmade3</text>
-					<view class="tag-inner tag-handmade3"><text>手工标签③ @创建者</text></view>
+					<view class="tag-inner tag-handmade3">
+						<text>手工标签③</text>
+						<text class="tag-creator">@创建者张三</text>
+					</view>
+				</view>
+				<view class="demo-row">
+					<text class="demo-label">darkgold</text>
+					<view class="tag-inner tag-darkgold">
+						<view class="tag-name-row">
+							<text>暗金标签</text>
+							<text class="sparkle-tail">✨</text>
+						</view>
+						<text class="tag-creator">@创建者张三</text>
+					</view>
 				</view>
 			</view>
 		</view>
@@ -608,18 +627,73 @@ export default {
 
 .press-95 { transform: scale(0.95); }
 
-/* 复用 quiz-home 的标签外观（用于 handmade demo） */
+/* 复用 quiz-home 的标签外观 */
 .tag-inner {
-	display: inline-flex;
-	align-items: center;
-	gap: 8rpx;
-	border-radius: 999rpx;
-	padding: 10rpx 18rpx;
-	font-size: 22rpx;
-	font-weight: 400;
-	white-space: nowrap;
+	display: inline-flex; flex-direction: column; align-items: center;
+	border-radius: 40rpx;
+	box-shadow: 0 1rpx 2rpx -1rpx rgba(0,0,0,0.1);
+	animation-duration: 0.6s;
+	animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1); animation-fill-mode: both;
+	max-width: 100%;
+	overflow: hidden; text-overflow: ellipsis;
+	position: relative;
 }
-.tag-handmade1 { padding: 10rpx 18rpx; font-size: 22rpx; font-weight: 400; background: #FFF7ED; color: #F97316; border: 1rpx solid #FED7AA; }
+.tag-inner.anim-a { animation-name: dropElasticA; }
+.tag-inner.anim-b { animation-name: dropElasticB; }
+
+.tag-name-row { display: flex; flex-direction: row; align-items: center; gap: 6rpx; }
+
+.tag-common { padding: 10rpx 18rpx; font-size: 22rpx; font-weight: 400; background: #F7F8FA; color: #101828; border: 1rpx solid #D1D5DC; box-shadow: none; }
+.tag-handmade1 { padding: 10rpx 18rpx; font-size: 22rpx; font-weight: 400; background: #FFF7ED; color: #F97316; border: 1rpx solid #FED7AA; box-shadow: none; }
 .tag-handmade2 { padding: 14rpx 24rpx; font-size: 26rpx; font-weight: 500; background: #FFF7ED; color: #F97316; border: 1rpx solid #F97316; }
 .tag-handmade3 { padding: 22rpx 38rpx; font-size: 36rpx; font-weight: 600; background: #FFF7ED; color: #F97316; border: 1rpx solid #F97316; }
+.tag-darkgold {
+	padding: 26rpx 44rpx;
+	font-size: 46rpx;
+	font-weight: 900;
+	background: #1A1A1A;
+	color: #C9A84C;
+	border: 2rpx solid #C9A84C;
+	text-shadow: 0 0 8rpx rgba(201, 168, 76, 0.5), 0 0 16rpx rgba(201, 168, 76, 0.3);
+}
+.tag-darkgold.anim-a {
+	animation: dropElasticA 0.6s cubic-bezier(0.34,1.56,0.64,1) both,
+	           glowBreath 3s ease-in-out 0.6s infinite;
+}
+.tag-darkgold.anim-b {
+	animation: dropElasticB 0.6s cubic-bezier(0.34,1.56,0.64,1) both,
+	           glowBreath 3s ease-in-out 0.6s infinite;
+}
+.sparkle-tail {
+	font-size: 32rpx;
+	animation: sparkle 2s ease-in-out infinite;
+}
+.tag-creator {
+	font-size: 18rpx; color: #99A1AF; font-weight: 400;
+	margin-top: 2rpx;
+}
+
+/* ====== 动画 ====== */
+@keyframes dropElasticA {
+	0% { opacity: 0; transform: translateY(-80rpx); }
+	100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes dropElasticB {
+	0% { opacity: 0; transform: translateY(-80rpx); }
+	100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes glowBreath {
+	0%, 100% {
+		box-shadow: 0 0 12rpx rgba(201, 168, 76, 0.3), 0 0 24rpx rgba(201, 168, 76, 0.1);
+		border-color: #C9A84C;
+	}
+	50% {
+		box-shadow: 0 0 28rpx rgba(201, 168, 76, 0.6), 0 0 56rpx rgba(201, 168, 76, 0.25);
+		border-color: #E6C85C;
+	}
+}
+@keyframes sparkle {
+	0%, 100% { opacity: 0.4; transform: scale(0.8); }
+	50% { opacity: 1; transform: scale(1.1); }
+}
 </style>
