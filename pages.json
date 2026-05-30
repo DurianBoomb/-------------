@@ -243,40 +243,13 @@
 				}
 			},
 			{
-				"path": "phase1-nickname-test/phase1-nickname-test",
-				"style": {
-					"navigationStyle": "custom",
-					"navigationBarTitleText": "昵称冲突测试"
-				}
-			},
-			{
-				"path": "phase2-test/phase2-test",
-				"style": {
-					"navigationStyle": "custom",
-					"navigationBarTitleText": "阶段二验收测试"
-				}
-			},
-			{
 				"path": "phase3-test/phase3-test",
 				"style": {
 					"navigationStyle": "custom",
 					"navigationBarTitleText": "阶段三验收测试"
 				}
-			},
-			{
-				"path": "phase1-clickcount-test/phase1-clickcount-test",
-				"style": {
-					"navigationStyle": "custom",
-					"navigationBarTitleText": "阶段一点击计数测试"
-				}
-			},
-			{
-				"path": "phase4-test/phase4-test",
-				"style": {
-					"navigationStyle": "custom",
-					"navigationBarTitleText": "阶段二云函数引擎"
-				}
-			}]
+			}
+		]
 		},
 		{
 			"root": "uni_modules/uni-id-pages/pages",

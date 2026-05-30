@@ -11,9 +11,6 @@
 					</view>
 				</view>
 				<view class="header-right">
-					<view class="icon-btn" @click="goNicknameTest">
-						<text>🆔</text>
-					</view>
 					<view class="icon-btn" @click="goMockRarity">
 						<text>🔧</text>
 					</view>
@@ -29,18 +26,9 @@
 					<view class="icon-btn" @click="goGenerated">
 						<text>🪄</text>
 					</view>
-					<view class="icon-btn icon-btn-debug" @click="goPhase2Test">
-						<text>🛠️</text>
-					</view>
 					<view class="icon-btn icon-btn-debug" @click="goPhase3Test">
-						<text>🔗</text>
+						<text>🧪</text>
 					</view>
-				<view class="icon-btn icon-btn-debug" @click="goPhase1ClickCountTest">
-					<text>📊</text>
-				</view>
-				<view class="icon-btn icon-btn-debug" @click="goPhase4Test">
-					<text>⚙️</text>
-				</view>
 				</view>
 			</view>
 		</view>
@@ -398,12 +386,8 @@ export default {
 		goProfile() { uni.navigateTo({ url: '/pages-tools/profile/profile' }) },
 		goCareer() { uni.navigateTo({ url: '/pages-tools/career/career-history' }) },
 		goFav() { uni.navigateTo({ url: '/pages-tools/favorites/favorites' }) },
-		goNicknameTest() { uni.navigateTo({ url: '/pages-tools/phase1-nickname-test/phase1-nickname-test' }) },
 		goMockRarity() { uni.navigateTo({ url: '/pages-tools/mock-rarity/mock-rarity' }) },
-		goPhase2Test() { uni.navigateTo({ url: '/pages-tools/phase2-test/phase2-test' }) },
 		goPhase3Test() { uni.navigateTo({ url: '/pages-tools/phase3-test/phase3-test' }) },
-		goPhase1ClickCountTest() { uni.navigateTo({ url: '/pages-tools/phase1-clickcount-test/phase1-clickcount-test' }) },
-		goPhase4Test() { uni.navigateTo({ url: '/pages-tools/phase4-test/phase4-test' }) },
 		goGenerated() { uni.navigateTo({ url: '/pages-tools/my-surveys/my-surveys' }) },
 		goRandom() {
 			if (this.allTags.length === 0) return
