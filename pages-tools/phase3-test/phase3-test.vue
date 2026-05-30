@@ -18,6 +18,7 @@
 				<text class="log-title">运行日志</text>
 				<view class="log-actions">
 					<text class="log-summary">{{ passCount }}/{{ totalCount }} 通过</text>
+					<text class="log-copy" @click="copyLogs">复制</text>
 					<text class="log-clear" @click="clearLogs">清空</text>
 				</view>
 			</view>
@@ -125,6 +126,17 @@ export default {
 		addFail(msg) { this.addLog('❌ ' + msg, 'err'); this.totalCount++; },
 		addSkip(msg) { this.addLog('⬜ ' + msg, 'warn'); this.totalCount++; },
 		clearLogs() { this.logs = []; this.passCount = 0; this.totalCount = 0; },
+		copyLogs() {
+			if (this.logs.length === 0) {
+				uni.showToast({ title: '日志为空', icon: 'none' })
+				return
+			}
+			const text = this.logs.map(l => '[' + l.time + '] ' + l.msg).join('\n')
+			uni.setClipboardData({
+				data: text,
+				success: () => uni.showToast({ title: '已复制 ' + this.logs.length + ' 条日志', icon: 'success' })
+			})
+		},
 
 		// ==================== 晋升阈值纯函数 ====================
 		getRarityFromClickCount(clickCount) {
@@ -701,6 +713,10 @@ export default {
 	font-weight: 600;
 }
 .log-clear {
+	font-size: 24rpx;
+	color: #667085;
+}
+.log-copy {
 	font-size: 24rpx;
 	color: #667085;
 }

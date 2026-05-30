@@ -248,6 +248,13 @@
 					"navigationStyle": "custom",
 					"navigationBarTitleText": "阶段三验收测试"
 				}
+			},
+			{
+				"path": "phase4-test/phase4-test",
+				"style": {
+					"navigationStyle": "custom",
+					"navigationBarTitleText": "阶段四验收测试"
+				}
 			}
 		]
 		},

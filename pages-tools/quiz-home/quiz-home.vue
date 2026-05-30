@@ -29,6 +29,9 @@
 					<view class="icon-btn icon-btn-debug" @click="goPhase3Test">
 						<text>🧪</text>
 					</view>
+					<view class="icon-btn icon-btn-debug" @click="goPhase4Test">
+						<text>🏆</text>
+					</view>
 				</view>
 			</view>
 		</view>
@@ -269,7 +272,7 @@ export default {
 				if (res.errCode === 0 && res.data) {
 					const list = res.data.list || []
 					this.allTags = list
-					this.recommendList = list.slice(0, 3).map(t => ({
+					this.recommendList = [...list].sort((a, b) => (b.clickCount || 0) - (a.clickCount || 0)).slice(0, 10).map(t => ({
 						emoji: t.emoji,
 						tag: t.name,
 						description: t.description,
@@ -388,6 +391,7 @@ export default {
 		goFav() { uni.navigateTo({ url: '/pages-tools/favorites/favorites' }) },
 		goMockRarity() { uni.navigateTo({ url: '/pages-tools/mock-rarity/mock-rarity' }) },
 		goPhase3Test() { uni.navigateTo({ url: '/pages-tools/phase3-test/phase3-test' }) },
+		goPhase4Test() { uni.navigateTo({ url: '/pages-tools/phase4-test/phase4-test' }) },
 		goGenerated() { uni.navigateTo({ url: '/pages-tools/my-surveys/my-surveys' }) },
 		goRandom() {
 			if (this.allTags.length === 0) return
